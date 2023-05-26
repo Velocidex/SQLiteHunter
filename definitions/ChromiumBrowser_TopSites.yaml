@@ -1,0 +1,26 @@
+Name: Chromium Browser Top Sites
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND (name='meta' OR name='top_sites');
+SQLiteIdentifyValue: 2
+FilenameRegex: "Top Sites"
+Globs:
+  - "{{LinuxChromeProfiles}}/**/Top Sites"
+  - "{{WindowsChromeProfiles}}/**/Top Sites"
+  - "{{MacOSChromeProfiles}}/**/Top Sites"
+
+Sources:
+- VQL: |
+    SELECT * FROM Rows
+
+  SQL: |
+    SELECT
+      top_sites.url_rank AS URLRank,
+      top_sites.url AS URL,
+      top_sites.title AS Title
+    FROM top_sites
+    ORDER BY top_sites.url_rank ASC

@@ -1,0 +1,33 @@
+Name: Chromium Browser Favicons
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND (name='icon_mapping' OR name='favicons' OR name='favicon_bitmaps');
+SQLiteIdentifyValue: 3
+FilenameRegex: "Favicons"
+Globs:
+  - "{{LinuxChromeProfiles}}/**/Favicons"
+  - "{{WindowsChromeProfiles}}/**/Favicons"
+  - "{{MacOSChromeProfiles}}/**/Favicons"
+
+Sources:
+- VQL: |
+    SELECT ID, IconID,
+      timestamp(winfiletime=last_updated * 10) AS LastUpdated, PageURL, FaviconURL
+    FROM Rows
+  SQL: |
+    SELECT
+      favicons.id AS ID,
+      favicon_bitmaps.icon_id AS IconID,
+      favicon_bitmaps.last_updated,
+      icon_mapping.page_url AS PageURL,
+      favicons.url AS FaviconURL
+    FROM favicons
+    INNER JOIN icon_mapping
+    INNER JOIN favicon_bitmaps
+      ON icon_mapping.icon_id = favicon_bitmaps.icon_id
+      AND favicons.id = favicon_bitmaps.icon_id
+    ORDER BY favicons.id ASC

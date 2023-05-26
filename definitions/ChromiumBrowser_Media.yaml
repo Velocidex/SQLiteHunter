@@ -1,0 +1,58 @@
+Name: Chromium Browser Media
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND (name='origin' OR name='playback' OR name='playbackSession');
+SQLiteIdentifyValue: 3
+FilenameRegex: "Media History"
+Globs:
+  - "{{LinuxChromeProfiles}}/**/Media History"
+  - "{{WindowsChromeProfiles}}/**/Media History"
+  - "{{MacOSChromeProfiles}}/**/Media History"
+
+Sources:
+- name: History
+  VQL: |
+    SELECT ID, URL, WatchTimeSeconds,
+       Bool(Value=has_video) AS HasVideo,
+       Bool(Value=has_audio) AS HasAudio,
+       timestamp(winfiletime=last_update_time_s) AS LastUpdated,
+       OriginID
+    FROM Rows
+  SQL: |
+    SELECT
+      playback.id AS ID,
+      playback.url AS URL,
+      playback.watch_time_s AS WatchTimeSeconds,
+      playback.has_video,
+      playback.has_audio,
+      playback.last_updated_time_s,
+      playback.origin_id AS OriginID
+    FROM playback
+    ORDER BY playback.id ASC
+
+- name: Playback Session
+  VQL: |
+    SELECT ID,
+      timestamp(winfiletime=last_update_time_s) AS LastUpdated, URL,
+      duration_ms / 1000 AS DurationInSeconds,
+      position_ms / 1000 AS PositionInSeconds,
+      Title, Artist, Album, SourceTitle, OriginID
+    FROM Rows
+  SQL: |
+    SELECT
+      playbackSession.id AS ID,
+      playbackSession.last_updated_time_s,
+      playbackSession.url AS URL,
+      playbackSession.duration_ms,
+      playbackSession.position_ms,
+      playbackSession.title AS Title,
+      playbackSession.artist AS Artist,
+      playbackSession.album AS Album,
+      playbackSession.source_title AS SourceTitle,
+      playbackSession.origin_id AS OriginID
+    FROM playbackSession
+    ORDER BY playbackSession.id
