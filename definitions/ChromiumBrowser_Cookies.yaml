@@ -1,0 +1,42 @@
+Name: Chromium Browser
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master WHERE type='table' AND (name='cookies' OR name='meta');
+SQLiteIdentifyValue: 2
+FilenameRegex: "Cookies"
+Globs:
+  - "{{LinuxChromeProfiles}}/**/Cookies"
+  - "{{WindowsChromeProfiles}}/**/Cookies"
+  - "{{MacOSChromeProfiles}}/**/Cookies"
+
+Sources:
+- name: Cookies
+  VQL: |
+    SELECT timestamp(winfiletime=creation_utc * 10) AS CreationUTC,
+           timestamp(winfiletime=expires_utc * 10) AS ExpiresUTC,
+           timestamp(winfiletime=last_access_utc * 10) AS LastAccessUTC,
+           HostKey, Name, Path,
+           Bool(Value=is_secure) AS IsSecure,
+           Bool(Value=is_httponly) AS IsHttpOnly,
+           Bool(Value=has_expires) AS HasExpiration,
+           Bool(Value=is_persistent) AS IsPersistent,
+           Priority, SourcePort
+    FROM Rows
+  SQL: |
+    SELECT
+      cookies.creation_utc,
+      cookies.expires_utc,
+      cookies.last_access_utc,
+      cookies.host_key AS HostKey,
+      cookies.name AS Name,
+      cookies.path AS Path,
+      cookies.is_secure,
+      cookies.is_httponly,
+      cookies.has_expires,
+      cookies.is_persistent,
+      cookies.priority AS Priority,
+      cookies.source_port AS SourcePort
+    FROM cookies
+    ORDER BY cookies.creation_utc ASC

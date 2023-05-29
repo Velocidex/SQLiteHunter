@@ -1,0 +1,36 @@
+Name: Chromium Browser Shortcuts
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND (name='meta' OR name='omni_box_shortcuts');
+SQLiteIdentifyValue: 2
+FilenameRegex: "Shortcuts"
+Globs:
+  - "{{LinuxChromeProfiles}}/**/Shortcuts"
+  - "{{WindowsChromeProfiles}}/**/Shortcuts"
+  - "{{MacOSChromeProfiles}}/**/Shortcuts"
+
+Sources:
+- VQL: |
+    SELECT ID,
+      timestamp(winfiletime= last_access_time * 10) AS LastAccessTime,
+      TextTyped, FillIntoEdit, URL, Contents, Description, Type, Keyword, TimesSelectedByUser
+    FROM Rows
+
+  SQL: |
+    SELECT
+      omni_box_shortcuts.last_access_time,
+      omni_box_shortcuts.text AS TextTyped,
+      omni_box_shortcuts.fill_into_edit AS FillIntoEdit,
+      omni_box_shortcuts.url AS URL,
+      omni_box_shortcuts.contents AS Contents,
+      omni_box_shortcuts.description AS Description,
+      omni_box_shortcuts.type AS Type,
+      omni_box_shortcuts.keyword AS Keyword,
+      omni_box_shortcuts.number_of_hits AS TimesSelectedByUser,
+      omni_box_shortcuts.id AS ID
+    FROM omni_box_shortcuts
+    ORDER BY omni_box_shortcuts.last_access_time ASC
