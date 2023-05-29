@@ -1,15 +1,16 @@
 Name: Chromium Browser
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master WHERE type='table' AND (name='cookies' OR name='meta');
 SQLiteIdentifyValue: 2
 FilenameRegex: "Cookies"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Cookies"
-  - "{{WindowsChromeProfiles}}/**/Cookies"
-  - "{{MacOSChromeProfiles}}/**/Cookies"
+  - "{{LinuxChromeProfiles}}/*/Cookies"
+  - "{{WindowsChromeProfiles}}/*/Cookies"
+  - "{{MacOSChromeProfiles}}/*/Cookies"
 
 Sources:
 - name: Cookies
@@ -22,7 +23,7 @@ Sources:
            Bool(Value=is_httponly) AS IsHttpOnly,
            Bool(Value=has_expires) AS HasExpiration,
            Bool(Value=is_persistent) AS IsPersistent,
-           Priority, SourcePort
+           Priority, SourcePort, OSPath
     FROM Rows
   SQL: |
     SELECT

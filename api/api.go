@@ -8,6 +8,7 @@ type Definition struct {
 	Name                string      `yaml:"Name"`
 	Author              string      `yaml:"Author"`
 	Email               string      `yaml:"Email"`
+	Reference           string      `yaml:"Reference"`
 	Category            string      `yaml:"Category"`
 	SQLiteIdentifyQuery string      `yaml:"SQLiteIdentifyQuery"`
 	SQLiteIdentifyValue interface{} `yaml:"SQLiteIdentifyValue"`

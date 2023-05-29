@@ -1,0 +1,48 @@
+Name: iMessage
+Author: x64-julian
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='chat_handle_join' OR name='message_attachment_join'
+          OR name='sync_deleted_messages');
+SQLiteIdentifyValue: 3
+FilenameRegex: "chat.db"
+Globs:
+  - "/Users/*/Library/Messages/chat.db"
+
+Sources:
+- name: Profiles
+  VQL: |
+    SELECT timestamp(epoch=date / 1000000000 + 978307200) AS Timestamp, *
+    FROM Rows
+
+  SQL: |
+    SELECT
+      m.rowid,
+      coalesce(m.cache_roomnames, h.id) AS ThreadId,
+      m.is_from_me AS IsFromMe,
+
+      CASE when m.is_from_me = 1 THEN m.account
+      ELSE h.id
+      END AS FromPhoneNumber,
+
+      CASE when m.is_from_me = 0 THEN m.account
+      ELSE coalesce(h2.id, h.id)
+      END AS ToPhoneNumber,
+
+      m.service AS Service,
+      m.date,
+      m.text AS MessageText,
+      c.display_name AS RoomName
+    FROM message as m
+      left join handle as h on m.handle_id = h.rowid
+      left join chat as c on m.cache_roomnames = c.room_name -- note: chat.room_name is not unique, this may cause one-to-many join
+      left join chat_handle_join as ch on c.rowid = ch.chat_id
+      left join handle as h2 on ch.handle_id = h2.rowid
+    WHERE
+        -- try to eliminate duplicates due to non-unique
+        -- message.cache_roomnames/chat.room_name
+        (h2.service is null or m.service = h2.service)
+
+    ORDER BY m.date DESC;

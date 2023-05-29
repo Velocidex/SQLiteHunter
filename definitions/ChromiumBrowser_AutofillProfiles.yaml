@@ -1,13 +1,19 @@
 Name: Chromium Browser Autofill
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
-SQLiteIdentifyQuery: SELECT count(*) AS `Check` FROM sqlite_master WHERE type='table' AND (name='autofill' OR name='credit_cards' OR name='offer_data' OR name='server_addresses' OR name='keywords');
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='autofill' OR name='credit_cards'
+          OR name='offer_data' OR name='server_addresses' OR name='keywords');
 SQLiteIdentifyValue: 5
 FilenameRegex: "Web Data"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Web Data"
-  - "{{WindowsChromeProfiles}}/**/Web Data"
-  - "{{MacOSChromeProfiles}}/**/Web Data"
+  - "{{LinuxChromeProfiles}}/*/Web Data"
+  - "{{WindowsChromeProfiles}}/*/Web Data"
+  - "{{MacOSChromeProfiles}}/*/Web Data"
 
 Sources:
 - name: Profiles

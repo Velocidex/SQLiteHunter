@@ -1,6 +1,7 @@
 Name: Chromium Browser Media
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
@@ -9,9 +10,9 @@ SQLiteIdentifyQuery: |
 SQLiteIdentifyValue: 3
 FilenameRegex: "Media History"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Media History"
-  - "{{WindowsChromeProfiles}}/**/Media History"
-  - "{{MacOSChromeProfiles}}/**/Media History"
+  - "{{LinuxChromeProfiles}}/*/Media History"
+  - "{{WindowsChromeProfiles}}/*/Media History"
+  - "{{MacOSChromeProfiles}}/*/Media History"
 
 Sources:
 - name: History
@@ -20,7 +21,7 @@ Sources:
        Bool(Value=has_video) AS HasVideo,
        Bool(Value=has_audio) AS HasAudio,
        timestamp(winfiletime=last_update_time_s) AS LastUpdated,
-       OriginID
+       OriginID, OSPath
     FROM Rows
   SQL: |
     SELECT
@@ -40,7 +41,7 @@ Sources:
       timestamp(winfiletime=last_update_time_s) AS LastUpdated, URL,
       duration_ms / 1000 AS DurationInSeconds,
       position_ms / 1000 AS PositionInSeconds,
-      Title, Artist, Album, SourceTitle, OriginID
+      Title, Artist, Album, SourceTitle, OriginID, OSPath
     FROM Rows
   SQL: |
     SELECT

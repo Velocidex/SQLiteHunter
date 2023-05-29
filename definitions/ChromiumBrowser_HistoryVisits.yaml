@@ -1,6 +1,7 @@
 Name: Chromium Browser History
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
@@ -9,9 +10,9 @@ SQLiteIdentifyQuery: |
 SQLiteIdentifyValue: 5
 FilenameRegex: "History"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/History"
-  - "{{WindowsChromeProfiles}}/**/History"
-  - "{{MacOSChromeProfiles}}/**/History"
+  - "{{LinuxChromeProfiles}}/*/History"
+  - "{{WindowsChromeProfiles}}/*/History"
+  - "{{MacOSChromeProfiles}}/*/History"
 
 Sources:
 - name: Visits
@@ -22,7 +23,8 @@ Sources:
        URLTitle, URL, VisitCount, TypedCount,
        if(condition=hidden =~ '1', then="Yes", else="No") AS Hidden,
        VisitID, FromVisitID,
-       visit_duration / 1000000 AS VisitDurationInSeconds
+       visit_duration / 1000000 AS VisitDurationInSeconds,
+       OSPath
     FROM Rows
   SQL: |
     SELECT
@@ -40,7 +42,6 @@ Sources:
     FROM urls
     LEFT JOIN visits ON urls.id = visits.url
     ORDER BY visits.visit_time ASC
-    LIMIT 10
 
 - name: Downloads
   VQL: |
@@ -66,7 +67,7 @@ Sources:
       get(item=StateLookup, field=str(str=state), default="Unknown") AS State,
       get(item=DangerType, field=str(str=danger_type), default="Unknown") AS DangerType,
       get(item=InterruptReason, field=str(str=interrupt_reason), default="Unknown") AS InterruptReason,
-      ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL
+      ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL, OSPath
     FROM Rows
   SQL: |
     SELECT
@@ -98,7 +99,7 @@ Sources:
   VQL: |
     SELECT KeywordID, URLID,
        timestamp(winfiletime=last_visit_time * 10) AS LastVisitedTime,
-       KeywordSearchTerm, Title, URL
+       KeywordSearchTerm, Title, URL, OSPath
     FROM Rows
   SQL: |
     SELECT

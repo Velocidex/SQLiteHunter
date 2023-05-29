@@ -1,7 +1,14 @@
 Globs:
   LinuxChromeProfiles:
-    - /home/*/.config/{google-chrome,chrome-remote-desktop/chrome-profile,chromium}/**
+    - /home/*/.config/google-chrome
+    - /home/*/.config/chrome-remote-desktop/chrome-profile
+    - /home/*/.config/chromium}
   WindowsChromeProfiles:
-    - C:\Users\*\AppData\Local\Google\Chrome\User Data\*\**
+    - C:\Users\*\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge/User Data
+    - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera Stable\
   MacOSChromeProfiles:
-    - /Users/*/Library/Application Support/{BraveSoftware/Brave,Google/Chrome,Microsoft Edge}/**
+    - /Users/*/Library/Application Support/BraveSoftware/Brave*/
+    - /Users/*/Library/Application Support/Google/Chrome/
+    - /Users/*/Library/Application Support/Microsoft Edge/

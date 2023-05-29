@@ -1,6 +1,7 @@
 Name: Chromium Browser Shortcuts
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
@@ -9,15 +10,16 @@ SQLiteIdentifyQuery: |
 SQLiteIdentifyValue: 2
 FilenameRegex: "Shortcuts"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Shortcuts"
-  - "{{WindowsChromeProfiles}}/**/Shortcuts"
-  - "{{MacOSChromeProfiles}}/**/Shortcuts"
+  - "{{LinuxChromeProfiles}}/*/Shortcuts"
+  - "{{WindowsChromeProfiles}}/*/Shortcuts"
+  - "{{MacOSChromeProfiles}}/*/Shortcuts"
 
 Sources:
 - VQL: |
     SELECT ID,
       timestamp(winfiletime= last_access_time * 10) AS LastAccessTime,
-      TextTyped, FillIntoEdit, URL, Contents, Description, Type, Keyword, TimesSelectedByUser
+      TextTyped, FillIntoEdit, URL, Contents,
+      Description, Type, Keyword, TimesSelectedByUser, OSPath
     FROM Rows
 
   SQL: |

@@ -21,7 +21,6 @@ description: %v
 export: |
   LET SPEC <= %q
   LET Specs <= parse_json(data=gunzip(string=base64decode(string=SPEC)))
-  LET _ <= log(message="%%v", args=str(str=gunzip(string=base64decode(string=SPEC))))
   LET CheckHeader(OSPath) = read_file(filename=OSPath, length=12) = "SQLite forma"
   LET Bool(Value) = if(condition=Value, then="Yes", else="No")
 
@@ -31,6 +30,9 @@ export: |
     AND Identify(SourceName= SourceName, OSPath= OSPath)
     AND log(message=format(format="%%v matched by filename %%v",
             args=[OSPath, get(item=Specs.sources, field=SourceName).filename]))
+
+  -- If the user wanted to also upload the file, do so now
+  LET MaybeUpload(OSPath) = if(condition=AlsoUpload, then=upload(file=OSPath)) OR TRUE
 
   LET Identify(SourceName, OSPath) = SELECT if(
     condition=CheckHeader(OSPath=OSPath),
@@ -52,7 +54,7 @@ export: |
       else=Identify(SourceName= SourceName, OSPath= OSPath))
 
   }, query={
-     SELECT * FROM sqlite(
+     SELECT *, OSPath FROM sqlite(
         file=OSPath, query=get(item=Specs.sources, field=SourceName).SQL)
   })
 
@@ -60,7 +62,7 @@ export: |
   LET AllGlobs <= filter(list=Specs.globs, condition="x=> x.tag =~ category_regex")
   LET _ <= log(message="Globs for category %%v is %%v", args=[category_regex, CustomGlob || AllGlobs.glob])
   LET AllFiles <= SELECT OSPath FROM glob(globs=CustomGlob || AllGlobs.glob)
-    WHERE NOT IsDir
+    WHERE NOT IsDir AND MaybeUpload(OSPath=OSPath)
 
 parameters:
 - name: MatchFilename
@@ -82,6 +84,10 @@ parameters:
 - name: SQLITE_ALWAYS_MAKE_TEMPFILE
   type: bool
   default: Y
+
+- name: AlsoUpload
+  description: If specified we also upload the identified file.
+  type: bool
 
 sources:
 - name: AllFiles
