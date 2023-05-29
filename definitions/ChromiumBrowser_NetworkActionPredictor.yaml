@@ -1,6 +1,7 @@
 Name: Chromium Browser Network
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
@@ -10,9 +11,9 @@ SQLiteIdentifyQuery: |
 SQLiteIdentifyValue: 3
 FilenameRegex: "Network Action Predictor"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Network Action Predictor"
-  - "{{WindowsChromeProfiles}}/**/Network Action Predictor"
-  - "{{MacOSChromeProfiles}}/**/Network Action Predictor"
+  - "{{LinuxChromeProfiles}}/*/Network Action Predictor"
+  - "{{WindowsChromeProfiles}}/*/Network Action Predictor"
+  - "{{MacOSChromeProfiles}}/*/Network Action Predictor"
 
 Sources:
 - name: Predictor

@@ -1,6 +1,7 @@
 Name: Chromium Browser Top Sites
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
@@ -9,9 +10,9 @@ SQLiteIdentifyQuery: |
 SQLiteIdentifyValue: 2
 FilenameRegex: "Top Sites"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Top Sites"
-  - "{{WindowsChromeProfiles}}/**/Top Sites"
-  - "{{MacOSChromeProfiles}}/**/Top Sites"
+  - "{{LinuxChromeProfiles}}/*/Top Sites"
+  - "{{WindowsChromeProfiles}}/*/Top Sites"
+  - "{{MacOSChromeProfiles}}/*/Top Sites"
 
 Sources:
 - VQL: |

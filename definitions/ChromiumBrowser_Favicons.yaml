@@ -1,6 +1,7 @@
 Name: Chromium Browser Favicons
 Author: Andrew Rathbun
 Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
@@ -9,14 +10,15 @@ SQLiteIdentifyQuery: |
 SQLiteIdentifyValue: 3
 FilenameRegex: "Favicons"
 Globs:
-  - "{{LinuxChromeProfiles}}/**/Favicons"
-  - "{{WindowsChromeProfiles}}/**/Favicons"
-  - "{{MacOSChromeProfiles}}/**/Favicons"
+  - "{{LinuxChromeProfiles}}/*/Favicons"
+  - "{{WindowsChromeProfiles}}/*/Favicons"
+  - "{{MacOSChromeProfiles}}/*/Favicons"
 
 Sources:
 - VQL: |
     SELECT ID, IconID,
-      timestamp(winfiletime=last_updated * 10) AS LastUpdated, PageURL, FaviconURL
+      timestamp(winfiletime=last_updated * 10) AS LastUpdated,
+      PageURL, FaviconURL, OSPath
     FROM Rows
   SQL: |
     SELECT

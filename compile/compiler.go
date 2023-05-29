@@ -55,7 +55,12 @@ func Compile(defs []api.Definition,
 				name = fmt.Sprintf("%v", idx)
 			}
 
-			s.Name = d.Name + "_" + name
+			if name == "0" {
+				s.Name = d.Name
+			} else {
+				s.Name = d.Name + "_" + name
+			}
+
 			if s.SQLiteIdentifyQuery == "" {
 				s.SQLiteIdentifyQuery = d.SQLiteIdentifyQuery
 			}

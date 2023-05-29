@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,12 +12,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	CONFIG = "./config.yaml"
-)
-
-func loadConfig() (*api.ConfigDefinitions, error) {
-	fd, err := os.Open(CONFIG)
+func loadConfig(config_path string) (*api.ConfigDefinitions, error) {
+	fd, err := os.Open(config_path)
 	if err != nil {
 		return nil, err
 	}
@@ -30,16 +27,23 @@ func loadConfig() (*api.ConfigDefinitions, error) {
 	err = yaml.Unmarshal(data, config_obj)
 
 	return config_obj, err
-
 }
 
 func main() {
-	config_obj, err := loadConfig()
+	config_path := flag.String("config", "./config.yaml",
+		"The path to the config file")
+
+	definition_directory := flag.String("definition_directory", "./definitions",
+		"A directory containing all definitiions")
+
+	flag.Parse()
+
+	config_obj, err := loadConfig(*config_path)
 	if err != nil {
 		panic(err)
 	}
 
-	defs, err := definitions.LoadDefinitions("./definitions")
+	defs, err := definitions.LoadDefinitions(*definition_directory)
 	if err != nil {
 		panic(err)
 	}
@@ -49,5 +53,6 @@ func main() {
 		panic(err)
 	}
 
+	// Serialize the artifact to YAML
 	fmt.Println(spec.Yaml())
 }
