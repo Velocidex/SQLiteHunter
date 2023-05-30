@@ -8,6 +8,9 @@ SQLiteIdentifyQuery: |
   WHERE type='table'
     AND (name='urls' OR name='visits' OR name='downloads' OR name='segments' OR name='typed_url_sync_metadata');
 SQLiteIdentifyValue: 5
+Categories:
+  - Chrome
+  - Browser
 FilenameRegex: "History"
 Globs:
   - "{{LinuxChromeProfiles}}/*/History"

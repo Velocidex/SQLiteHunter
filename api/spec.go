@@ -12,7 +12,7 @@ type Spec struct {
 }
 
 type GlobSpec struct {
-	Glob     string `json:"glob"`
-	Tag      string `json:"tag"`
-	Filename string `json:"name"`
+	Glob     string   `json:"glob"`
+	Tags     []string `json:"tags"`
+	Filename string   `json:"name"`
 }

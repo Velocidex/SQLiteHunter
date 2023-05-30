@@ -9,6 +9,10 @@ SQLiteIdentifyQuery: |
      AND (name='autofill' OR name='credit_cards'
           OR name='offer_data' OR name='server_addresses' OR name='keywords');
 SQLiteIdentifyValue: 5
+Categories:
+  - Chrome
+  - Browser
+
 FilenameRegex: "Web Data"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Web Data"

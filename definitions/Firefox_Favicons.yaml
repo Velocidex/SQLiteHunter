@@ -1,0 +1,33 @@
+Name: Firefox Favicons
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='moz_icons' OR name='moz_icons_to_pages' OR name='moz_pages_w_icons');
+SQLiteIdentifyValue: 3
+Categories:
+  - Firefox
+  - Browser
+
+FilenameRegex: "favicons.sqlite"
+Globs:
+  - "{{WindowsFirefoxProfiles}}/*/favicons.sqlite"
+
+Sources:
+- VQL: |
+    SELECT ID, PageURL, FaviconURL,
+       timestamp(epoch= expire_ms) AS Expiration
+    FROM Rows
+  SQL: |
+    SELECT
+      moz_icons.id AS ID,
+      moz_pages_w_icons.page_url AS PageURL,
+      moz_icons.icon_url AS FaviconURL,
+      moz_icons.expire_ms
+    FROM moz_icons
+    INNER JOIN moz_icons_to_pages ON moz_icons.id = moz_icons_to_pages.icon_id
+    INNER JOIN moz_pages_w_icons ON moz_icons_to_pages.page_id = moz_pages_w_icons.id
+    ORDER BY moz_icons.expire_ms ASC

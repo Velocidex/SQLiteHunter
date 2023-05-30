@@ -8,6 +8,10 @@ SQLiteIdentifyQuery: |
   WHERE type='table'
     AND (name='icon_mapping' OR name='favicons' OR name='favicon_bitmaps');
 SQLiteIdentifyValue: 3
+Categories:
+  - Chrome
+  - Browser
+
 FilenameRegex: "Favicons"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Favicons"

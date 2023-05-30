@@ -7,6 +7,8 @@ SQLiteIdentifyQuery: |
      AND (name='chat_handle_join' OR name='message_attachment_join'
           OR name='sync_deleted_messages');
 SQLiteIdentifyValue: 3
+Categories:
+  - MacOS
 FilenameRegex: "chat.db"
 Globs:
   - "/Users/*/Library/Messages/chat.db"

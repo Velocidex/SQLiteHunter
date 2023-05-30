@@ -1,0 +1,37 @@
+Name: Firefox Form History
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='moz_formhistory');
+
+SQLiteIdentifyValue: 1
+Categories:
+  - Firefox
+  - Browser
+
+FilenameRegex: "formhistory.sqlite"
+Globs:
+  - "{{WindowsFirefoxProfiles}}/*/formhistory.sqlite"
+
+Sources:
+- VQL: |
+    SELECT ID, FieldName, Value, TimesUsed,
+       timestamp(epoch= firstUsed) AS FirstUsed,
+       timestamp(epoch= lastUsed) AS LastUsed,
+       GUID
+    FROM Rows
+  SQL: |
+    SELECT
+      id AS ID,
+      fieldname AS FieldName,
+      value AS Value,
+      timesUsed AS TimesUsed,
+      firstUsed,
+      lastUsed,
+      guid AS GUID
+    FROM moz_formhistory
+    ORDER BY id ASC

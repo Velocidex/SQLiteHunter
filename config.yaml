@@ -12,3 +12,5 @@ Globs:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome/
     - /Users/*/Library/Application Support/Microsoft Edge/
+  WindowsFirefoxProfiles:
+    - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles

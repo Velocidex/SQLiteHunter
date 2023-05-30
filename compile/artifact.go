@@ -58,8 +58,10 @@ export: |
         file=OSPath, query=get(item=Specs.sources, field=SourceName).SQL)
   })
 
-  LET category_regex <= join(sep="|", array=Category)
-  LET AllGlobs <= filter(list=Specs.globs, condition="x=> x.tag =~ category_regex")
+  -- Build a regex for all enabled categories.
+  LET all_categories = SELECT _value FROM foreach(row=%v) WHERE get(field=_value)
+  LET category_regex <= join(sep="|", array=all_categories._value)
+  LET AllGlobs <= filter(list=Specs.globs, condition="x=> x.tags =~ category_regex")
   LET _ <= log(message="Globs for category %%v is %%v", args=[category_regex, CustomGlob || AllGlobs.glob])
   LET AllFiles <= SELECT OSPath FROM glob(globs=CustomGlob || AllGlobs.glob)
     WHERE NOT IsDir AND MaybeUpload(OSPath=OSPath)
@@ -75,10 +77,6 @@ parameters:
 - name: CustomGlob
   description: Specify this glob to select other files
 
-- name: Category
-  type: multichoice
-  default: %q
-  choices:
 %v
 
 - name: SQLITE_ALWAYS_MAKE_TEMPFILE
@@ -97,7 +95,8 @@ sources:
 %v
 
 `, self.Name, self.Description,
-		self.encodeSpec(), utils.MustMarshalString(self.Category.Keys()),
+		self.encodeSpec(),
+		utils.MustMarshalString(self.Category.Keys()),
 		self.getParameters(),
 		self.getSources())
 }
@@ -116,7 +115,12 @@ func (self *Artifact) encodeSpec() string {
 func (self *Artifact) getParameters() string {
 	res := []string{}
 	for _, k := range self.Category.Keys() {
-		res = append(res, fmt.Sprintf(`   - %v`, k))
+		res = append(res, fmt.Sprintf(`
+- name: %v
+  description: Select targets with category %v
+  type: bool
+  default: Y
+`, k, k))
 	}
 	return strings.Join(res, "\n")
 }
