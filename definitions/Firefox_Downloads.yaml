@@ -1,0 +1,39 @@
+Name: Firefox Downloads
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND (name='moz_downloads');
+SQLiteIdentifyValue: 1
+Categories:
+  - Firefox
+  - Browser
+
+FilenameRegex: "downloads.sqlite"
+Globs:
+  - "{{WindowsFirefoxProfiles}}/*/downloads.sqlite"
+
+Sources:
+- VQL: |
+    SELECT ID, Name, MIMEType, Source, Target,
+       timestamp(epoch= startTime) AS StartTime,
+       timestamp(epoch= endTime) AS EndTime,
+       timestamp(epoch= expiry) AS Expiration,
+       CurrentBytes, MaxBytes
+    FROM Rows
+  SQL: |
+    SELECT
+       moz_downloads.id AS ID,
+       moz_downloads.name AS Name,
+       moz_downloads.mimeType AS MIMEType,
+       moz_downloads.source AS Source,
+       moz_downloads.target AS Target,
+       startTime,
+       endTime,
+       moz_downloads.currBytes AS CurrentBytes,
+       moz_downloads.maxBytes AS MaxBytes
+    FROM moz_downloads
+    ORDER BY moz_downloads.id ASC

@@ -9,6 +9,9 @@ SQLiteIdentifyQuery: |
     AND (name='resource_prefetch_predictor_host_redirect'
          OR name='network_action_predictor' OR name='resource_prefetch_predictor_metadata');
 SQLiteIdentifyValue: 3
+Categories:
+  - Chrome
+  - Browser
 FilenameRegex: "Network Action Predictor"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Network Action Predictor"

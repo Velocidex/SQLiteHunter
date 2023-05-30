@@ -9,7 +9,7 @@ type Definition struct {
 	Author              string      `yaml:"Author"`
 	Email               string      `yaml:"Email"`
 	Reference           string      `yaml:"Reference"`
-	Category            string      `yaml:"Category"`
+	Categories          []string    `yaml:"Categories"`
 	SQLiteIdentifyQuery string      `yaml:"SQLiteIdentifyQuery"`
 	SQLiteIdentifyValue interface{} `yaml:"SQLiteIdentifyValue"`
 	Globs               []string    `yaml:"Globs"`

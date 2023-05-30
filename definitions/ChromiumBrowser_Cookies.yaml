@@ -6,6 +6,9 @@ SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master WHERE type='table' AND (name='cookies' OR name='meta');
 SQLiteIdentifyValue: 2
+Categories:
+  - Chrome
+  - Browser
 FilenameRegex: "Cookies"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Cookies"

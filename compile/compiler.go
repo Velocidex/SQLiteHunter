@@ -17,9 +17,21 @@ type Artifact struct {
 
 func newArtifact() *Artifact {
 	return &Artifact{
-		Name:        "Generic.Forensic.SQLiteHunter",
-		Description: "Hunt for SQLite files",
-		Category:    ordereddict.NewDict(),
+		Name: "Generic.Forensic.SQLiteHunter",
+		Description: `Hunt for SQLite files.
+
+SQLite has become the de-facto standard for storing application data,
+in many types of applications:
+
+- Web Browsers
+- Operating Systems
+- Various applications, such as iMessage, TCC etc
+
+This artifact can hunt for these artifacts in a mostly automated way.
+More info at https://github.com/Velocidex/SQLiteHunter
+
+`,
+		Category: ordereddict.NewDict(),
 		Spec: api.Spec{
 			Sources: ordereddict.NewDict(),
 		},
@@ -32,16 +44,20 @@ func Compile(defs []api.Definition,
 
 	res := newArtifact()
 	for _, d := range defs {
-		category := d.Category
-		if category == "" {
-			category = "Misc"
+		categories := d.Categories
+		if len(categories) == 0 {
+			categories = []string{"Misc"}
 		}
-		res.Category.Set(category, true)
+
+		for _, c := range categories {
+			res.Category.Set(c, true)
+		}
+
 		globs := definitions.ExpandGlobs(d, config_obj)
 		for _, g := range globs {
 			res.Spec.Globs = append(res.Spec.Globs, api.GlobSpec{
 				Glob:     g,
-				Tag:      category,
+				Tags:     categories,
 				Filename: d.FilenameRegex,
 			})
 		}

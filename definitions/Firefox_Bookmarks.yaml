@@ -1,0 +1,90 @@
+Name: Firefox Places
+Author: Andrew Rathbun
+Email: andrew.rathbun@kroll.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='moz_historyvisits' OR name='moz_bookmarks'
+          OR name='moz_places' OR name='moz_inputhistory');
+SQLiteIdentifyValue: 4
+Categories:
+  - Firefox
+  - Browser
+
+FilenameRegex: "places.sqlite"
+Globs:
+  - "{{WindowsFirefoxProfiles}}/*/places.sqlite"
+
+Sources:
+- VQL: |
+    LET BookmarkTypes <= dict(`1`="URL", `2`="Folder", `3`="Separator")
+    SELECT ID, ParentID,
+       get(item= BookmarkTypes, field=str(str=type), default="Unknown") AS Type,
+       timestamp(epoch=dateAdded) AS DateAdded,
+       timestamp(epoch=lastModified) AS LastModified,
+       Position, Title, URL, ForeignKey
+    FROM Rows
+  SQL: |
+    SELECT
+      Bookmarks.id AS ID,
+      Bookmarks.parent AS ParentID,
+      Bookmarks.type,
+      Bookmarks.dateAdded,
+      Bookmarks.lastModified,
+      Bookmarks.position AS Position,
+      Bookmarks.title AS Title,
+      moz_places.url AS URL,
+      Bookmarks.fk AS ForeignKey
+    FROM moz_bookmarks AS Bookmarks
+    LEFT JOIN moz_places ON Bookmarks.fk = moz_places.id
+    ORDER BY Bookmarks.id ASC
+
+- name: Downloads
+  VQL: |
+    SELECT PlaceID, Content,
+       timestamp(epoch=dateAdded) AS DateAdded,
+       timestamp(epoch=lastModified) AS LastModified
+    FROM Rows
+  SQL: |
+    SELECT
+      moz_annos.place_id AS PlaceID,
+      moz_annos.content AS Content,
+      dateAdded,
+      lastModified
+    FROM moz_annos
+    WHERE anno_attribute_id IN (1,2)
+    ORDER BY moz_annos.dateAdded ASC
+
+- name: History
+  VQL: |
+    LET VisitType <= dict(`1`='TRANSITION_LINK', `2`='TRANSITION_TYPED', `3`='TRANSITION_BOOKMARK',
+      `4`='TRANSITION_EMBED', `5`= 'TRANSITION_REDIRECT_PERMANENT', `6`='TRANSITION_REDIRECT_TEMPORARY',
+      `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')
+
+    SELECT VisitID, FromVisitID,
+       timestamp(epoch= last_visit_date) AS LastVisitDate,
+       VisitCount, URL, Title, Description,
+       get(item= VisitType, field=str(str=visit_type), default="Unknown") AS VisitType,
+       Bool(Value=hidden) AS Hidden,
+       Bool(Value=types) AS Typed,
+       Frecency, PreviewImageURL
+    FROM Rows
+  SQL: |
+    SELECT
+      moz_historyvisits.id AS VisitID,
+      moz_historyvisits.from_visit AS FromVisitID,
+      moz_places.last_visit_date,
+      moz_places.visit_count AS VisitCount,
+      moz_places.url AS URL,
+      moz_places.title AS Title,
+      moz_places.description AS Description,
+      moz_historyvisits.visit_type,
+      moz_places.hidden,
+      moz_places.types,
+      moz_places.frecency AS Frecency,
+      moz_places.preview_image_url AS PreviewImageURL
+    FROM moz_places
+    INNER JOIN moz_historyvisits ON moz_places.origin_id = moz_historyvisits.id
+    ORDER BY moz_places.last_visit_date ASC

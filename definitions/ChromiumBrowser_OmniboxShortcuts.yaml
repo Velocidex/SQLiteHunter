@@ -8,6 +8,10 @@ SQLiteIdentifyQuery: |
   WHERE type='table'
     AND (name='meta' OR name='omni_box_shortcuts');
 SQLiteIdentifyValue: 2
+Categories:
+  - Chrome
+  - Browser
+
 FilenameRegex: "Shortcuts"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Shortcuts"

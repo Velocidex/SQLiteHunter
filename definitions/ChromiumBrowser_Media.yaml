@@ -8,6 +8,9 @@ SQLiteIdentifyQuery: |
   WHERE type='table'
     AND (name='origin' OR name='playback' OR name='playbackSession');
 SQLiteIdentifyValue: 3
+Categories:
+  - Chrome
+  - Browser
 FilenameRegex: "Media History"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Media History"

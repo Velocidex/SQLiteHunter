@@ -8,6 +8,10 @@ SQLiteIdentifyQuery: |
   WHERE type='table'
     AND (name='meta' OR name='top_sites');
 SQLiteIdentifyValue: 2
+Categories:
+  - Chrome
+  - Browser
+
 FilenameRegex: "Top Sites"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Top Sites"
