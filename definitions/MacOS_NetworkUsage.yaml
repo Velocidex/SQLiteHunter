@@ -1,0 +1,64 @@
+Name: MacOS NetworkUsage
+Author: Wes Lambert - @therealwlambert
+Description: |
+   On macOS, the NetUsage DB can provide various details around
+   application network utilization. With this artifact, we can get an
+   idea of what applications are utilizing the network for
+   communications and to what degree. We can also identify if usage
+   has occurred through a WIFI network or a wired network.
+
+   More information about this database can be found here:
+
+   http://www.mac4n6.com/blog/2019/1/6/network-and-application-usage-using-netusagesqlite-amp-datausagesqlite-ios-databases
+
+Reference: http://www.mac4n6.com/blog/2019/1/6/network-and-application-usage-using-netusagesqlite-amp-datausagesqlite-ios-databases
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='ZLIVEUSAGE' OR name='ZPROCESS');
+SQLiteIdentifyValue: 2
+Categories:
+  - MacOS
+
+FilenameRegex: "netusage.sqlite"
+Globs:
+  - /private/var/networkd/netusage.sqlite
+  - /private/var/networkd/db/netusage.sqlite
+
+Sources:
+- VQL: |
+    SELECT timestamp(epoch= ZTIMESTAMP + 978307200) AS Timestamp,
+      timestamp(epoch= ZFIRSTTIMESTAMP + 978307200) AS FirstTimestamp,
+      timestamp(epoch= LIVE_USAGE_TIMESTAMP + 978307200) AS LiveUsageTimestamp,
+      ZBUNDLENAME AS BundleID,
+      ZPROCNAME AS ProcessName,
+      ZWIFIIN AS WifiIn,
+      ZWIFIOUT AS WifiOut,
+      ZWWANIN AS WanIn,
+      ZWWANOUT AS WandOut,
+      ZWIREDIN AS WiredIn,
+      ZWIREDOUT AS WiredOut,
+      ZXIN AS _XIn,
+      ZXOUT AS _XOut,
+      Z_PK AS LiveUsageTableID
+    FROM Rows
+
+  SQL: |
+    SELECT
+      ZPROCESS.ZTIMESTAMP,
+      ZPROCESS.ZFIRSTTIMESTAMP,
+      ZLIVEUSAGE.ZTIMESTAMP AS LIVE_USAGE_TIMESTAMP",
+      ZBUNDLENAME,
+      ZPROCNAME,
+      ZWIFIIN,
+      ZWIFIOUT,
+      ZWWANIN,
+      ZWWANOUT,
+      ZWIREDIN,
+      ZWIREDOUT,
+      ZXIN,
+      ZXOUT,
+      ZLIVEUSAGE.Z_PK,
+    FROM ZLIVEUSAGE
+    LEFT JOIN ZPROCESS ON ZPROCESS.Z_PK = ZLIVEUSAGE.ZHASPROCESS

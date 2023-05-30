@@ -31,7 +31,7 @@ This artifact can hunt for these artifacts in a mostly automated way.
 More info at https://github.com/Velocidex/SQLiteHunter
 
 `,
-		Category: ordereddict.NewDict(),
+		Category: ordereddict.NewDict().Set("All", true),
 		Spec: api.Spec{
 			Sources: ordereddict.NewDict(),
 		},
@@ -49,8 +49,11 @@ func Compile(defs []api.Definition,
 			categories = []string{"Misc"}
 		}
 
+		// All artifacts include the All category as well.
+		categories = append(categories, "All")
+
 		for _, c := range categories {
-			res.Category.Set(c, true)
+			res.Category.Update(c, true)
 		}
 
 		globs := definitions.ExpandGlobs(d, config_obj)

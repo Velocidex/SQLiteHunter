@@ -21,7 +21,7 @@ Globs:
 Sources:
 - VQL: |
     SELECT ID,
-      timestamp(winfiletime= last_access_time * 10) AS LastAccessTime,
+      timestamp(winfiletime= (last_access_time * 10) || 0) AS LastAccessTime,
       TextTyped, FillIntoEdit, URL, Contents,
       Description, Type, Keyword, TimesSelectedByUser, OSPath
     FROM Rows

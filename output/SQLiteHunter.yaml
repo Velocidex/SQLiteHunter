@@ -1,0 +1,471 @@
+
+name: Generic.Forensic.SQLiteHunter
+description: |
+    Hunt for SQLite files.
+    
+    SQLite has become the de-facto standard for storing application data,
+    in many types of applications:
+    
+    - Web Browsers
+    - Operating Systems
+    - Various applications, such as iMessage, TCC etc
+    
+    This artifact can hunt for these artifacts in a mostly automated way.
+    More info at https://github.com/Velocidex/SQLiteHunter
+    
+    
+
+export: |
+  LET SPEC <= "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"
+  LET Specs <= parse_json(data=gunzip(string=base64decode(string=SPEC)))
+  LET CheckHeader(OSPath) = read_file(filename=OSPath, length=12) = "SQLite forma"
+  LET Bool(Value) = if(condition=Value, then="Yes", else="No")
+
+  -- In fast mode we check the filename, then the header then run the sqlite precondition
+  LET matchFilename(SourceName, OSPath) = OSPath =~ get(item=Specs.sources, field=SourceName).filename
+    AND CheckHeader(OSPath=OSPath)
+    AND Identify(SourceName= SourceName, OSPath= OSPath)
+    AND log(message=format(format="%v matched by filename %v",
+            args=[OSPath, get(item=Specs.sources, field=SourceName).filename]))
+
+  -- If the user wanted to also upload the file, do so now
+  LET MaybeUpload(OSPath) = if(condition=AlsoUpload, then=upload(file=OSPath)) OR TRUE
+
+  LET Identify(SourceName, OSPath) = SELECT if(
+    condition=CheckHeader(OSPath=OSPath),
+    then={
+      SELECT *
+      FROM sqlite(file=OSPath, query=get(item=Specs.sources, field=SourceName).id_query)
+    }) AS Hits
+  FROM scope()
+  WHERE if(condition=Hits[0].Check = get(item=Specs.sources, field=SourceName).id_value,
+    then= log(message="%v was identified as %v",
+            args=[OSPath, get(item=Specs.sources, field=SourceName).Name]),
+    else=log(message="%v was not identified as %v (got %v, wanted %v)",
+             args=[OSPath, get(item=Specs.sources, field=SourceName).Name, str(str=Hits),
+                   get(item=Specs.sources, field=SourceName).id_value]) AND FALSE)
+
+  LET ApplyFile(SourceName) = SELECT * FROM foreach(row={
+     SELECT OSPath FROM AllFiles
+     WHERE if(condition=MatchFilename,  then=matchFilename(SourceName=SourceName, OSPath=OSPath),
+      else=Identify(SourceName= SourceName, OSPath= OSPath))
+
+  }, query={
+     SELECT *, OSPath FROM sqlite(
+        file=OSPath, query=get(item=Specs.sources, field=SourceName).SQL)
+  })
+
+  -- Build a regex for all enabled categories.
+  LET all_categories = SELECT _value FROM foreach(row=["All","MacOS","Chrome","Browser","Firefox","Windows"]) WHERE get(field=_value)
+  LET category_regex <= join(sep="|", array=all_categories._value)
+  LET AllGlobs <= filter(list=Specs.globs, condition="x=> x.tags =~ category_regex")
+  LET _ <= log(message="Globs for category %v is %v", args=[category_regex, CustomGlob || AllGlobs.glob])
+  LET AllFiles <= SELECT OSPath FROM glob(globs=CustomGlob || AllGlobs.glob)
+    WHERE NOT IsDir AND MaybeUpload(OSPath=OSPath)
+
+parameters:
+- name: MatchFilename
+  description: |
+    If set we use the filename to detect the type of sqlite file.
+    When unset we use heristics (slower)
+  type: bool
+  default: Y
+
+- name: CustomGlob
+  description: Specify this glob to select other files
+
+
+- name: All
+  description: Select targets with category All
+  type: bool
+  default: Y
+
+
+- name: MacOS
+  description: Select targets with category MacOS
+  type: bool
+  default: N
+
+
+- name: Chrome
+  description: Select targets with category Chrome
+  type: bool
+  default: N
+
+
+- name: Browser
+  description: Select targets with category Browser
+  type: bool
+  default: N
+
+
+- name: Firefox
+  description: Select targets with category Firefox
+  type: bool
+  default: N
+
+
+- name: Windows
+  description: Select targets with category Windows
+  type: bool
+  default: N
+
+
+- name: SQLITE_ALWAYS_MAKE_TEMPFILE
+  type: bool
+  default: Y
+
+- name: AlsoUpload
+  description: If specified we also upload the identified file.
+  type: bool
+
+sources:
+- name: AllFiles
+  query: |
+    SELECT * FROM AllFiles
+
+
+- name: iMessage_Profiles
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="iMessage_Profiles")
+    SELECT timestamp(epoch=date / 1000000000 + 978307200) AS Timestamp, *
+    FROM Rows
+    
+
+
+- name: Chromium Browser Autofill_Profiles
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Autofill_Profiles")
+    SELECT GUID,
+      timestamp(epoch= date_modified) AS DateModified,
+      timestamp(epoch= use_date) AS UseDate,
+      FirstName, MiddleName, LastName, EmailAddress,
+      PhoneNumber, CompanyName, StreetAddress,
+      City, State, ZipCode, UseCount, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser Autofill_Masked Credit Cards
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Autofill_Masked Credit Cards")
+    SELECT * FROM Rows
+
+
+- name: Chromium Browser_Cookies
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser_Cookies")
+    SELECT timestamp(winfiletime=(creation_utc * 10) || 0) AS CreationUTC,
+           timestamp(winfiletime=(expires_utc * 10) || 0) AS ExpiresUTC,
+           timestamp(winfiletime=(last_access_utc * 10) || 0) AS LastAccessUTC,
+           HostKey, Name, Path,
+           Bool(Value=is_secure) AS IsSecure,
+           Bool(Value=is_httponly) AS IsHttpOnly,
+           Bool(Value=has_expires) AS HasExpiration,
+           Bool(Value=is_persistent) AS IsPersistent,
+           Priority, SourcePort, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser Favicons
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Favicons")
+    SELECT ID, IconID,
+      timestamp(winfiletime= (last_updated * 10) || 0) AS LastUpdated,
+      PageURL, FaviconURL, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser History_Visits
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser History_Visits")
+    SELECT ID,
+       timestamp(winfiletime=(visit_time * 10) || 0) AS VisitTime,
+       timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,
+       URLTitle, URL, VisitCount, TypedCount,
+       if(condition=hidden =~ '1', then="Yes", else="No") AS Hidden,
+       VisitID, FromVisitID,
+       visit_duration / 1000000 AS VisitDurationInSeconds,
+       OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser History_Downloads
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser History_Downloads")
+    LET StateLookup <= dict(`0`='In Progress', `1`='Complete', `2`="Cancelled", `3`="Interrupted", `4`="Interrupted")
+    LET DangerType <= dict(`0`='Not Dangerous', `1`="Dangerous", `2`='Dangerous URL', `3`='Dangerous Content',
+        `4`='Content May Be Malicious', `5`='Uncommon Content', `6`='Dangerous But User Validated',
+        `7`='Dangerous Host', `8`='Potentially Unwanted', `9`='Whitelisted by Policy')
+    LET InterruptReason <= dict(`0`= 'No Interrupt', `1`= 'File Error', `2`='Access Denied', `3`='Disk Full',
+      `5`='Path Too Long',`6`='File Too Large', `7`='Virus', `10`='Temporary Problem', `11`='Blocked',
+      `12`='Security Check Failed', `13`='Resume Error', `20`='Network Error', `21`='Operation Timed Out',
+      `22`='Connection Lost', `23`='Server Down', `30`='Server Error', `31`='Range Request Error',
+      `32`='Server Precondition Error', `33`='Unable to get file', `34`='Server Unauthorized',
+      `35`='Server Certificate Problem', `36`='Server Access Forbidden', `37`='Server Unreachable',
+      `38`='Content Length Mismatch', `39`='Cross Origin Redirect', `40`='Cancelled', `41`='Browser Shutdown',
+      `50`='Browser Crashed')
+    
+    SELECT ID, GUID, CurrentPath, TargetPath, OriginalMIMEType, ReceivedBytes, TotalBytes,
+      timestamp(winfiletime=(start_time * 10) || 0) AS StartTime,
+      timestamp(winfiletime=(end_time * 10) || 0) AS EndTime,
+      timestamp(winfiletime=(opened * 10) || 0) AS Opened,
+      timestamp(winfiletime=(last_access_time * 10) || 0) AS LastAccessTime,
+      timestamp(epoch=last_modified) AS LastModified,
+      get(item=StateLookup, field=str(str=state), default="Unknown") AS State,
+      get(item=DangerType, field=str(str=danger_type), default="Unknown") AS DangerType,
+      get(item=InterruptReason, field=str(str=interrupt_reason), default="Unknown") AS InterruptReason,
+      ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser History_Keywords
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser History_Keywords")
+    SELECT KeywordID, URLID,
+       timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,
+       KeywordSearchTerm, Title, URL, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser Media_History
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Media_History")
+    SELECT ID, URL, WatchTimeSeconds,
+       Bool(Value=has_video) AS HasVideo,
+       Bool(Value=has_audio) AS HasAudio,
+       timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated,
+       OriginID, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser Media_Playback Session
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Media_Playback Session")
+    SELECT ID,
+      timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated, URL,
+      duration_ms / 1000 AS DurationInSeconds,
+      position_ms / 1000 AS PositionInSeconds,
+      Title, Artist, Album, SourceTitle, OriginID, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser Network_Predictor
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Network_Predictor")
+    SELECT * FROM Rows
+    
+
+
+- name: Chromium Browser Shortcuts
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Shortcuts")
+    SELECT ID,
+      timestamp(winfiletime= (last_access_time * 10) || 0) AS LastAccessTime,
+      TextTyped, FillIntoEdit, URL, Contents,
+      Description, Type, Keyword, TimesSelectedByUser, OSPath
+    FROM Rows
+    
+
+
+- name: Chromium Browser Top Sites
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Top Sites")
+    SELECT * FROM Rows
+    
+
+
+- name: Firefox Places
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Places")
+    LET BookmarkTypes <= dict(`1`="URL", `2`="Folder", `3`="Separator")
+    SELECT ID, ParentID,
+       get(item= BookmarkTypes, field=str(str=type), default="Unknown") AS Type,
+       timestamp(epoch=dateAdded) AS DateAdded,
+       timestamp(epoch=lastModified) AS LastModified,
+       Position, Title, URL, ForeignKey, OSPath
+    FROM Rows
+    
+
+
+- name: Firefox Places_Downloads
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Places_Downloads")
+    SELECT PlaceID, Content,
+       timestamp(epoch=dateAdded) AS DateAdded,
+       timestamp(epoch=lastModified) AS LastModified,
+       OSPath
+    FROM Rows
+    
+
+
+- name: Firefox Places_History
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Places_History")
+    LET VisitType <= dict(`1`='TRANSITION_LINK', `2`='TRANSITION_TYPED', `3`='TRANSITION_BOOKMARK',
+      `4`='TRANSITION_EMBED', `5`= 'TRANSITION_REDIRECT_PERMANENT', `6`='TRANSITION_REDIRECT_TEMPORARY',
+      `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')
+    
+    SELECT VisitID, FromVisitID,
+       timestamp(epoch= last_visit_date) AS LastVisitDate,
+       VisitCount, URL, Title, Description,
+       get(item= VisitType, field=str(str=visit_type), default="Unknown") AS VisitType,
+       Bool(Value=hidden) AS Hidden,
+       Bool(Value=types) AS Typed,
+       Frecency, PreviewImageURL, OSPath
+    FROM Rows
+    
+
+
+- name: Firefox Cookies
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Cookies")
+    SELECT ID, Host, Name, Value,
+       timestamp(epoch= creationTime) AS CreationTime,
+       timestamp(epoch= lastAccessed) AS LastAccessedTime,
+       timestamp(epoch= expiry) AS Expiration,
+       Bool(Value= isSecure) AS IsSecure,
+       Bool(Value= isHttpOnly) AS IsHTTPOnly, OSPath
+    FROM Rows
+    
+
+
+- name: Firefox Downloads
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Downloads")
+    SELECT ID, Name, MIMEType, Source, Target,
+       timestamp(epoch= startTime) AS StartTime,
+       timestamp(epoch= endTime) AS EndTime,
+       timestamp(epoch= expiry) AS Expiration,
+       CurrentBytes, MaxBytes, OSPath
+    FROM Rows
+    
+
+
+- name: Firefox Favicons
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Favicons")
+    SELECT ID, PageURL, FaviconURL,
+       timestamp(epoch= expire_ms) AS Expiration,
+       OSPath
+    FROM Rows
+    
+
+
+- name: Firefox Form History
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Form History")
+    SELECT ID, FieldName, Value, TimesUsed,
+       timestamp(epoch= firstUsed) AS FirstUsed,
+       timestamp(epoch= lastUsed) AS LastUsed,
+       GUID, OSPath
+    FROM Rows
+    
+
+
+- name: MacOS Applications Cache
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS Applications Cache")
+    SELECT
+       time_stamp AS Timestamp,
+       OSPath.Base AS Application,
+       entry_ID AS EntryID,
+       version AS Version,
+       hash_value AS Hash,
+       storage_policy AS StoragePolicy,
+       request_key AS URL,
+       plist(file=request_object, accessor="data") AS Request,
+       plist(file=response_object, accessor="data") AS Response,
+       partition AS Partition,
+       OSPath
+    FROM Rows
+    
+
+
+- name: MacOS NetworkUsage
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS NetworkUsage")
+    SELECT timestamp(epoch= ZTIMESTAMP + 978307200) AS Timestamp,
+      timestamp(epoch= ZFIRSTTIMESTAMP + 978307200) AS FirstTimestamp,
+      timestamp(epoch= LIVE_USAGE_TIMESTAMP + 978307200) AS LiveUsageTimestamp,
+      ZBUNDLENAME AS BundleID,
+      ZPROCNAME AS ProcessName,
+      ZWIFIIN AS WifiIn,
+      ZWIFIOUT AS WifiOut,
+      ZWWANIN AS WanIn,
+      ZWWANOUT AS WandOut,
+      ZWIREDIN AS WiredIn,
+      ZWIREDOUT AS WiredOut,
+      ZXIN AS _XIn,
+      ZXOUT AS _XOut,
+      Z_PK AS LiveUsageTableID
+    FROM Rows
+    
+
+
+- name: MacOS Notes
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS Notes")
+    SELECT Key AS _Key,
+     OSPath[1] AS User,
+     Note,
+     Title,
+     Snippet,
+     NoteID AS _NoteID,
+     timestamp(cocoatime=CreatedTS) AS CreatedTime,
+     timestamp(cocoatime=LastOpenedDate) AS LastOpenedTime,
+     timestamp(cocoatime=DirModificationDate) AS LastDirModifcation,
+     Account AS _Account,
+     Directory,
+     DirectoryID,
+     AttachmentName,
+     AttachmentSize,
+     AttachmentUUID,
+     if(condition=AttachmentUUID,
+        then=OSPath[:2] + '/Library/Group Containers/group.com.apple.notes/Accounts/LocalAccount/Media/' + AttachmentUUID + '/' + AttachmentName) AS AttachmentLocation,
+     AccountName AS _AccountName,
+     AccountID AS _AccountID,
+     AccountType AS _AccountType,
+     gunzip(string=Data) AS Data,
+     OSPath
+    FROM Rows
+    
+
+
+- name: Windows Activities Cache_ActivityPackageId
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Windows Activities Cache_ActivityPackageId")
+    SELECT format(format="%0X-%0X-%0X-%0X-%0X", args=[
+      ActivityId[0:4], ActivityId[4:6], ActivityId[6:8],
+      ActivityId[8:10], ActivityId[10:] ]) AS ActivityId,
+      Platform, PackageName, ExpirationTime, OSPath
+    FROM Rows
+    
+
+
+- name: Windows Activities Cache_Clipboard
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Windows Activities Cache_Clipboard")
+    SELECT
+      CreatedTime,
+      LastModifiedTime,
+      LastModifiedOnClient,
+      StartTime,
+      EndTime,
+      Payload,
+      OSPath[1] AS User,
+      base64decode(string=parse_json_array(data=ClipboardPayload)[0].content) AS ClipboardPayload,
+      OSPath AS Path,
+      Mtime
+    FROM Rows
+    
+
+
+

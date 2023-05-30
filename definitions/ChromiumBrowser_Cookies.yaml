@@ -18,9 +18,9 @@ Globs:
 Sources:
 - name: Cookies
   VQL: |
-    SELECT timestamp(winfiletime=creation_utc * 10) AS CreationUTC,
-           timestamp(winfiletime=expires_utc * 10) AS ExpiresUTC,
-           timestamp(winfiletime=last_access_utc * 10) AS LastAccessUTC,
+    SELECT timestamp(winfiletime=(creation_utc * 10) || 0) AS CreationUTC,
+           timestamp(winfiletime=(expires_utc * 10) || 0) AS ExpiresUTC,
+           timestamp(winfiletime=(last_access_utc * 10) || 0) AS LastAccessUTC,
            HostKey, Name, Path,
            Bool(Value=is_secure) AS IsSecure,
            Bool(Value=is_httponly) AS IsHttpOnly,

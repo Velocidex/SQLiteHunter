@@ -21,12 +21,19 @@ Globs:
 
 Sources:
 - name: Profiles
-  VQL: "SELECT * FROM Rows"
+  VQL: |
+    SELECT GUID,
+      timestamp(epoch= date_modified) AS DateModified,
+      timestamp(epoch= use_date) AS UseDate,
+      FirstName, MiddleName, LastName, EmailAddress,
+      PhoneNumber, CompanyName, StreetAddress,
+      City, State, ZipCode, UseCount, OSPath
+    FROM Rows
   SQL: |
     SELECT
       autofill_profiles.guid AS GUID,
-      datetime( "date_modified", 'unixepoch' ) AS DateModified,
-      datetime( "use_date", 'unixepoch' ) AS UseDate,
+      date_modified,
+      use_date,
       autofill_profile_names.first_name AS FirstName,
       autofill_profile_names.middle_name AS MiddleName,
       autofill_profile_names.last_name AS LastName,
@@ -45,12 +52,12 @@ Sources:
       INNER JOIN autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
     ORDER BY
       autofill_profiles.guid ASC
+
 - name: Masked Credit Cards
   VQL: "SELECT * FROM Rows"
   SQL: |
     SELECT
       masked_credit_cards.id AS ID,
-      masked_credit_cards.status AS Status,
       masked_credit_cards.name_on_card AS NameOnCard,
       masked_credit_cards.network AS CardNetwork,
       masked_credit_cards.last_four AS LastFour,

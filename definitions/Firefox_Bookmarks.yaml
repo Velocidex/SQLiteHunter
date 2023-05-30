@@ -24,7 +24,7 @@ Sources:
        get(item= BookmarkTypes, field=str(str=type), default="Unknown") AS Type,
        timestamp(epoch=dateAdded) AS DateAdded,
        timestamp(epoch=lastModified) AS LastModified,
-       Position, Title, URL, ForeignKey
+       Position, Title, URL, ForeignKey, OSPath
     FROM Rows
   SQL: |
     SELECT
@@ -45,7 +45,8 @@ Sources:
   VQL: |
     SELECT PlaceID, Content,
        timestamp(epoch=dateAdded) AS DateAdded,
-       timestamp(epoch=lastModified) AS LastModified
+       timestamp(epoch=lastModified) AS LastModified,
+       OSPath
     FROM Rows
   SQL: |
     SELECT
@@ -69,7 +70,7 @@ Sources:
        get(item= VisitType, field=str(str=visit_type), default="Unknown") AS VisitType,
        Bool(Value=hidden) AS Hidden,
        Bool(Value=types) AS Typed,
-       Frecency, PreviewImageURL
+       Frecency, PreviewImageURL, OSPath
     FROM Rows
   SQL: |
     SELECT

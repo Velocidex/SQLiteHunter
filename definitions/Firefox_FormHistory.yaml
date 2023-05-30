@@ -22,7 +22,7 @@ Sources:
     SELECT ID, FieldName, Value, TimesUsed,
        timestamp(epoch= firstUsed) AS FirstUsed,
        timestamp(epoch= lastUsed) AS LastUsed,
-       GUID
+       GUID, OSPath
     FROM Rows
   SQL: |
     SELECT

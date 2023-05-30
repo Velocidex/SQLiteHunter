@@ -22,7 +22,7 @@ Sources:
        timestamp(epoch= startTime) AS StartTime,
        timestamp(epoch= endTime) AS EndTime,
        timestamp(epoch= expiry) AS Expiration,
-       CurrentBytes, MaxBytes
+       CurrentBytes, MaxBytes, OSPath
     FROM Rows
   SQL: |
     SELECT

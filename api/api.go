@@ -7,6 +7,7 @@ type ConfigDefinitions struct {
 type Definition struct {
 	Name                string      `yaml:"Name"`
 	Author              string      `yaml:"Author"`
+	Description         string      `yaml:"Description"`
 	Email               string      `yaml:"Email"`
 	Reference           string      `yaml:"Reference"`
 	Categories          []string    `yaml:"Categories"`

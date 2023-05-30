@@ -21,7 +21,7 @@ Globs:
 Sources:
 - VQL: |
     SELECT ID, IconID,
-      timestamp(winfiletime=last_updated * 10) AS LastUpdated,
+      timestamp(winfiletime= (last_updated * 10) || 0) AS LastUpdated,
       PageURL, FaviconURL, OSPath
     FROM Rows
   SQL: |
