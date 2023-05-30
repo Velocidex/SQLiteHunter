@@ -19,7 +19,8 @@ Globs:
 Sources:
 - VQL: |
     SELECT ID, PageURL, FaviconURL,
-       timestamp(epoch= expire_ms) AS Expiration
+       timestamp(epoch= expire_ms) AS Expiration,
+       OSPath
     FROM Rows
   SQL: |
     SELECT

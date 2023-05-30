@@ -1,0 +1,45 @@
+Name: Windows Activities Cache
+Author: Eric Zimmerman
+Email: saericzimmerman@gmail.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='Activity' OR name='Activity_PackageId' OR name='ActivityOperation');
+SQLiteIdentifyValue: 3
+Categories:
+  - Windows
+
+FilenameRegex: "ActivitiesCache.db"
+Globs:
+  - "C:/Users/*/AppData/Local/ConnectedDevicesPlatform/L.*/ActivitiesCache.db"
+
+Sources:
+- name: ActivityPackageId
+  VQL: |
+    SELECT format(format="%0X-%0X-%0X-%0X-%0X", args=[
+      ActivityId[0:4], ActivityId[4:6], ActivityId[6:8],
+      ActivityId[8:10], ActivityId[10:] ]) AS ActivityId,
+      Platform, PackageName, ExpirationTime, OSPath
+    FROM Rows
+  SQL: |
+    Select ActivityId, Platform, PackageName, ExpirationTime
+    FROM Activity_PackageId
+
+- name: Clipboard
+  SQL: |
+    SELECT * FROM ActivityOperation
+  VQL: |
+      SELECT
+        CreatedTime,
+        LastModifiedTime,
+        LastModifiedOnClient,
+        StartTime,
+        EndTime,
+        Payload,
+        OSPath[1] AS User,
+        base64decode(string=parse_json_array(data=ClipboardPayload)[0].content) AS ClipboardPayload,
+        OSPath AS Path,
+        Mtime
+      FROM Rows

@@ -16,7 +16,8 @@ import (
 func (self *Artifact) Yaml() string {
 	return fmt.Sprintf(`
 name: %v
-description: %v
+description: |
+%v
 
 export: |
   LET SPEC <= %q
@@ -94,7 +95,7 @@ sources:
 
 %v
 
-`, self.Name, self.Description,
+`, self.Name, indent(self.Description, 4),
 		self.encodeSpec(),
 		utils.MustMarshalString(self.Category.Keys()),
 		self.getParameters(),
@@ -115,12 +116,16 @@ func (self *Artifact) encodeSpec() string {
 func (self *Artifact) getParameters() string {
 	res := []string{}
 	for _, k := range self.Category.Keys() {
+		default_value := "N"
+		if k == "All" {
+			default_value = "Y"
+		}
 		res = append(res, fmt.Sprintf(`
 - name: %v
   description: Select targets with category %v
   type: bool
-  default: Y
-`, k, k))
+  default: %v
+`, k, k, default_value))
 	}
 	return strings.Join(res, "\n")
 }

@@ -1,0 +1,47 @@
+Name: MacOS Applications Cache
+Author: Wes Lambert - @therealwlambert
+Description: |
+  Applications can use the NSURL cache to store specific data that is
+  useful to the operation of the application in a `Cache.db` file on
+  disk. The data contained within this file could potentially be
+  useful to investigators or incident responders, such as URLs that
+  were accessed, as well as data requested or returned.
+
+Reference: https://developer.apple.com/documentation/foundation/nsurl
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='cfurl_cache_response' OR name='cfurl_cache_blob_data'
+          OR name='cfurl_cache_receiver_data');
+SQLiteIdentifyValue: 3
+Categories:
+  - MacOS
+
+FilenameRegex: "Cache.db"
+Globs:
+  - "/Users/*/Library/Caches/*/Cache.db"
+
+Sources:
+- VQL: |
+    SELECT
+       time_stamp AS Timestamp,
+       OSPath.Base AS Application,
+       entry_ID AS EntryID,
+       version AS Version,
+       hash_value AS Hash,
+       storage_policy AS StoragePolicy,
+       request_key AS URL,
+       plist(file=request_object, accessor="data") AS Request,
+       plist(file=response_object, accessor="data") AS Response,
+       partition AS Partition,
+       OSPath
+    FROM Rows
+
+  SQL: |
+    SELECT cfurl_cache_response.entry_ID AS entry_ID,
+           version, hash_value, storage_policy, request_key,
+           time_stamp, partition, request_object, response_object
+    FROM cfurl_cache_response
+    INNER JOIN cfurl_cache_blob_data ON cfurl_cache_response.entry_ID = cfurl_cache_blob_data.entry_ID
+    INNER JOIN cfurl_cache_receiver_data ON cfurl_cache_response.entry_ID = cfurl_cache_receiver_data.entry_ID

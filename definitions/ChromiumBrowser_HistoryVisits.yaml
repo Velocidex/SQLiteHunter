@@ -21,8 +21,8 @@ Sources:
 - name: Visits
   VQL: |
     SELECT ID,
-       timestamp(winfiletime=visit_time * 10) AS VisitTime,
-       timestamp(winfiletime=last_visit_time * 10) AS LastVisitedTime,
+       timestamp(winfiletime=(visit_time * 10) || 0) AS VisitTime,
+       timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,
        URLTitle, URL, VisitCount, TypedCount,
        if(condition=hidden =~ '1', then="Yes", else="No") AS Hidden,
        VisitID, FromVisitID,
@@ -62,10 +62,10 @@ Sources:
       `50`='Browser Crashed')
 
     SELECT ID, GUID, CurrentPath, TargetPath, OriginalMIMEType, ReceivedBytes, TotalBytes,
-      timestamp(winfiletime=start_time * 10) AS StartTime,
-      timestamp(winfiletime=end_time * 10) AS EndTime,
-      timestamp(winfiletime=opened * 10) AS Opened,
-      timestamp(winfiletime=last_access_time * 10) AS LastAccessTime,
+      timestamp(winfiletime=(start_time * 10) || 0) AS StartTime,
+      timestamp(winfiletime=(end_time * 10) || 0) AS EndTime,
+      timestamp(winfiletime=(opened * 10) || 0) AS Opened,
+      timestamp(winfiletime=(last_access_time * 10) || 0) AS LastAccessTime,
       timestamp(epoch=last_modified) AS LastModified,
       get(item=StateLookup, field=str(str=state), default="Unknown") AS State,
       get(item=DangerType, field=str(str=danger_type), default="Unknown") AS DangerType,
@@ -101,7 +101,7 @@ Sources:
 - name: Keywords
   VQL: |
     SELECT KeywordID, URLID,
-       timestamp(winfiletime=last_visit_time * 10) AS LastVisitedTime,
+       timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,
        KeywordSearchTerm, Title, URL, OSPath
     FROM Rows
   SQL: |

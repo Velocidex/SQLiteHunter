@@ -23,7 +23,7 @@ Sources:
     SELECT ID, URL, WatchTimeSeconds,
        Bool(Value=has_video) AS HasVideo,
        Bool(Value=has_audio) AS HasAudio,
-       timestamp(winfiletime=last_update_time_s) AS LastUpdated,
+       timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated,
        OriginID, OSPath
     FROM Rows
   SQL: |
@@ -41,7 +41,7 @@ Sources:
 - name: Playback Session
   VQL: |
     SELECT ID,
-      timestamp(winfiletime=last_update_time_s) AS LastUpdated, URL,
+      timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated, URL,
       duration_ms / 1000 AS DurationInSeconds,
       position_ms / 1000 AS PositionInSeconds,
       Title, Artist, Album, SourceTitle, OriginID, OSPath

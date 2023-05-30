@@ -23,7 +23,7 @@ Sources:
        timestamp(epoch= lastAccessed) AS LastAccessedTime,
        timestamp(epoch= expiry) AS Expiration,
        Bool(Value= isSecure) AS IsSecure,
-       Bool(Value= isHttpOnly) AS IsHTTPOnly
+       Bool(Value= isHttpOnly) AS IsHTTPOnly, OSPath
     FROM Rows
   SQL: |
     SELECT
