@@ -1,0 +1,40 @@
+Name: Chromium Browser Extensions
+Author: Mike Cohen
+Categories:
+  - Chrome
+  - Browser
+
+FilenameRegex: "manifest.json"
+Globs:
+  - "{{LinuxChromeProfiles}}/*/Extensions/**/manifest.json"
+  - "{{WindowsChromeProfiles}}/*/Extensions/**/manifest.json"
+  - "{{MacOSChromeProfiles}}/*/Extensions/**/manifest.json"
+
+Sources:
+- VQL: |
+    -- Resolve the message string against the Locale dict
+    LET ResolveName(Message, Locale) = get(item=Locale,
+          field=lowcase(string=parse_string_with_regex(regex="^__MSG_(.+)__$", string=Message).g1),
+          default=Message).message || Message
+
+    -- Read the manifest files
+    LET ManifestData = SELECT OSPath, parse_json(data=read_file(filename=OSPath)) AS Manifest
+    FROM Rows
+
+    -- Find the Locale file to help with.
+    LET LocaleData = SELECT *, if(condition=Manifest.default_locale, else=dict(),
+         then=parse_json(data=read_file(
+            filename=OSPath.Dirname + "_locales" + Manifest.default_locale + "messages.json"))) AS Locale
+    FROM ManifestData
+
+    LET GetIcon(Manifest) = Manifest.icons.`128` || Manifest.icons.`64` || Manifest.icons.`32` || Manifest.icons.`16`
+
+    SELECT OSPath, Manifest.author.email AS Email,
+      ResolveName(Message = Manifest.name, Locale=Locale) AS name,
+      ResolveName(Message = Manifest.description, Locale=Locale) AS description,
+      Manifest.oauth2.scopes as Scopes,
+      Manifest.permissions as Permissions,
+      Manifest.key as Key, if(condition=GetIcon(Manifest=Manifest),
+                then=upload(file=OSPath.Dirname + GetIcon(Manifest=Manifest))) AS Image,
+      Manifest AS _Manifest
+    FROM LocaleData
