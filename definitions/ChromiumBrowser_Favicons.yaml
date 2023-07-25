@@ -1,6 +1,6 @@
 Name: Chromium Browser Favicons
-Author: Andrew Rathbun
-Email: andrew.rathbun@kroll.com
+Author: Andrew Rathbun, Phill Moore
+Email: andrew.rathbun@kroll.com, @phillmoore
 Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
@@ -21,14 +21,21 @@ Globs:
 Sources:
 - VQL: |
     SELECT ID, IconID,
-      timestamp(winfiletime= (last_updated * 10) || 0) AS LastUpdated,
-      PageURL, FaviconURL, OSPath
+      timestamp(winfiletime= (LastUpdated * 10) || 0) AS LastUpdated,
+      PageURL, FaviconURL,
+      upload(accessor="data",
+         file=_image,
+         name=format(format="Image%v.png", args=ID)) AS Image,
+      OSPath as _OSPath
     FROM Rows
+
+
   SQL: |
     SELECT
       favicons.id AS ID,
       favicon_bitmaps.icon_id AS IconID,
-      favicon_bitmaps.last_updated,
+      favicon_bitmaps.image_data as _image,
+      favicon_bitmaps.last_updated AS LastUpdated,
       icon_mapping.page_url AS PageURL,
       favicons.url AS FaviconURL
     FROM favicons

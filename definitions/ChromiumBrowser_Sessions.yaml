@@ -1,0 +1,37 @@
+Name: Chromium Sessions
+Author: Mike Cohen
+Reference: https://www.inversecos.com/2022/10/recovering-cleared-browser-history.html
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master WHERE type='table' AND (name='cookies' OR name='meta');
+SQLiteIdentifyValue: 2
+Categories:
+  - Chrome
+  - Browser
+FilenameRegex: "Session"
+Globs:
+  - "{{LinuxChromeProfiles}}/*/Sessions/Session_*"
+  - "{{WindowsChromeProfiles}}/*/Sessions/Session_*"
+  - "{{MacOSChromeProfiles}}/*/Sessions/Session_*"
+
+Sources:
+- name: Sessions
+  VQL: |
+    SELECT * FROM info()
+
+  SQL: |
+    SELECT
+      cookies.creation_utc,
+      cookies.expires_utc,
+      cookies.last_access_utc,
+      cookies.host_key AS HostKey,
+      cookies.name AS Name,
+      cookies.path AS Path,
+      cookies.is_secure,
+      cookies.is_httponly,
+      cookies.has_expires,
+      cookies.is_persistent,
+      cookies.priority AS Priority,
+      cookies.source_port AS SourcePort
+    FROM cookies
+    ORDER BY cookies.creation_utc ASC

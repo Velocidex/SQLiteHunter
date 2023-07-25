@@ -19,6 +19,10 @@ name: %v
 description: |
 %v
 
+column_types:
+- name: Image
+  type: preview_upload
+
 export: |
   LET SPEC <= %q
   LET Specs <= parse_json(data=gunzip(string=base64decode(string=SPEC)))
@@ -58,6 +62,12 @@ export: |
      SELECT *, OSPath FROM sqlite(
         file=OSPath, query=get(item=Specs.sources, field=SourceName).SQL)
   })
+
+  -- Filter for matching files without sqlite checks.
+  LET FilterFile(SourceName) =
+     SELECT OSPath FROM AllFiles
+     WHERE if(condition=MatchFilename,
+              then=OSPath =~ get(item=Specs.sources, field=SourceName).filename)
 
   -- Build a regex for all enabled categories.
   LET all_categories = SELECT _value FROM foreach(row=%v) WHERE get(field=_value)
@@ -138,12 +148,24 @@ func (self *Artifact) getSources() string {
 		if !ok {
 			continue
 		}
-		res = append(res, fmt.Sprintf(`
+		// If it is not an SQLite query at all, just pass the files
+		// directly.
+		if v.SQL == "" {
+			res = append(res, fmt.Sprintf(`
+- name: %v
+  query: |
+    LET Rows = SELECT * FROM FilterFile(SourceName=%q)
+%v
+`, k, k, indent(v.VQL, 4)))
+
+		} else {
+			res = append(res, fmt.Sprintf(`
 - name: %v
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName=%q)
 %v
 `, k, k, indent(v.VQL, 4)))
+		}
 	}
 	return strings.Join(res, "\n")
 }

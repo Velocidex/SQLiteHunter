@@ -1,0 +1,51 @@
+Name: Chromium Browser Bookmarks
+Author: Sikha Puthanveedu @SikhaMohan, Mike Cohen
+Categories:
+  - Chrome
+  - Browser
+
+FilenameRegex: "Bookmarks"
+Globs:
+  - "{{LinuxChromeProfiles}}/*/Bookmarks"
+  - "{{WindowsChromeProfiles}}/*/Bookmarks"
+  - "{{MacOSChromeProfiles}}/*/Bookmarks"
+
+Sources:
+- VQL: |
+     -- Recursive function to report the details of a folder
+     LET ReportFolder(Data, BaseName) = SELECT * FROM chain(a={
+       -- First row emit the data about the actual folder
+       SELECT BaseName + " | " + Data.name AS Name,
+              timestamp(winfiletime=int(int=Data.date_added) * 10) AS DateAdded,
+              timestamp(winfiletime=int(int=Data.date_last_used) * 10) AS DateLastUsed,
+              Data.type AS Type,
+              Data.url || ""  AS URL
+       FROM scope()
+     },
+     b={
+        -- If this folder has children recurse into it
+        SELECT * FROM foreach(row={
+           SELECT _value FROM items(item=Data.children)
+        },  query={
+           SELECT * FROM ReportFolder(Data=_value, BaseName=BaseName + " | " + Data.name)
+        })
+     })
+
+     LET MatchingFiles = SELECT OSPath, parse_json(data=read_file(filename=OSPath)) AS Data
+     FROM Rows
+
+     SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT * FROM chain(
+       a={
+         SELECT OSPath, *, "bookmark_bar" AS Type
+         FROM ReportFolder(Data=Data.roots.bookmark_bar, BaseName="")
+       },
+       b={
+         SELECT OSPath, *, "other" AS Type
+         FROM ReportFolder(Data=Data.roots.other, BaseName="")
+       },
+       c={
+         SELECT OSPath, *, "synced" AS Type
+         FROM ReportFolder(Data=Data.roots.synced, BaseName="")
+       })
+     })
