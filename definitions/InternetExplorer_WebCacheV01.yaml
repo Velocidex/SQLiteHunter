@@ -1,0 +1,39 @@
+Name: IE or Edge WebCacheV01
+Categories:
+  - Edge
+  - InternetExplorer
+  - Browser
+
+FilenameRegex: "WebCacheV01.dat"
+Globs:
+  - C:/Users/*/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat
+
+Sources:
+- name: All Data
+  VQL: |
+    LET MatchingFiles = SELECT OSPath FROM Rows
+
+    LET Containers(OSPath) = SELECT Table
+    FROM parse_ese_catalog(file=OSPath)
+    WHERE Table =~ "Container_"
+    GROUP BY Table
+
+    LET AllHits(OSPath) = SELECT * FROM foreach(row={
+        SELECT * FROM Containers(OSPath=OSPath)
+    }, query={
+       SELECT timestamp(winfiletime=ExpiryTime) AS ExpiryTime,
+          timestamp(winfiletime=ModifiedTime) AS ModifiedTime,
+          timestamp(winfiletime=AccessedTime) AS AccessedTime, Url, *
+       FROM parse_ese(file=OSPath, table=Table)
+    })
+
+    SELECT * FROM foreach(row=MatchingFiles, query={
+      SELECT * FROM AllHits(OSPath=OSPath)
+    })
+
+- name: Highlights
+  VQL: |
+    SELECT * FROM foreach(row=MatchingFiles, query={
+      SELECT AccessedTime, ModifiedTime, ExpiryTime, Url
+      FROM AllHits(OSPath=OSPath)
+    })

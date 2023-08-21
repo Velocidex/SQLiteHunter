@@ -1,0 +1,107 @@
+Name: Windows Search Service
+
+Description: |
+  Analysis of the Windows search index database. See
+  https://www.aon.com/cyber-solutions/aon_cyber_labs/windows-search-index-the-forensic-artifact-youve-been-searching-for/
+
+Categories:
+  - Windows
+
+FilenameRegex: "Windows.edb"
+Globs:
+  - C:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb
+
+Sources:
+- name: SystemIndex_Gthr
+  VQL: |
+    LET MatchingFiles = SELECT OSPath FROM Rows
+
+    LET FormatTimeB(T) = timestamp(winfiletime=parse_binary(
+       filename=T, accessor="data", struct="uint64b"))
+
+    LET FormatTime(T) = timestamp(winfiletime=parse_binary(
+       filename=T, accessor="data", struct="uint64"))
+
+    LET FormatSize(T) = parse_binary(
+       filename=T, accessor="data", struct="uint64")
+
+    SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT ScopeID, DocumentID, SDID,
+          FormatTimeB(T=LastModified) AS LastModified,
+          FileName
+       FROM parse_ese(file=OSPath, table= "SystemIndex_Gthr")
+    })
+
+- name: SystemIndex_GthrPth
+  VQL: |
+    SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT Scope, Parent, Name
+       FROM parse_ese(file=OSPath, table= "SystemIndex_GthrPth")
+    })
+
+- name: SystemIndex_PropertyStore
+  VQL: |
+    LET X = scope()
+
+    -- The PropertyStore columns look like
+    -- <random>-ProperName so we strip the
+    -- random part off to display it properly.
+    LET FilterDict(Dict) = to_dict(item={
+      SELECT split(sep_string="-", string=_key)[1] || _key AS _key, _value
+      FROM items(item=Dict)
+    })
+
+    LET PropStore(OSPath) = SELECT *,
+       FormatTime(T=X.System_Search_GatherTime) AS System_Search_GatherTime,
+       FormatSize(T=X.System_Size) AS System_Size,
+       FormatTime(T=X.System_DateModified) AS System_DateModified,
+       FormatTime(T=X.System_DateAccessed) AS System_DateAccessed,
+       FormatTime(T=X.System_DateCreated) AS System_DateCreated
+    FROM foreach(row={
+       SELECT *, FilterDict(Dict=_value) AS _value
+       FROM items(item={
+         SELECT * FROM parse_ese(file=OSPath, table="SystemIndex_PropertyStore")
+      })
+    }, column="_value")
+
+    SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT *
+       FROM PropStore(OSPath=OSPath)
+    })
+
+- name: SystemIndex_PropertyStore_Highlights
+  VQL: |
+    SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT WorkID,
+          System_Search_GatherTime,
+          System_Size,
+          System_DateModified,
+          System_DateCreated,
+          X.System_FileOwner AS System_FileOwner,
+          X.System_ItemPathDisplay AS System_ItemPathDisplay,
+          X.System_ItemType AS System_ItemType,
+          X.System_FileAttributes AS System_FileAttributes,
+          X.System_Search_AutoSummary AS System_Search_AutoSummary
+       FROM PropStore(OSPath=OSPath)
+    })
+
+- name: BrowsingActivity
+  VQL: |
+    SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT X.ItemPathDisplay AS ItemPathDisplay,
+          X.Activity_ContentUri AS Activity_ContentUri,
+          X.Activity_Description AS Activity_Description
+       FROM PropStore(OSPath=OSPath)
+       WHERE Activity_ContentUri
+    })
+
+- name: UserActivityLogging
+  VQL: |
+    SELECT * FROM foreach(row=MatchingFiles, query={
+       SELECT X.System_ItemPathDisplay AS System_ItemPathDisplay,
+           FormatTime(T=X.ActivityHistory_StartTime) AS ActivityHistory_StartTime,
+           FormatTime(T=X.ActivityHistory_EndTime) AS ActivityHistory_EndTime,
+           X.ActivityHistory_AppId AS ActivityHistory_AppId
+       FROM PropStore(OSPath=OSPath)
+       WHERE ActivityHistory_AppId
+    })
