@@ -22,6 +22,8 @@ Sources:
 - name: Predictor
   VQL: |
     SELECT * FROM Rows
+    WHERE UserText =~ FilterRegex
+
   SQL: |
     SELECT
        network_action_predictor.id AS ID,

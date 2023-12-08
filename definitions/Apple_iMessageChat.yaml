@@ -18,6 +18,8 @@ Sources:
   VQL: |
     SELECT timestamp(epoch=date / 1000000000 + 978307200) AS Timestamp, *
     FROM Rows
+    WHERE Timestamp > DateAfter AND Timestamp < DateBefore
+      AND (MessageText, RoomName) =~ FilterRegex
 
   SQL: |
     SELECT

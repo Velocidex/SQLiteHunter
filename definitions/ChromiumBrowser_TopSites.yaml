@@ -21,6 +21,7 @@ Globs:
 Sources:
 - VQL: |
     SELECT * FROM Rows
+    WHERE ( URL =~ FilterRegex OR Title =~ FilterRegex )
 
   SQL: |
     SELECT

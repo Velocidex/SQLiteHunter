@@ -30,6 +30,12 @@ in many types of applications:
 This artifact can hunt for these artifacts in a mostly automated way.
 More info at https://github.com/Velocidex/SQLiteHunter
 
+NOTE: If you want to use this artifact on just a bunch of files already
+collected (for example the files collected using the
+Windows.KapeFiles.Targets artifact) you can use the CustomGlob parameter
+(for example set it to "/tmp/unpacked/**" to consider all files in the
+unpacked directory).
+
 `,
 		Category: ordereddict.NewDict().Set("All", true),
 		Spec: api.Spec{

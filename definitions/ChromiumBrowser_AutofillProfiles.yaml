@@ -29,6 +29,9 @@ Sources:
       PhoneNumber, CompanyName, StreetAddress,
       City, State, ZipCode, UseCount, OSPath
     FROM Rows
+    WHERE UseDate > DateAfter AND UseDate < DateBefore
+      AND (FirstName, MiddleName, LastName, EmailAddress, CompanyName, StreetAddress) =~ FilterRegex
+
   SQL: |
     SELECT
       autofill_profiles.guid AS GUID,

@@ -26,6 +26,9 @@ Sources:
        timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated,
        OriginID, OSPath
     FROM Rows
+    WHERE LastUpdated > DateAfter AND LastUpdated < DateBefore
+      AND URL =~ FilterRegex
+
   SQL: |
     SELECT
       playback.id AS ID,
@@ -46,6 +49,9 @@ Sources:
       position_ms / 1000 AS PositionInSeconds,
       Title, Artist, Album, SourceTitle, OriginID, OSPath
     FROM Rows
+    WHERE LastUpdated > DateAfter AND LastUpdated < DateBefore
+      AND URL =~ FilterRegex
+
   SQL: |
     SELECT
       playbackSession.id AS ID,

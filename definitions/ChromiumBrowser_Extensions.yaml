@@ -38,3 +38,4 @@ Sources:
                 then=upload(file=OSPath.Dirname + GetIcon(Manifest=Manifest))) AS Image,
       Manifest AS _Manifest
     FROM LocaleData
+    WHERE (name, description) =~ FilterRegex

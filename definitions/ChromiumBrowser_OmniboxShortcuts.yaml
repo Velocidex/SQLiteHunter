@@ -25,6 +25,8 @@ Sources:
       TextTyped, FillIntoEdit, URL, Contents,
       Description, Type, Keyword, TimesSelectedByUser, OSPath
     FROM Rows
+    WHERE LastAccessTime > DateAfter AND LastAccessTime < DateBefore
+      AND (Contents, Description) =~ FilterRegex
 
   SQL: |
     SELECT

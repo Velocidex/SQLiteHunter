@@ -24,6 +24,10 @@ Sources:
        timestamp(epoch= expiry) AS Expiration,
        CurrentBytes, MaxBytes, OSPath
     FROM Rows
+    WHERE StartTime > DateAfter
+      AND StartTime < DateBefore
+      AND Name =~ FilterRegex
+
   SQL: |
     SELECT
        moz_downloads.id AS ID,
