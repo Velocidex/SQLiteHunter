@@ -29,6 +29,9 @@ Sources:
        visit_duration / 1000000 AS VisitDurationInSeconds,
        OSPath
     FROM Rows
+    WHERE VisitTime > DateAfter
+      AND VisitTime < DateBefore
+      AND (URLTitle, URL) =~ FilterRegex
   SQL: |
     SELECT
       urls.id AS ID,
@@ -72,6 +75,9 @@ Sources:
       get(item=InterruptReason, field=str(str=interrupt_reason), default="Unknown") AS InterruptReason,
       ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL, OSPath
     FROM Rows
+    WHERE LastAccessTime > DateAfter AND LastAccessTime < DateBefore
+      AND (SiteURL, DownloadURL, TabURL, TabReferrerURL, ReferrerURL, DownloadURL) =~ FilterRegex
+
   SQL: |
     SELECT
       downloads.id AS ID,
@@ -104,6 +110,9 @@ Sources:
        timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,
        KeywordSearchTerm, Title, URL, OSPath
     FROM Rows
+    WHERE LastVisitedTime > DateAfter AND LastVisitedTime < DateBefore
+      AND (Title, KeywordSearchTerm, URL) =~ FilterRegex
+
   SQL: |
     SELECT
       keyword_search_terms.keyword_id AS KeywordID,

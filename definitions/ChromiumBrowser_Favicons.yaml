@@ -28,7 +28,7 @@ Sources:
          name=format(format="Image%v.png", args=ID)) AS Image,
       OSPath as _OSPath
     FROM Rows
-
+    WHERE LastUpdated > DateAfter AND LastUpdated < DateBefore
 
   SQL: |
     SELECT

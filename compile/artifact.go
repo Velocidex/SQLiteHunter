@@ -88,6 +88,21 @@ parameters:
 - name: CustomGlob
   description: Specify this glob to select other files
 
+- name: DateAfter
+  description: Timebox output to rows after this time.
+  type: timestamp
+  default: "1970-01-01T00:00:00Z"
+
+- name: DateBefore
+  description: Timebox output to rows after this time.
+  type: timestamp
+  default: "2100-01-01T00:00:00Z"
+
+- name: FilterRegex
+  description: Filter critical rows by this regex
+  type: regex
+  default: .
+
 %v
 
 - name: SQLITE_ALWAYS_MAKE_TEMPFILE

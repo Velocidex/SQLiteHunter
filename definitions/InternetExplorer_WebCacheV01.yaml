@@ -30,6 +30,9 @@ Sources:
     SELECT * FROM foreach(row=MatchingFiles, query={
       SELECT * FROM AllHits(OSPath=OSPath)
     })
+    WHERE AccessedTime > DateAfter AND AccessedTime < DateBefore
+      AND Url =~ FilterRegex
+
 
 - name: Highlights
   VQL: |
@@ -37,3 +40,5 @@ Sources:
       SELECT AccessedTime, ModifiedTime, ExpiryTime, Url
       FROM AllHits(OSPath=OSPath)
     })
+    WHERE AccessedTime > DateAfter AND AccessedTime < DateBefore
+      AND Url =~ FilterRegex

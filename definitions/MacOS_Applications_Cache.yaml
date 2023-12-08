@@ -37,6 +37,8 @@ Sources:
        partition AS Partition,
        OSPath
     FROM Rows
+    WHERE Timestamp > DateAfter AND Timestamp < DateBefore
+      AND Application =~ FilterRegex
 
   SQL: |
     SELECT cfurl_cache_response.entry_ID AS entry_ID,

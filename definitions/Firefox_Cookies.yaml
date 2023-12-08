@@ -25,6 +25,10 @@ Sources:
        Bool(Value= isSecure) AS IsSecure,
        Bool(Value= isHttpOnly) AS IsHTTPOnly, OSPath
     FROM Rows
+    WHERE LastAccessedTime > DateAfter
+      AND LastAccessedTime < DateBefore
+      AND ( Name =~ FilterRegex OR Value =~ FilterRegex )
+
   SQL: |
     SELECT
       moz_cookies.id AS ID,

@@ -23,6 +23,7 @@ Sources:
       ActivityId[8:10], ActivityId[10:] ]) AS ActivityId,
       Platform, PackageName, ExpirationTime, OSPath
     FROM Rows
+
   SQL: |
     Select ActivityId, Platform, PackageName, ExpirationTime
     FROM Activity_PackageId
@@ -33,8 +34,8 @@ Sources:
   VQL: |
       SELECT
         CreatedTime,
-        LastModifiedTime,
-        LastModifiedOnClient,
+        timestamp(epoch=LastModifiedTime) AS LastModifiedTime,
+        timestamp(epoch=LastModifiedOnClient) AS LastModifiedOnClient,
         StartTime,
         EndTime,
         Payload,
@@ -43,3 +44,6 @@ Sources:
         OSPath AS Path,
         Mtime
       FROM Rows
+      WHERE StartTime > DateAfter
+        AND StartTime < DateBefore
+        AND ClipboardPayload =~ FilterRegex

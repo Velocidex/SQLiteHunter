@@ -31,6 +31,8 @@ Sources:
           FileName
        FROM parse_ese(file=OSPath, table= "SystemIndex_Gthr")
     })
+    WHERE LastModified > DateAfter AND LastModified < DateBefore
+      AND FileName =~ FilterRegex
 
 - name: SystemIndex_GthrPth
   VQL: |
@@ -38,6 +40,7 @@ Sources:
        SELECT Scope, Parent, Name
        FROM parse_ese(file=OSPath, table= "SystemIndex_GthrPth")
     })
+    WHERE Name =~ FilterRegex
 
 - name: SystemIndex_PropertyStore
   VQL: |
@@ -68,6 +71,7 @@ Sources:
        SELECT *
        FROM PropStore(OSPath=OSPath)
     })
+    WHERE System_DateAccessed > DateAfter AND System_DateAccessed < DateBefore
 
 - name: SystemIndex_PropertyStore_Highlights
   VQL: |
@@ -84,6 +88,7 @@ Sources:
           X.System_Search_AutoSummary AS System_Search_AutoSummary
        FROM PropStore(OSPath=OSPath)
     })
+    WHERE System_DateAccessed > DateAfter AND System_DateAccessed < DateBefore
 
 - name: BrowsingActivity
   VQL: |
@@ -105,3 +110,5 @@ Sources:
        FROM PropStore(OSPath=OSPath)
        WHERE ActivityHistory_AppId
     })
+    WHERE ActivityHistory_StartTime > DateAfter
+      AND ActivityHistory_StartTime < DateBefore

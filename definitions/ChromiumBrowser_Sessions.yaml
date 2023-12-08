@@ -17,7 +17,18 @@ Globs:
 Sources:
 - name: Sessions
   VQL: |
-    SELECT * FROM info()
+    SELECT timestamp(winfiletime=(creation_utc * 10) || 0) AS CreationUTC,
+           timestamp(winfiletime=(expires_utc * 10) || 0) AS ExpiresUTC,
+           timestamp(winfiletime=(last_access_utc * 10) || 0) AS LastAccessUTC,
+           HostKey, Name, Path,
+           Bool(Value=is_secure) AS IsSecure,
+           Bool(Value=is_httponly) AS IsHttpOnly,
+           Bool(Value=has_expires) AS HasExpiration,
+           Bool(Value=is_persistent) AS IsPersistent,
+           Priority, SourcePort, OSPath
+    FROM Rows
+    WHERE LastAccessUTC > DateAfter AND LastAccessUTC < DateBefore
+      AND (Name, Path) =~ FilterRegex
 
   SQL: |
     SELECT

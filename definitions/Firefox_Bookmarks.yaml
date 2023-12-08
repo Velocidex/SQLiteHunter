@@ -26,6 +26,9 @@ Sources:
        timestamp(epoch=lastModified) AS LastModified,
        Position, Title, URL, ForeignKey, OSPath
     FROM Rows
+    WHERE LastModified > DateAfter AND LastModified < DateBefore
+      AND (Title, URL) =~ FilterRegex
+
   SQL: |
     SELECT
       Bookmarks.id AS ID,
@@ -48,6 +51,9 @@ Sources:
        timestamp(epoch=lastModified) AS LastModified,
        OSPath
     FROM Rows
+    WHERE LastModified > DateAfter AND LastModified < DateBefore
+      AND Content =~ FilterRegex
+
   SQL: |
     SELECT
       moz_annos.place_id AS PlaceID,
@@ -69,9 +75,12 @@ Sources:
        VisitCount, URL, Title, Description,
        get(item= VisitType, field=str(str=visit_type), default="Unknown") AS VisitType,
        Bool(Value=hidden) AS Hidden,
-       Bool(Value=types) AS Typed,
+       Bool(Value=typed) AS Typed,
        Frecency, PreviewImageURL, OSPath
     FROM Rows
+    WHERE LastVisitDate > DateAfter AND LastVisitDate < DateBefore
+      AND (Title, URL, Description) =~ FilterRegex
+
   SQL: |
     SELECT
       moz_historyvisits.id AS VisitID,
@@ -83,7 +92,7 @@ Sources:
       moz_places.description AS Description,
       moz_historyvisits.visit_type,
       moz_places.hidden,
-      moz_places.types,
+      moz_places.typed,
       moz_places.frecency AS Frecency,
       moz_places.preview_image_url AS PreviewImageURL
     FROM moz_places

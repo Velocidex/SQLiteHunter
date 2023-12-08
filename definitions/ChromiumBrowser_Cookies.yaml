@@ -28,6 +28,9 @@ Sources:
            Bool(Value=is_persistent) AS IsPersistent,
            Priority, SourcePort, OSPath
     FROM Rows
+    WHERE LastAccessUTC > DateAfter AND LastAccessUTC < DateBefore
+      AND (Name, Path) =~ FilterRegex
+
   SQL: |
     SELECT
       cookies.creation_utc,

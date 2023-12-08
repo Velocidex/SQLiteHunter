@@ -24,6 +24,9 @@ Sources:
        timestamp(epoch= lastUsed) AS LastUsed,
        GUID, OSPath
     FROM Rows
+    WHERE LastUsed > DateAfter AND LastUsed < DateBefore
+      AND ( FieldName =~ FilterRegex OR Value =~ FilterRegex )
+
   SQL: |
     SELECT
       id AS ID,
