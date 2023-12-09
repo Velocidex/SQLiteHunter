@@ -1,0 +1,17 @@
+{
+  "FilterRegex=Audio": [
+    "[][",
+    " {",
+    "  \"_Source\": \"Generic.Forensic.SQLiteHunter/AllFiles\",",
+    " },",
+    " {",
+    "  \"ID\": 2,",
+    "  \"Last Visited Time\": \"2023-08-27T11:00:53Z\",",
+    "  \"Title\": \"How to Record Audio on Windows 10\",",
+    "  \"URL\": \"https://www.lifewire.com/how-to-record-audio-on-windows-10-4773840\",",
+    "  \"VisitCount\": 1,",
+    "  \"_Source\": \"Generic.Forensic.SQLiteHunter/Edge Browser Navigation History_Navigation History\",",
+    " }",
+    "]"
+  ]
+}
