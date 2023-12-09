@@ -53,19 +53,13 @@ func (self *SQLiteHunterTestSuite) findAndPrepareBinary() {
 	}
 }
 
-func (self *SQLiteHunterTestSuite) TestArtifact() {
+func (self *SQLiteHunterTestSuite) TestFirefoxHistory() {
 	t := self.T()
 
 	cwd, err := os.Getwd()
 	assert.NoError(t, err)
 
 	golden := ordereddict.NewDict()
-
-	// This file has these dates:
-	// 2020-06-27T09:29:54.51375Z
-	// 2020-06-27T09:30:05.721357Z
-	// 2020-06-30T05:53:37.171Z
-	// 2021-02-21T08:55:10.488Z
 	argv := []string{
 		"--definitions", "../output",
 		"query", `LET S = scope()
@@ -77,15 +71,20 @@ FROM Artifact.Generic.Forensic.SQLiteHunter(
    FilterRegex=S.FilterRegex || ".",
    MatchFilename=FALSE, All=FALSE, Chrome=TRUE, CustomGlob=CustomGlob)
 WHERE VisitID
-`,
-		"--env", "CustomGlob=" + filepath.Join(cwd, "../test_files/Firefox/*")}
+`, "--env", "CustomGlob=" + filepath.Join(cwd, "../test_files/Firefox/*")}
 
+	// This file has these dates:
+	// 2020-06-27T09:29:54.51375Z
+	// 2020-06-27T09:30:05.721357Z
+	// 2020-06-30T05:53:37.171Z
+	// 2021-02-21T08:55:10.488Z
 	out, err := runWithArgs(argv)
 	require.NoError(t, err, out)
 
 	golden.Set("All Records", filterOut(out))
 
-	out, err = runWithArgs(argv, "--env", "DateAfter=2021-02-20T08:55:10.488Z")
+	out, err = runWithArgs(argv,
+		"--env", "DateAfter=2021-02-20T08:55:10.488Z")
 	assert.NoError(t, err, out)
 
 	golden.Set("After 2021-02-20T08:55:10.488Z should be only 2021-02-21T08:55:10.488Z",
@@ -97,7 +96,8 @@ WHERE VisitID
 	golden.Set("DateBefore=2020-06-27T09:30:00Z should be only 2020-06-27T09:29:54.51375Z",
 		filterOut(out))
 
-	out, err = runWithArgs(argv, "--env", "FilterRegex=Firefox Developer Edition")
+	out, err = runWithArgs(argv,
+		"--env", "FilterRegex=Firefox Developer Edition")
 	golden.Set("FilterRegex=Firefox Developer Edition",
 		filterOut(out))
 

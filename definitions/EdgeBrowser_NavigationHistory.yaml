@@ -1,0 +1,40 @@
+Name: Edge Browser Navigation History
+Author: Suyash Tripathi
+Email: suyash.tripathi@cybercx.com.au
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND name='navigation_history';
+SQLiteIdentifyValue: 1
+Categories:
+  - Edge
+  - Browser
+FilenameRegex: "WebAssistDatabase"
+Globs:
+  - "{{WindowsChromeProfiles}}/*/WebAssistDatabase"
+  - "{{MacOSChromeProfiles}}/*/WebAssistDatabase"
+
+Sources:
+- name: Navigation History
+  VQL: |
+    SELECT ID,
+       timestamp(epoch=`Last Visited Time`) AS `Last Visited Time`,
+       Title, URL, VisitCount, OSPath
+    FROM Rows
+    WHERE `Last Visited Time` > DateAfter
+      AND `Last Visited Time` < DateBefore
+      AND (Title, URL) =~ FilterRegex
+
+  SQL: |
+    SELECT
+      navigation_history.id AS ID,
+      navigation_history.last_visited_time AS 'Last Visited Time',
+      navigation_history.title AS Title,
+      navigation_history.url AS URL,
+      navigation_history.num_visits AS VisitCount
+    FROM
+      navigation_history
+    ORDER BY
+      navigation_history.last_visited_time ASC;
