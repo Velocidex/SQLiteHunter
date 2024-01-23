@@ -10,4 +10,8 @@ windows:
 compile: FORCE
 	./sqlitehunter_compiler -config ./config.yaml -definition_directory ./definitions > output/SQLiteHunter.yaml
 
+golden: compile
+	./testing/velociraptor.bin --definitions ./output --config ./testing/test.config.yaml golden --env testFiles=`pwd`/test_files ./testing/testcases -v --filter=${GOLDEN}
+
+
 FORCE:

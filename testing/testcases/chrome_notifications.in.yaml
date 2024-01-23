@@ -1,0 +1,6 @@
+Queries:
+  - |
+    SELECT *, OSPath.Basename AS OSPath
+    FROM Artifact.Generic.Forensic.SQLiteHunter(
+       MatchFilename=TRUE, All=FALSE, Chrome=TRUE,
+       CustomGlob=testFiles + '/Chrome/*')
