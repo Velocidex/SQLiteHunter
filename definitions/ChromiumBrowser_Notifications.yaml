@@ -56,7 +56,8 @@ Sources:
     },  query={
       SELECT _key AS Site,
         timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,
-        ContentSettings[_value.setting] AS Setting
+        ContentSettings[_value.setting] AS Setting,
+        OSPath
       FROM items(item=exceptions.notifications)
     })
 
@@ -71,6 +72,7 @@ Sources:
       SELECT _key AS URL,
         timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,
         _value.display_count as DisplayCount,
-        _value.click_count as ClickCount
+        _value.click_count as ClickCount,
+        OSPath
       FROM items(item=S.notification_interactions || dict())
     })

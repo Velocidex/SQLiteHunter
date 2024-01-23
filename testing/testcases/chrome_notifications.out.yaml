@@ -1,25 +1,25 @@
-SELECT * --, OSPath.Basename AS OSPath
+SELECT *, OSPath.Basename AS OSPath
 FROM Artifact.Generic.Forensic.SQLiteHunter(
    MatchFilename=TRUE, All=FALSE, Chrome=TRUE,
    CustomGlob=testFiles + '/Chrome/*')
 [
  {
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/AllFiles"
+  "_Source": "Generic.Forensic.SQLiteHunter/AllFiles",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://docs.velociraptor.app:443,*",
   "LastModified": "2024-01-22T04:19:19Z",
   "LastEngagementTime": "2024-01-21T20:10:29Z",
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Site Engagements"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Site Engagements",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://github.com:443,*",
   "LastModified": "2024-01-22T04:19:19Z",
   "LastEngagementTime": "2024-01-21T20:17:51Z",
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Site Engagements"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Site Engagements",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://developer.chrome.com:443,*",
@@ -29,8 +29,8 @@ FROM Artifact.Generic.Forensic.SQLiteHunter(
    "CouldShowBannerEvents": "2024-01-21T14:33:10Z",
    "LastShown": "2024-01-21T14:32:36Z"
   },
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://developercommunity.visualstudio.com:443,*",
@@ -40,8 +40,8 @@ FROM Artifact.Generic.Forensic.SQLiteHunter(
    "CouldShowBannerEvents": "2024-01-23T01:36:02Z",
    "LastShown": "2024-01-23T01:35:54Z"
   },
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://github.com:443,*",
@@ -51,8 +51,8 @@ FROM Artifact.Generic.Forensic.SQLiteHunter(
    "CouldShowBannerEvents": "2024-01-21T14:48:57Z",
    "LastShown": "2024-01-21T14:48:23Z"
   },
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://web.dev:443,*",
@@ -62,13 +62,14 @@ FROM Artifact.Generic.Forensic.SQLiteHunter(
    "CouldShowBannerEvents": "2024-01-21T14:37:03Z",
    "LastShown": "2024-01-21T14:36:56Z"
   },
-  "OSPath": "/home/mic/projects/SQLiteHunter/test_files/Chrome/Preferences",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "OSPath": "Preferences"
  },
  {
   "Site": "https://appuals.com:443,*",
   "LastModified": "2019-10-14T06:39:30Z",
   "Setting": "Block",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Notification Preferences"
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Notification Preferences",
+  "OSPath": "Preferences"
  }
 ]
