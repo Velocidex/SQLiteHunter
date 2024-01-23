@@ -12,53 +12,65 @@ Globs:
   - "{{MacOSChromeProfiles}}/*/Preferences"
 
 Sources:
+- name: Site Engagements
+  VQL: |
+    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
+
+    SELECT * FROM foreach(row={
+      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
+    },  query={
+      SELECT _key AS Site,
+         timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,
+         timestamp(winfiletime=int(int=_value.setting.lastEngagementTime) * 10 || 0) AS LastEngagementTime,
+         OSPath
+      FROM items(item=exceptions.site_engagement)
+    })
+
+- name: App Banners
+  VQL: |
+    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
+
+    SELECT * FROM foreach(row={
+      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
+    },  query={
+      SELECT _key AS Site,
+         timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,
+         {
+           SELECT _key AS Site,
+              timestamp(winfiletime=int(int=_value.couldShowBannerEvents) * 10 || 0) AS CouldShowBannerEvents,
+              timestamp(winfiletime=int(int=_value.next_install_text_animation.last_shown) * 10 || 0) AS LastShown
+           FROM items(item=_value.setting)
+         } AS Setting,
+         OSPath
+      FROM items(item=exceptions.app_banner)
+    })
+
 - name: Notification Preferences
   VQL: |
     LET ContentSettings <= array(`0`="Default",`1`="Allow",`2`="Block",`3`="Ask",`4`="Session Only",`5`="Detect Important Content")
-    LET Notifications <= SELECT * FROM foreach(
-      row={SELECT OSPath FROM Rows},
-      query={
-        SELECT profile.content_settings.exceptions.notifications AS Notifications, OSPath
-        FROM parse_jsonl(filename=OSPath)
-      })
-    SELECT * FROM foreach(
-      row=Notifications,
-      query={
-        SELECT
-          _key as URL,
-          timestamp(winfiletime=(int(int=_value.last_modified)*10)) as LastModified,
-          ContentSettings[_value.setting] AS Setting,
-          OSPath
-        FROM items(item=Notifications)
-      })
-    
+
+    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
+
+    SELECT * FROM foreach(row={
+      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
+    },  query={
+      SELECT _key AS Site,
+        timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,
+        ContentSettings[_value.setting] AS Setting
+      FROM items(item=exceptions.notifications)
+    })
+
 - name: Notification Interactions
   VQL: |
-    LET Notifications <= SELECT * FROM foreach(
-      row={SELECT OSPath FROM Rows},
-      query={
-        SELECT profile.content_settings.exceptions.notification_interactions AS Interactions, OSPath
-        FROM parse_jsonl(filename=OSPath)
-      })
-    LET Interactions <= SELECT * FROM foreach(
-      row=Notifications,
-      query={
-        SELECT
-          _key as URL,
-          timestamp(winfiletime=(int(int=_value.last_modified)*10)) as LastModified,
-          _value.setting AS Setting,
-          OSPath
-        FROM items(item=Interactions)
-      })
-    SELECT * FROM foreach(
-      row=Interactions,
-      query={
-        SELECT
-          URL, 
-          LastModified,
-          timestamp(epoch=_key) as Date,
-          _value.display_count as DisplayCount,
-          _value.click_count as ClickCount,
-          OSPath
-        FROM items(item=Setting)
-      })
+    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
+    LET S = scope()
+
+    SELECT * FROM foreach(row={
+      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
+    },  query={
+      SELECT _key AS URL,
+        timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,
+        _value.display_count as DisplayCount,
+        _value.click_count as ClickCount
+      FROM items(item=S.notification_interactions || dict())
+    })
