@@ -6,8 +6,8 @@ SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
   WHERE type='table'
-    AND (name='urls' OR name='visits' OR name='downloads' OR name='segments' OR name='typed_url_sync_metadata');
-SQLiteIdentifyValue: 5
+    AND (name='urls' OR name='visits' OR name='downloads' OR name='segments');
+SQLiteIdentifyValue: 4
 Categories:
   - Chrome
   - Browser
