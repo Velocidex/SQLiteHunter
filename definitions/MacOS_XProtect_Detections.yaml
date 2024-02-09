@@ -27,6 +27,10 @@ Sources:
 - VQL: |
     SELECT *
     FROM Rows
+    WHERE dt > DateAfter
+      AND dt < DateBefore
+      AND (violated_rule, exec_path, responsible_path, responsible_signing_id,
+        exec_cdhash, exec_sha256, responsible_cdhash, responsible_sha256 ) =~ FilterRegex
 
   SQL: |
     SELECT * FROM events
