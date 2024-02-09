@@ -1,0 +1,36 @@
+Name: MacOS XProtect Detections
+Author: Matt Green - @mgreen27
+Description: |
+   This artifact provides details about XProtect detections on macOS.
+
+   macOS includes built-in antivirus technology called XProtect for 
+   the signature-based detection and removal of malware. The system 
+   uses YARA and behavorial signatures.
+
+Reference: https://www.huntress.com/blog/dmxprotect-stop-drop-shut-malware-down-before-it-opens-up-shop
+
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND name='events';
+SQLiteIdentifyValue: 1
+
+Categories:
+  - MacOS
+
+FilenameRegex: "XPdb"
+Globs:
+  - "/private/var/protected/xprotect/XPdb"
+
+Sources:
+- VQL: |
+    SELECT *
+    FROM Rows
+    WHERE dt > DateAfter
+      AND dt < DateBefore
+      AND (violated_rule, exec_path, responsible_path, responsible_signing_id,
+        exec_cdhash, exec_sha256, responsible_cdhash, responsible_sha256 ) =~ FilterRegex
+
+  SQL: |
+    SELECT * FROM events
