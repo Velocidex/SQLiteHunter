@@ -32,7 +32,7 @@ application based on the file, and finally analysis of the file:
    desired targets based on glob expressions to quickly locate the
    usual places these are stored. For example, looking for Chrome
    Browser History files typically these are stored in
-   `C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data`.
+   `C:\Users\*\AppData\{Roaming,Local}\Google\Chrome\User Data`.
 
    By employing targeted glob expressions we can quickly locate
    relevant files. However the user can also provide a generic glob
