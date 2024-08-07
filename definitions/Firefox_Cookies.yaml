@@ -1,6 +1,6 @@
 Name: Firefox Cookies
 Author: Andrew Rathbun
-Email: andrew.rathbun@kroll.com
+Email: andrew.d.rathbun@gmail.com
 Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
