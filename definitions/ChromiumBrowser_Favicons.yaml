@@ -1,6 +1,6 @@
 Name: Chromium Browser Favicons
 Author: Andrew Rathbun, Phill Moore
-Email: andrew.rathbun@kroll.com, @phillmoore
+Email: andrew.d.rathbun@gmail.com, @phillmoore
 Reference: https://github.com/EricZimmerman/SQLECmd
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
