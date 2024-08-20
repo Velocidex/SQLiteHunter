@@ -79,21 +79,21 @@ The main logic is stored in YAML definitions stored in the
 3. `SQLiteIdentifyQuery` and `SQLiteIdentifyValue`: To test if the SQLite
    file is one that should be targeted by this definition,
    Velociraptor will run the SQLiteIdentifyQuery which should produce
-   one row and one columns called `Check`. The value in this column
+   one row and one column called `Check`. The value in this column
    will be checked against SQLiteIdentifyValue to determine if the
    file qualifies for this map.
 
 4. `Categories`: A list of keywords that can be used to limit the
    collection to only certain categories. Note that some categories
-   may overlap (e.g. Chrome and Browser)
+   may overlap (e.g. Chrome and Browser).
 
 5. `FilenameRegex`: A regex that can be used to the filename to shortcut
    identification of the file when `MatchFilename` is enabled. NOTE
    that we do this in addition to the `SQLiteIdentifyQuery` so it is
    only an optimization to speed up processing.
 
-6. `Globs`: A list of glob expression. This list can be interpolated
-   with the globs in `config.yaml`
+6. `Globs`: A list of glob expressions. This list can be interpolated
+   with the globs in `config.yaml`.
 
 7. `Sources`: This is a list of source definitions that will be
    converted to an artifact source. Each of these may contain:
@@ -103,7 +103,7 @@ The main logic is stored in YAML definitions stored in the
      definition source to build the Artifact source name in the final
      artifact.
    * `VQL`: This is a VQL query that will be used to build the artifact
-     source. The query must end with `SELECT .... FROM Rows`
+     source. The query must end with `SELECT .... FROM Rows`.
    * `SQL`: This is the SQL query that will be applied to the SQLite
      file. Generally it is easier to apply enrichment, processing etc
      in the VQL so the SQL query can be much simpler.
@@ -156,7 +156,7 @@ Reference: https://github.com/EricZimmerman/SQLECmd
 
 Next I will add the `SQLiteIdentifyQuery` that Velociraptor will run
 to determine if this is in fact a `WebAssistDatabase`. A good check
-(which is used in the original SQLECmd map is to check if the file
+(which is used in the original SQLECmd map) is to check if the file
 contains a `navigation_history` table.
 
 ```yaml
@@ -240,7 +240,7 @@ compile`, next test with Velociraptor (from the top level directory):
 make compile  && ./velociraptor-v0.7.1-linux-amd64 --definitions ./output/ -v artifacts collect Generic.Forensic.SQLiteHunter --args CustomGlob=`pwd`/test_files/Edge/* --args All=N --args Test=Y
 ```
 
-I you do not want to build the `sqlitehunter_compiler` you can just
+If you do not want to build the `sqlitehunter_compiler` you can just
 download it from the Releases page of this repository and place it at
 the top level of the repository - otherwise you can build it from
 source using just `make` at the top level.
