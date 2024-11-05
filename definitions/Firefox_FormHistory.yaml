@@ -16,6 +16,8 @@ Categories:
 FilenameRegex: "formhistory.sqlite"
 Globs:
   - "{{WindowsFirefoxProfiles}}/*/formhistory.sqlite"
+  - "{{LinuxFirefoxProfiles}}/formhistory.sqlite"
+  - "{{MacOSFirefoxProfiles}}/formhistory.sqlite"
 
 Sources:
 - VQL: |
