@@ -12,6 +12,7 @@ Sources:
 - name: All Data
   VQL: |
     LET MatchingFiles = SELECT OSPath FROM Rows
+    LET S = scope()
 
     LET Containers(OSPath) = SELECT Table
     FROM parse_ese_catalog(file=OSPath)
@@ -23,7 +24,8 @@ Sources:
     }, query={
        SELECT timestamp(winfiletime=ExpiryTime) AS ExpiryTime,
           timestamp(winfiletime=ModifiedTime) AS ModifiedTime,
-          timestamp(winfiletime=AccessedTime) AS AccessedTime, Url, *
+          timestamp(winfiletime=AccessedTime) AS AccessedTime,
+          S.Url AS Url, *
        FROM parse_ese(file=OSPath, table=Table)
     })
 
