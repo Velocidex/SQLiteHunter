@@ -1,0 +1,44 @@
+Name: Edge Browser Autofill
+Author: Chris Hayes - Reliance Cyber
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='autofill_edge_field_client_info' OR name='autofill_edge_field_values');
+SQLiteIdentifyValue: 2
+Categories:
+  - Edge
+  - Browser
+
+FilenameRegex: "Web Data"
+Globs:
+  - "{{LinuxChromeProfiles}}/*/Web Data"
+  - "{{WindowsChromeProfiles}}/*/Web Data"
+  - "{{MacOSChromeProfiles}}/*/Web Data"
+
+Sources:
+- name: CombinedAutofill
+  VQL: |
+    SELECT timestamp(epoch=date_last_used) AS DateLastUsed
+    FROM Rows
+    WHERE DateLastUsed > DateAfter AND DateLastUsed < DateBefore
+
+  SQL: |
+    SELECT
+       autofill_edge_field_client_info.form_signature_v1,
+       autofill_edge_field_client_info.form_signature_v2,
+       autofill_edge_field_client_info.domain_value,
+       autofill_edge_field_values.date_last_used,
+       GROUP_CONCAT(autofill_edge_field_client_info.label || ': ' || autofill_edge_field_values.value, ', ') AS label_value_pairs,
+       json_group_object(autofill_edge_field_client_info.label, autofill_edge_field_values.value) AS label_value_json
+    FROM
+       autofill_edge_field_values
+    JOIN
+       autofill_edge_field_client_info
+    ON
+       autofill_edge_field_values.field_id = autofill_edge_field_client_info.field_id
+    GROUP BY
+       autofill_edge_field_client_info.form_signature_v1,
+       autofill_edge_field_client_info.form_signature_v2,
+       autofill_edge_field_client_info.domain_value,
+       autofill_edge_field_values.date_last_used;
