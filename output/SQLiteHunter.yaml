@@ -353,7 +353,7 @@ sources:
       get(item=InterruptReason, field=str(str=interrupt_reason), default="Unknown") AS InterruptReason,
       ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL, OSPath
     FROM Rows
-    WHERE LastAccessTime > DateAfter AND LastAccessTime < DateBefore
+    WHERE StartTime > DateAfter AND StartTime < DateBefore
       AND (SiteURL, DownloadURL, TabURL, TabReferrerURL, ReferrerURL, DownloadURL) =~ FilterRegex
     
 
