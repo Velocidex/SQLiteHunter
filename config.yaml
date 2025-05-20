@@ -2,7 +2,7 @@ Globs:
   LinuxChromeProfiles:
     - /home/*/.config/google-chrome
     - /home/*/.config/chrome-remote-desktop/chrome-profile
-    - /home/*/.config/chromium}
+    - /home/*/.config/chromium
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data
