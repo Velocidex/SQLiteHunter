@@ -19,7 +19,7 @@ Globs:
 Sources:
 - name: CombinedAutofill
   VQL: |
-    SELECT timestamp(epoch=date_last_used) AS DateLastUsed
+    SELECT timestamp(epoch=date_last_used) AS DateLastUsed, *
     FROM Rows
     WHERE DateLastUsed > DateAfter AND DateLastUsed < DateBefore
 
