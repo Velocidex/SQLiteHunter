@@ -30,7 +30,7 @@ jobs:
       - name: Prepare
         run: |
           make build compile
-          cd output/SQLiteHunter.zip ./docs/static/
+          cp output/SQLiteHunter.zip ./docs/static/
 
       - name: Build
         run: cd docs/ && hugo --minify
