@@ -10,7 +10,7 @@ Globs:
 
 Sources:
 - name: All Data
-  VQL: |
+  Preamble: |
     LET MatchingFiles = SELECT OSPath FROM Rows
     LET S = scope()
 
@@ -29,6 +29,7 @@ Sources:
        FROM parse_ese(file=OSPath, table=Table)
     })
 
+  VQL: |
     SELECT * FROM foreach(row=MatchingFiles, query={
       SELECT * FROM AllHits(OSPath=OSPath)
     })

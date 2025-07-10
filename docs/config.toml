@@ -1,0 +1,14 @@
+baseURL = 'http://sqlitehunter.velocidex.com/'
+languageCode = 'en-us'
+title = 'Velociraptor SQLite Hunting'
+
+[module]
+[[module.imports]]
+path = 'github.com/alex-shpak/hugo-book'
+
+[markup.goldmark.renderer]
+unsafe= true
+
+[params]
+BookTheme = 'light'
+BookSearch = false

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/Velocidex/SQLiteHunter/api"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func LoadDefinitions(root string) ([]api.Definition, error) {
@@ -36,6 +36,9 @@ func LoadDefinitions(root string) ([]api.Definition, error) {
 					fmt.Printf("Error processing %v: %v\n", path, err)
 					return err
 				}
+				definition.Filename_ = path
+				definition.RawData_ = string(data)
+
 				definitions = append(definitions, definition)
 			}
 			return nil

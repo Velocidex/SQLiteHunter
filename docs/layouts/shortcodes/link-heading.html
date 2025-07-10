@@ -1,0 +1,2 @@
+{{ $id := .Get 0 | lower | replaceRE "[^0-9a-z-]" "" | replaceRE "-+" "-" -}}
+<a href="#{{ $id }}">{{ .Get 0 }}</a>

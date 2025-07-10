@@ -15,4 +15,5 @@ type GlobSpec struct {
 	Glob     string   `json:"glob"`
 	Tags     []string `json:"tags"`
 	Filename string   `json:"name"`
+	Rule     string   `json:"rule"`
 }

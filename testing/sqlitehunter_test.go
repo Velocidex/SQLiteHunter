@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	VelociraptorUrl        = "https://github.com/Velocidex/velociraptor/releases/download/v0.7.0/velociraptor-v0.7.0-4-linux-amd64-musl"
+	VelociraptorUrl        = "https://github.com/Velocidex/velociraptor/releases/download/v0.74/velociraptor-v0.74.5-linux-amd64-musl"
 	VelociraptorBinaryPath = "./velociraptor.bin"
 )
 
@@ -126,6 +126,7 @@ func filterOut(out string) []string {
 
 func runWithArgs(argv []string, args ...string) (string, error) {
 	full_argv := append(argv, args...)
+	os.Setenv("VELOCIRAPTOR_CONFIG", "")
 
 	fmt.Printf("Running %v %v\n", VelociraptorBinaryPath,
 		strings.Join(full_argv, " "))

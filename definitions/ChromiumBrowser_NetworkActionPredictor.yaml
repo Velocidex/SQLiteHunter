@@ -1,4 +1,7 @@
 Name: Chromium Browser Network
+Description: |
+  Parses the `Network Action Predictor` database
+
 Author: Andrew Rathbun
 Email: andrew.d.rathbun@gmail.com
 Reference: https://github.com/EricZimmerman/SQLECmd

@@ -1,5 +1,8 @@
 Name: iMessage
 Author: x64-julian
+Description: |
+  Parses the `chat.db` from IOS platforms.
+
 SQLiteIdentifyQuery: |
   SELECT count(*) AS `Check`
   FROM sqlite_master
