@@ -2,42 +2,28 @@ package compile
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/Velocidex/SQLiteHunter/api"
 	"github.com/Velocidex/SQLiteHunter/definitions"
 	"github.com/Velocidex/ordereddict"
 )
 
+var (
+	selectRegex = regexp.MustCompile(`(?i)^\s*SELECT`)
+)
+
 type Artifact struct {
-	Spec              api.Spec
-	Name, Description string
-	Category          *ordereddict.Dict
-	Sources           []api.Definition
+	Spec     api.Spec
+	Name     string
+	Category *ordereddict.Dict
+	Sources  []api.Definition
 }
 
 func newArtifact() *Artifact {
 	return &Artifact{
-		Name: "Generic.Forensic.SQLiteHunter",
-		Description: `Hunt for SQLite files.
-
-SQLite has become the de-facto standard for storing application data,
-in many types of applications:
-
-- Web Browsers
-- Operating Systems
-- Various applications, such as iMessage, TCC etc
-
-This artifact can hunt for these artifacts in a mostly automated way.
-More info at https://github.com/Velocidex/SQLiteHunter
-
-NOTE: If you want to use this artifact on just a bunch of files already
-collected (for example the files collected using the
-Windows.KapeFiles.Targets artifact) you can use the CustomGlob parameter
-(for example set it to "/tmp/unpacked/**" to consider all files in the
-unpacked directory).
-
-`,
-		Category: ordereddict.NewDict().Set("All", true),
+		Name:     "Generic.Forensic.SQLiteHunter",
+		Category: ordereddict.NewDict(),
 		Spec: api.Spec{
 			Sources: ordereddict.NewDict(),
 		},
@@ -49,14 +35,13 @@ func Compile(defs []api.Definition,
 	config_obj *api.ConfigDefinitions) (*Artifact, error) {
 
 	res := newArtifact()
+	res.Sources = defs
+
 	for _, d := range defs {
 		categories := d.Categories
 		if len(categories) == 0 {
 			categories = []string{"Misc"}
 		}
-
-		// All artifacts include the All category as well.
-		categories = append(categories, "All")
 
 		for _, c := range categories {
 			res.Category.Update(c, true)
@@ -68,6 +53,7 @@ func Compile(defs []api.Definition,
 				Glob:     g,
 				Tags:     categories,
 				Filename: d.FilenameRegex,
+				Rule:     d.Name,
 			})
 		}
 
@@ -84,6 +70,11 @@ func Compile(defs []api.Definition,
 				s.Name = d.Name
 			} else {
 				s.Name = d.Name + "_" + name
+			}
+
+			if s.VQL != "" && !selectRegex.MatchString(s.VQL) {
+				return nil, fmt.Errorf("Source %v: %v/%v: Invalid VQL clause: Must begin with SELECT. Any VQL definitions should go in a Preamble",
+					d.Filename_, d.Name, name)
 			}
 
 			if s.SQLiteIdentifyQuery == "" {

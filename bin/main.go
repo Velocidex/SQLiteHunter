@@ -1,58 +1,28 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"io/ioutil"
 	"os"
 
-	"github.com/Velocidex/SQLiteHunter/api"
-	"github.com/Velocidex/SQLiteHunter/compile"
-	"github.com/Velocidex/SQLiteHunter/definitions"
-	"gopkg.in/yaml.v3"
+	"github.com/alecthomas/kingpin"
 )
 
-func loadConfig(config_path string) (*api.ConfigDefinitions, error) {
-	fd, err := os.Open(config_path)
-	if err != nil {
-		return nil, err
-	}
+var (
+	app = kingpin.New("sqlitehunter_compiler",
+		"A tool for packaging the SQLiteHunt artifact.")
 
-	data, err := ioutil.ReadAll(fd)
-	if err != nil {
-		return nil, err
-	}
+	command_handlers []CommandHandler
+)
 
-	config_obj := &api.ConfigDefinitions{}
-	err = yaml.Unmarshal(data, config_obj)
-
-	return config_obj, err
-}
+type CommandHandler func(command string) bool
 
 func main() {
-	config_path := flag.String("config", "./config.yaml",
-		"The path to the config file")
+	app.HelpFlag.Short('h')
+	app.UsageTemplate(kingpin.CompactUsageTemplate)
+	command := kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	definition_directory := flag.String("definition_directory", "./definitions",
-		"A directory containing all definitiions")
-
-	flag.Parse()
-
-	config_obj, err := loadConfig(*config_path)
-	if err != nil {
-		panic(err)
+	for _, handler := range command_handlers {
+		if handler(command) {
+			break
+		}
 	}
-
-	defs, err := definitions.LoadDefinitions(*definition_directory)
-	if err != nil {
-		panic(err)
-	}
-
-	spec, err := compile.Compile(defs, config_obj)
-	if err != nil {
-		panic(err)
-	}
-
-	// Serialize the artifact to YAML
-	fmt.Println(spec.Yaml())
 }

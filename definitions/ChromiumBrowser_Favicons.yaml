@@ -1,4 +1,9 @@
 Name: Chromium Browser Favicons
+Description: |
+  Extracts known favicons for visited websites.
+
+  Also uploads and previews the image thumbnails.
+
 Author: Andrew Rathbun, Phill Moore
 Email: andrew.d.rathbun@gmail.com, @phillmoore
 Reference: https://github.com/EricZimmerman/SQLECmd

@@ -1,4 +1,7 @@
-Name: Chromium Browser
+Name: Chromium Browser Cookies
+Description: |
+  Parses the cookies held by the Chromium browser.
+
 Author: Andrew Rathbun
 Email: andrew.d.rathbun@gmail.com
 Reference: https://github.com/EricZimmerman/SQLECmd

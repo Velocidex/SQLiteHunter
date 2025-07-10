@@ -1,0 +1,177 @@
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js">
+</script>
+
+<div class="input-group">
+  <span class="input-group-addon"
+        id="clear"><i class="fas fa-xmark"></i>
+  </span>
+  <input type="text" id="myInput" onkeyup="doSearch()"
+         class="form-control"
+         placeholder="Search rules"
+         aria-describedby="basic-addon2">
+  <span class="input-group-addon"
+        id="basic-addon2"><i class="fas fa-search"></i>
+    <span class="total-count"></span>
+  </span>
+</div>
+
+<hr />
+
+<div class="search_results"></div>
+
+<script>
+  $("#clear").click(function() {
+      let next = $(this).next("input");
+      if (next) { next.val(""); doSearch(); }
+  })
+
+let all_data = [];
+
+$.ajax({
+    url: {{ .Get 0 }},
+}).done(function( data ) {
+  all_data = data;
+  DrawResults(data);
+});
+
+function matchItem(filter, item) {
+    let data = item.RawData;
+    if (data.toUpperCase().includes(filter)) {
+        return true;
+    }
+
+    let labels = [];
+    if (item.Category) {
+        labels.push(item.Category);
+    }
+    for(let j=0;j<labels.length;j++) {
+        if (labels[j].toUpperCase().includes(filter)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+const linebreak = new RegExp("[\\n\\r]")
+
+function addRow(key, value) {
+    if(!value) {
+        return "";
+    }
+
+    if (linebreak.test(value)) {
+        let lines = value.split("\n")
+        for (let i=0;i<lines.length;i++) {
+            lines[i] = "  " + lines[i]
+        }
+        return "\n" + key + ": |\n" + lines.join("\n")
+    };
+    return "\n" + key + ": " + value;
+}
+
+function insertRule(node, item) {
+    let description = $(node).find("p.description");
+    if (!description.length) {
+        return;
+    }
+
+    let existing = node.find("pre");
+    if (existing.length > 0) {
+        existing.remove();
+        description.show();
+        return;
+    }
+
+    description.hide();
+
+    let data = item.RawData;
+    let highlighted = hljs.highlight(data, {language: "yaml"});
+    let new_node = $("<pre>").append($("<code>").append(highlighted.value));
+    description.after(new_node);
+
+    return false;
+}
+
+function doSearch() {
+  // Declare variables
+  let input = document.getElementById('myInput');
+  let filter = input.value.toUpperCase();
+
+  let result = [];
+  for(let i=0;i<all_data.length; i++) {
+      let item = all_data[i];
+      if (matchItem(filter, item)) {
+          result.push(item);
+      };
+      if (result.length > 50) {
+          break;
+      }
+  };
+  DrawResults(result);
+}
+
+// Only show up to 50 hits to make the page load faster.
+function DrawResults(data) {
+    $(".search_results").empty();
+    $("span.total-count").text("Total " + data.length);
+
+    let most_results = data.length;
+    if(most_results > 50) {
+        most_results = 50;
+    }
+
+  for(let i=0;i<most_results; i++) {
+      let item = data[i];
+      let template = $(`
+<div class="panel panel-default color">
+  <div class="panel-heading color">
+    <a class="title" target="new" href=""><h3 class="panel-title color " ></h3></a>
+    <div class="author pull-right"></div>
+  </div>
+  <div class="panel-body color">
+    <div class="border color">
+       <div class="border color">
+         <div class="idea-inner-text-main color">
+           <p class="description "></p>
+           <ul class="sources"></ul>
+           <p class="idea-tag space"></p>
+         </div>
+       </div>
+    </div>
+</div>`);
+
+      template.find(".title").append(item.Name);
+      template.find(".author").append(item.Author);
+      template.find(".description").append(item.Description || item.Comment || item.Name);
+      template.find(".title").click(function() {
+          insertRule(template, item);
+          return false;
+      });
+
+    let labels = item.Categories;
+    for (let j=0; j<labels.length; j++) {
+        let tag = labels[j];
+        let link = $(`
+<a class="space tag"><i class="linkcolour label label-success">` +
+                     tag + `</i></a>`).click(function() {
+                         document.getElementById('myInput').value = tag;
+                         doSearch();
+                     });
+        template.find(".idea-tag").append(link);
+    }
+    let new_item = $(".search_results").append(template);
+
+    let sources = template.find(".sources")
+     for( let j=0; j<item.Sources.length;j++) {
+         let name = item.Sources[j].Name
+         if(name) {
+             let li = $("<li/>").append(name)
+             sources.append(li);
+         }
+     }
+
+  }
+};
+
+</script>

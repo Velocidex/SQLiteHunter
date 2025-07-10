@@ -13,9 +13,10 @@ Globs:
 
 Sources:
 - name: Site Engagements
-  VQL: |
+  Preamble: |
     LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
 
+  VQL: |
     SELECT * FROM foreach(row={
       SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
     },  query={
@@ -27,9 +28,10 @@ Sources:
     })
 
 - name: App Banners
-  VQL: |
+  Preamble: |
     LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
 
+  VQL: |
     SELECT * FROM foreach(row={
       SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
     },  query={
@@ -46,11 +48,12 @@ Sources:
     })
 
 - name: Notification Preferences
-  VQL: |
+  Preamble: |
     LET ContentSettings <= array(`0`="Default",`1`="Allow",`2`="Block",`3`="Ask",`4`="Session Only",`5`="Detect Important Content")
 
     LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
 
+  VQL: |
     SELECT * FROM foreach(row={
       SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
     },  query={
@@ -62,10 +65,11 @@ Sources:
     })
 
 - name: Notification Interactions
-  VQL: |
+  Preamble: |
     LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows
     LET S = scope()
 
+  VQL: |
     SELECT * FROM foreach(row={
       SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON
     },  query={

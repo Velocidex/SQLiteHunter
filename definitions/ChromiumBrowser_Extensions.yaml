@@ -1,4 +1,7 @@
 Name: Chromium Browser Extensions
+Description: |
+  Parses all installed chromium extensions.
+
 Author: Mike Cohen
 Categories:
   - Chrome
@@ -11,7 +14,7 @@ Globs:
   - "{{MacOSChromeProfiles}}/*/Extensions/**/manifest.json"
 
 Sources:
-- VQL: |
+- Preamble: |
     -- Resolve the message string against the Locale dict
     LET ResolveName(Message, Locale) = get(item=Locale,
           field=lowcase(string=parse_string_with_regex(regex="^__MSG_(.+)__$", string=Message).g1),
@@ -29,6 +32,7 @@ Sources:
 
     LET GetIcon(Manifest) = Manifest.icons.`128` || Manifest.icons.`64` || Manifest.icons.`32` || Manifest.icons.`16`
 
+  VQL: |
     SELECT OSPath, Manifest.author.email AS Email,
       ResolveName(Message = Manifest.name, Locale=Locale) AS name,
       ResolveName(Message = Manifest.description, Locale=Locale) AS description,

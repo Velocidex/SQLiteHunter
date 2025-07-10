@@ -1,4 +1,7 @@
 Name: Chromium Browser Media
+Description: |
+  Parses metadata about viewed media, such as videos.
+
 Author: Andrew Rathbun
 Email: andrew.d.rathbun@gmail.com
 Reference: https://github.com/EricZimmerman/SQLECmd

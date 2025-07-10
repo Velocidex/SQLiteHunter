@@ -1,0 +1,200 @@
+name: {{ .ArtifactName }}
+description: |
+  Hunt for SQLite files.
+
+  SQLite has become the de-facto standard for storing application data,
+  in many types of applications:
+
+  - Web Browsers
+  - Operating Systems
+  - Various applications, such as iMessage, TCC etc
+
+  This artifact can hunt for these artifacts in a mostly automated way.
+  More info at https://github.com/Velocidex/SQLiteHunter
+
+  NOTE: If you want to use this artifact on just a bunch of files already
+  collected (for example the files collected using the
+  Windows.KapeFiles.Targets artifact) you can use the CustomGlob parameter
+  (for example set it to "/tmp/unpacked/**" to consider all files in the
+  unpacked directory).
+
+column_types:
+- name: Image
+  type: preview_upload
+
+export: |
+  LET SPEC <= "{{ .CompressedSpec }}"
+  LET Specs <= parse_json(data=gunzip(string=base64decode(string=SPEC)))
+  LET CheckHeader(OSPath) = read_file(filename=OSPath, length=12) = "SQLite forma"
+  LET Bool(Value) = if(condition=Value, then="Yes", else="No")
+
+  -- In fast mode we check the filename, then the header then run the sqlite precondition
+  LET matchFilename(SourceName, OSPath) = OSPath =~ get(item=Specs.sources, field=SourceName).filename
+    AND CheckHeader(OSPath=OSPath)
+    AND Identify(SourceName= SourceName, OSPath= OSPath)
+    AND log(message=format(format="%v matched by filename %v",
+            args=[OSPath, get(item=Specs.sources, field=SourceName).filename]))
+
+  -- If the user wanted to also upload the file, do so now
+  LET MaybeUpload(OSPath) = if(condition=AlsoUpload, then=upload(file=OSPath)) OR TRUE
+
+  LET Identify(SourceName, OSPath) = SELECT if(
+    condition=CheckHeader(OSPath=OSPath),
+    then={
+      SELECT *
+      FROM sqlite(file=OSPath, query=get(item=Specs.sources, field=SourceName).id_query)
+    }) AS Hits
+  FROM scope()
+  WHERE if(condition=Hits[0].Check = get(item=Specs.sources, field=SourceName).id_value,
+    then= log(message="%v was identified as %v",
+            args=[OSPath, get(item=Specs.sources, field=SourceName).Name]),
+    else=log(message="%v was not identified as %v (got %v, wanted %v)",
+             args=[OSPath, get(item=Specs.sources, field=SourceName).Name, str(str=Hits),
+                   get(item=Specs.sources, field=SourceName).id_value]) AND FALSE)
+
+  LET ApplyFile(SourceName) = SELECT * FROM foreach(row={
+     SELECT OSPath FROM AllFiles
+     WHERE if(condition=MatchFilename,  then=matchFilename(SourceName=SourceName, OSPath=OSPath),
+      else=Identify(SourceName= SourceName, OSPath= OSPath))
+
+  }, query={
+     SELECT *, OSPath FROM sqlite(
+        file=OSPath, query=get(item=Specs.sources, field=SourceName).SQL)
+  })
+
+  -- Filter for matching files without sqlite checks.
+  LET FilterFile(SourceName) =
+     SELECT OSPath FROM AllFiles
+     WHERE if(condition=MatchFilename,
+              then=OSPath =~ get(item=Specs.sources, field=SourceName).filename)
+
+  -- Build a regex for all enabled categories.
+  LET all_categories = SELECT _value
+  FROM foreach(row=["All"{{ range .Categories }},"{{ . }}"{{ end }}])
+  WHERE get(field=_value)
+
+  LET category_regex <= join(sep="|", array=all_categories._value)
+  LET AllGlobs <= filter(list=Specs.globs, condition="x=> x.tags =~ category_regex AND x.rule =~ RuleFilter")
+  LET _ <= log(message="Globs for category %v is %v",
+       args=[category_regex, CustomGlob || AllGlobs.glob])
+  LET AllFiles <= SELECT OSPath FROM glob(globs=CustomGlob || AllGlobs.glob)
+    WHERE NOT IsDir AND MaybeUpload(OSPath=OSPath)
+
+parameters:
+- name: RuleFilter
+  type: regex
+  description: Only collect rules matching this filter.
+  default: "."
+
+- name: MatchFilename
+  description: |
+    If set we use the filename to detect the type of sqlite file.
+    When unset we use heristics (slower)
+  type: bool
+  default: Y
+
+- name: CustomGlob
+  description: Specify this glob to select other files
+
+- name: DateAfter
+  description: Timebox output to rows after this time.
+  type: timestamp
+  default: "1970-01-01T00:00:00Z"
+
+- name: DateBefore
+  description: Timebox output to rows after this time.
+  type: timestamp
+  default: "2100-01-01T00:00:00Z"
+
+- name: FilterRegex
+  description: Filter critical rows by this regex
+  type: regex
+  default: .
+
+- name: All
+  description: Select all tagrgets
+  type: bool
+  default: Y
+
+{{ range .Categories -}}
+- name: {{ . }}
+  description: Select targets with category {{ . }}
+  type: bool
+  default: N
+
+{{ end -}}
+
+- name: SQLITE_ALWAYS_MAKE_TEMPFILE
+  type: bool
+  default: Y
+
+- name: AlsoUpload
+  description: If specified we also upload the identified file.
+  type: bool
+
+sources:
+- name: AllFiles
+  notebook:
+   - type: vql
+     template: |
+       // This cell generates other cells to preview the collected
+       // data.  DO NOT recalculate this cell - each time new cells
+       // will be added. Instead delete the notebook and allow
+       // Velociraptor to recreate the entire notebook.
+       LET ArtifactsWithResults <=
+         SELECT pathspec(accessor="fs", parse=Data.VFSPath)[4] AS Artifact ,
+           pathspec(accessor="fs", parse=Data.VFSPath)[-1][:-11] AS Source ,
+           stat(accessor="fs", filename=Data.VFSPath).Size / 8 AS Records
+         FROM enumerate_flow(client_id=ClientId, flow_id=FlowId)
+         WHERE Type =~ "ResultIndex" AND Records > 0
+
+       LET _ <= SELECT notebook_update_cell(notebook_id=NotebookId, type="vql",
+       input=format(format='''
+       /*
+       # Results From %v
+       */
+       SELECT * FROM source(source=%q)
+       ''', args=[Source, Source]),
+       output=format(format='''
+       <i>Recalculate</i> to show Results from <b>%v</b> with <b>%v</b> rows
+       ''', args=[Source, Records])) AS NotebookModification
+       FROM ArtifactsWithResults
+
+       /*
+       # Results Overview
+       */
+       SELECT Source, Records FROM ArtifactsWithResults ORDER BY Source
+
+  query: |
+    SELECT * FROM AllFiles
+
+{{ range $_, $v := DictRange .Spec.Sources }}
+
+{{- $action := "FilterFile" }}
+{{ if $v.Value.SQL }}
+  {{ $action = "ApplyFile" }}
+{{ end -}}
+
+- name: {{ Quote $v.Key }}
+  notebook:
+    - type: vql
+      output: "{{ $v.Key }} - Recalculate to view results"
+      template: |
+        /*
+        # {{ $v.Key }}
+        */
+        SELECT * FROM source(Source={{ Quote $v.Key }})
+        LIMIT 50
+  query: |
+    LET Rows = SELECT * FROM {{ $action }}(SourceName={{ Quote $v.Key }})
+
+    {{ Indent $v.Value.Preamble }}
+
+    LET Output = {{ Indent $v.Value.VQL }}
+
+    SELECT * FROM
+    if(condition={{ Quote $v.Key }} =~ RuleFilter, then={
+       SELECT * FROM Output
+    })
+
+{{ end }}

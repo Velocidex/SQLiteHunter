@@ -1,4 +1,7 @@
 Name: Chromium Browser History
+Description: |
+  Extracts the Chromium Browser History
+
 Author: Andrew Rathbun
 Email: andrew.d.rathbun@gmail.com
 Reference: https://github.com/EricZimmerman/SQLECmd
@@ -50,7 +53,7 @@ Sources:
     ORDER BY visits.visit_time ASC
 
 - name: Downloads
-  VQL: |
+  Preamble: |
     LET StateLookup <= dict(`0`='In Progress', `1`='Complete', `2`="Cancelled", `3`="Interrupted", `4`="Interrupted")
     LET DangerType <= dict(`0`='Not Dangerous', `1`="Dangerous", `2`='Dangerous URL', `3`='Dangerous Content',
         `4`='Content May Be Malicious', `5`='Uncommon Content', `6`='Dangerous But User Validated',
@@ -64,6 +67,7 @@ Sources:
       `38`='Content Length Mismatch', `39`='Cross Origin Redirect', `40`='Cancelled', `41`='Browser Shutdown',
       `50`='Browser Crashed')
 
+  VQL: |
     SELECT ID, GUID, CurrentPath, TargetPath, OriginalMIMEType, ReceivedBytes, TotalBytes,
       timestamp(winfiletime=(start_time * 10) || 0) AS StartTime,
       timestamp(winfiletime=(end_time * 10) || 0) AS EndTime,

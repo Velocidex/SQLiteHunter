@@ -1,4 +1,7 @@
 Name: Chromium Browser Bookmarks
+Description: |
+  Parses the browser's Bookmarks file.
+
 Author: Sikha Puthanveedu @SikhaMohan, Mike Cohen
 Categories:
   - Chrome
@@ -11,7 +14,7 @@ Globs:
   - "{{MacOSChromeProfiles}}/*/Bookmarks"
 
 Sources:
-- VQL: |
+- Preamble: |
      -- Recursive function to report the details of a folder
      LET ReportFolder(Data, BaseName) = SELECT * FROM chain(a={
        -- First row emit the data about the actual folder
@@ -34,6 +37,7 @@ Sources:
      LET MatchingFiles = SELECT OSPath, parse_json(data=read_file(filename=OSPath)) AS Data
      FROM Rows
 
+  VQL: |
      SELECT * FROM foreach(row=MatchingFiles, query={
        SELECT * FROM chain(
        a={

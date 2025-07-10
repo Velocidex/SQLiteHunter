@@ -1,8 +1,9 @@
-SELECT *, OSPath.Basename AS OSPath
+Query: SELECT *, OSPath.Basename AS OSPath
 FROM Artifact.Generic.Forensic.SQLiteHunter(
    FilterRegex="Audio",
    MatchFilename=FALSE, All=FALSE, Edge=TRUE, CustomGlob=testFiles + '/Edge/WebAssistDatabase')
-[
+
+Output: [
  {
   "_Source": "Generic.Forensic.SQLiteHunter/AllFiles",
   "OSPath": "WebAssistDatabase"
@@ -17,3 +18,4 @@ FROM Artifact.Generic.Forensic.SQLiteHunter(
   "OSPath": "WebAssistDatabase"
  }
 ]
+

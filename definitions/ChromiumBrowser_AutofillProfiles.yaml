@@ -1,4 +1,10 @@
 Name: Chromium Browser Autofill
+Description: |
+  Parses the `Web Data` file in the Chromium profile.
+
+  This file contains autofill data for forms such as email, addresses,
+  names etc.
+
 Author: Andrew Rathbun
 Email: andrew.d.rathbun@gmail.com
 Reference: https://github.com/EricZimmerman/SQLECmd
