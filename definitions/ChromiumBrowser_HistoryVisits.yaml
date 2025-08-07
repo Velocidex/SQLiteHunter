@@ -57,11 +57,17 @@ Sources:
     LET StateLookup <= dict(`0`='In Progress', `1`='Complete', `2`="Cancelled", `3`="Interrupted", `4`="Interrupted")
     LET DangerType <= dict(`0`='Not Dangerous', `1`="Dangerous", `2`='Dangerous URL', `3`='Dangerous Content',
         `4`='Content May Be Malicious', `5`='Uncommon Content', `6`='Dangerous But User Validated',
-        `7`='Dangerous Host', `8`='Potentially Unwanted', `9`='Whitelisted by Policy')
+        `7`='Dangerous Host', `8`='Potentially Unwanted', `9`='Whitelisted by Policy',
+        `10`='Download Pending Detailed Verdict', `11`='Blocked By Policy Password Protected', `12`='Blocked By Policy Download Too Large',
+        `13`='Sensitive Content Warning', `14`='Sensitive Content Blocked', `15`='Deep Scanned Safe',
+        `16`='Deep Scanned Dangerous But Opened By User', `17`='Prompt For Deep Scanning', `18`='Blocked Unsupported Filetype',
+        `19`='Dangerous Associated With Account Compromise', `20`='Deep Scan Failed', `21`='Encrypted Archive Prompt for Local Password Scanning',
+        `22`='Encrypted Archive Prompt for Local Password Scanning Pending Detailed Verdict', `23`='Blocked by Policy Scan Failed')
     LET InterruptReason <= dict(`0`= 'No Interrupt', `1`= 'File Error', `2`='Access Denied', `3`='Disk Full',
       `5`='Path Too Long',`6`='File Too Large', `7`='Virus', `10`='Temporary Problem', `11`='Blocked',
-      `12`='Security Check Failed', `13`='Resume Error', `20`='Network Error', `21`='Operation Timed Out',
-      `22`='Connection Lost', `23`='Server Down', `30`='Server Error', `31`='Range Request Error',
+      `12`='Security Check Failed', `13`='Resume Error File Too Short', `14`='File Hash Mismatch', `15`='File Same As Source',
+      `20`='Network Error', `21`='Operation Timed Out', `22`='Connection Lost', `23`='Server Down',
+      `24`='Network Request Invalid', `30`='Server Error', `31`='Range Request Error',
       `32`='Server Precondition Error', `33`='Unable to get file', `34`='Server Unauthorized',
       `35`='Server Certificate Problem', `36`='Server Access Forbidden', `37`='Server Unreachable',
       `38`='Content Length Mismatch', `39`='Cross Origin Redirect', `40`='Cancelled', `41`='Browser Shutdown',
