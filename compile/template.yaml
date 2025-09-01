@@ -75,13 +75,6 @@ export: |
   FROM foreach(row=["All"{{ range .Categories }},"{{ . }}"{{ end }}])
   WHERE get(field=_value)
 
-  LET category_regex <= join(sep="|", array=all_categories._value)
-  LET AllGlobs <= filter(list=Specs.globs, condition="x=> x.tags =~ category_regex AND x.rule =~ RuleFilter")
-  LET _ <= log(message="Globs for category %v is %v",
-       args=[category_regex, CustomGlob || AllGlobs.glob])
-  LET AllFiles <= SELECT OSPath FROM glob(globs=CustomGlob || AllGlobs.glob)
-    WHERE NOT IsDir AND MaybeUpload(OSPath=OSPath)
-
 parameters:
 - name: RuleFilter
   type: regex
@@ -168,6 +161,17 @@ sources:
        SELECT Source, Records FROM ArtifactsWithResults ORDER BY Source
 
   query: |
+    LET category_regex <= join(sep="|", array=all_categories._value)
+
+    LET AllGlobs <= filter(list=Specs.globs,
+      condition="x=> x.tags =~ category_regex AND x.rule =~ RuleFilter")
+
+    LET _ <= log(message="Globs for category %v is %v",
+       args=[category_regex, CustomGlob || AllGlobs.glob])
+
+    LET AllFiles <= SELECT OSPath FROM glob(globs=CustomGlob || AllGlobs.glob)
+    WHERE NOT IsDir AND MaybeUpload(OSPath=OSPath)
+
     SELECT * FROM AllFiles
 
 {{ range $_, $v := DictRange .Spec.Sources }}
@@ -179,7 +183,7 @@ sources:
 
 - name: {{ Quote $v.Key }}
   notebook:
-    - type: vql
+    - type: none
       output: "{{ $v.Key }} - Recalculate to view results"
       template: |
         /*

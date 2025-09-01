@@ -1,0 +1,43 @@
+Name: Edge Browser History Screenshots
+Description: |
+  Extracts the Edge Browser History Screenshots if enabled.
+
+Author: Michal Minar, Reece394
+Email: michal.minar@istrosec.com
+Reference: https://medium.com/@DCSO_CyTec/microsoft-edge-forensics-screenshot-history-703b9b8392f8
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master WHERE type='table' AND (name='edge_visits');
+
+SQLiteIdentifyValue: 1
+Categories:
+  - Edge
+  - Browser
+
+FilenameRegex: "History"
+Globs:
+  - "{{LinuxChromeProfiles}}/*/History"
+  - "{{WindowsChromeProfiles}}/*/History"
+  - "{{MacOSChromeProfiles}}/*/History"
+
+Sources:
+- name: Screenshots
+  VQL: |
+    SELECT *,
+           timestamp(epoch=VisitTime) AS VisitTime,
+           upload(accessor="data",
+             file=Image,
+             name=format(format="Screenshot_%v.png", args=VisitID)) AS Image
+    FROM Rows
+
+  SQL: |
+    SELECT visit_time AS VisitTime,
+           u.url as URL,
+           u.title as Title,
+           ev.data AS Image,
+           ev.visit_id AS VisitID
+    FROM edge_visits ev
+    JOIN visits v on v.id = ev.visit_id
+    JOIN urls u on u.id=v.url
+    WHERE ev.data NOT NULL
+    ORDER BY visit_time ASC;
