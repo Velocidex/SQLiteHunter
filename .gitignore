@@ -2,3 +2,4 @@ velociraptor*
 sqlitehunter_compiler*
 datastore
 output/*.zip
+output/*.yaml

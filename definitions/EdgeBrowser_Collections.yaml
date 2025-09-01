@@ -1,0 +1,112 @@
+Name: Edge Browser Collections
+Author: John Woeltje & David Diehl
+Email: 19861970+jfdubya@users.noreply.github.com
+Reference: https://support.microsoft.com/en-us/microsoft-edge/organize-your-ideas-with-collections-in-microsoft-edge-60fd7bba-6cfd-00b9-3787-b197231b507e
+
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master WHERE type='table' AND (name='collections' OR name='items');
+SQLiteIdentifyValue: 2
+
+Categories:
+  - Edge
+  - Browser
+FilenameRegex: collectionsSQLite
+
+Globs:
+  - "{{LinuxChromeProfiles}}/*/Collections/collectionsSQLite"
+  - "{{WindowsChromeProfiles}}/*/Collections/collectionsSQLite"
+  - "{{MacOSChromeProfiles}}/*/Collections/collectionsSQLite"
+
+Sources:
+- name:  Collections, Items, and Comments
+  Preamble: |
+    LET ExtractImage(Data) = base64decode(
+      string=split(string=parse_json(data=Data).image, sep=",")[1])
+
+  VQL: |
+    SELECT *,
+       timestamp(epoch=Collection_CreationUTC) AS Collection_CreationUTC,
+       timestamp(epoch=Collection_ModifiedUTC) AS Collection_ModifiedUTC,
+       timestamp(epoch=ColletionSync_DateLastSynced) AS ColletionSync_DateLastSynced,
+       timestamp(epoch=Item_CreationUTC) AS Item_CreationUTC,
+       timestamp(epoch=Item_ModifiedUTC) AS Item_ModifiedUTC,
+       parse_json(data= Item_Source) AS Item_Source,
+       upload(accessor="data",
+              file=ExtractImage(Data=Image),
+              name=format(format="Screenshot_%v.png", args=item_id)) AS Image,
+       timestamp(epoch=ItemSync_DaeLastSynced) AS ItemSync_DaeLastSynced
+    FROM Rows
+
+  SQL: |
+        SELECT
+           /* Collections table */
+           collections.date_created AS Collection_CreationUTC,
+           collections.date_modified AS Collection_ModifiedUTC,
+           collections.title as Collection_Title,
+           collections.position as Collection_Position,
+           collections.is_syncable as Collection_IsSyncable,
+           collections.suggestion_url as Collection_SuggestionUrl,
+           collections.suggestion_dismissed as Collection_SuggestionDismissed,
+           collections.suggestion_type as Collection_SuggestionType,
+           cast(collections.thumbnail as varchar) as Collection_Thumbnail,
+           collections.is_custom_thumbnail as Collection_IsCustomThumbnail,
+           collections.tag as Collection_Tag,
+           collections.thumbnail_url as Collection_ThumbnailUrl,
+           collections.is_marked_for_deletion as Collection_IsMarkedForDeletion,
+
+           /* Collections_Sync table */
+           collections_sync.date_last_synced AS ColletionSync_DateLastSynced,
+           collections_sync.is_syncable AS CollectionSync_IsSyncable,
+           collections_sync.server_id AS CollectionSync_ServerId,
+
+           /* Items table */
+           items.date_created AS Item_CreationUTC,
+           items.date_modified AS Item_ModifiedUTC,
+           items.source AS Item_Source,
+           items.Title AS Item_Title,
+           items.entity_blob AS Item_EntityBlob,
+           items.canonical_image_data AS Image,
+           items.third_party_data AS Item_ThirdPartyData,
+           items.favicon_url AS Item_FaviconUrl,
+           items.text_content AS Item_TextContent,
+           items.html_content AS Item_HtmlContent,
+           items.type AS Item_Type,
+           items.tag AS Item_Tag,
+
+           /* Items Offline Data */
+           items_offline_data.offline_file_data AS Item_OfflineFileData,
+
+           /* Items_Sync Data */
+           items_sync.date_last_synced AS ItemSync_DaeLastSynced,
+           items_sync.is_syncable AS ItemSync_IsSyncable,
+
+           /* Comments table */
+           comments.text as Comment_Text,
+           comments.properties as Comment_Properties,
+
+           /* All the raw fields here */
+           collections.id as collection_id,
+           collections.date_created as raw_collection_created,
+           collections.date_modified as raw_collection_modified,
+           items.id AS item_id,
+           items.date_created AS raw_item_created,
+           items.date_modified AS raw_item_modified,
+           comments.id as comment_id,
+           comments.parent_id as comment_parent_id
+
+        FROM items
+          left join collections_items_relationship
+             on items.id = collections_items_relationship.item_id
+          left join collections
+             on collections_items_relationship.parent_id = collections.id
+          left join collections_sync
+             on collections.id = collections_sync.collection_id
+          left join comments
+             on items.id = comments.parent_id
+          left join items_offline_data
+             on items.id = items_offline_data.item_id
+          left join items_sync
+            on items.id = items_sync.item_id
+
+        ORDER BY Collection_Title ASC, items.date_created DESC
