@@ -21,6 +21,8 @@ description: |
 column_types:
 - name: Image
   type: preview_upload
+- name: Payload
+  type: preview_upload
 
 export: |
   LET SPEC <= "{{ .CompressedSpec }}"
@@ -69,7 +71,7 @@ export: |
               then=OSPath =~ get(item=Specs.sources, field=SourceName).filename)
 
   -- Build a regex for all enabled categories.
-  LET all_categories = SELECT _value
+  LET all_categories = SELECT if(condition=_value = "All", then=".", else=_value) AS _value
   FROM foreach(row=["All"{{ range .Categories }},"{{ . }}"{{ end }}])
   WHERE get(field=_value)
 
@@ -143,10 +145,10 @@ sources:
        // Velociraptor to recreate the entire notebook.
        LET ArtifactsWithResults <=
          SELECT pathspec(accessor="fs", parse=Data.VFSPath)[4] AS Artifact ,
-           pathspec(accessor="fs", parse=Data.VFSPath)[-1][:-11] AS Source ,
-           stat(accessor="fs", filename=Data.VFSPath).Size / 8 AS Records
+           pathspec(accessor="fs", parse=Data.VFSPath)[-1][:-5] AS Source ,
+           stat(accessor="fs", filename=Data.VFSPath + ".index").Size / 8 AS Records
          FROM enumerate_flow(client_id=ClientId, flow_id=FlowId)
-         WHERE Type =~ "ResultIndex" AND Records > 0
+         WHERE Type =~ "Result" AND Records > 0
 
        LET _ <= SELECT notebook_update_cell(notebook_id=NotebookId, type="vql",
        input=format(format='''
@@ -183,7 +185,7 @@ sources:
         /*
         # {{ $v.Key }}
         */
-        SELECT * FROM source(Source={{ Quote $v.Key }})
+        SELECT * FROM source(source={{ Quote $v.Key }})
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM {{ $action }}(SourceName={{ Quote $v.Key }})
