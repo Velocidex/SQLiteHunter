@@ -21,9 +21,11 @@ description: |
 column_types:
 - name: Image
   type: preview_upload
+- name: Payload
+  type: preview_upload
 
 export: |
-  LET SPEC <= "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"
+  LET SPEC <= "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"
   LET Specs <= parse_json(data=gunzip(string=base64decode(string=SPEC)))
   LET CheckHeader(OSPath) = read_file(filename=OSPath, length=12) = "SQLite forma"
   LET Bool(Value) = if(condition=Value, then="Yes", else="No")
@@ -69,7 +71,7 @@ export: |
               then=OSPath =~ get(item=Specs.sources, field=SourceName).filename)
 
   -- Build a regex for all enabled categories.
-  LET all_categories = SELECT _value
+  LET all_categories = SELECT if(condition=_value = "All", then=".", else=_value) AS _value
   FROM foreach(row=["All","MacOS","Chrome","Browser","Edge","Firefox","InternetExplorer","Windows"])
   WHERE get(field=_value)
 
@@ -170,10 +172,10 @@ sources:
        // Velociraptor to recreate the entire notebook.
        LET ArtifactsWithResults <=
          SELECT pathspec(accessor="fs", parse=Data.VFSPath)[4] AS Artifact ,
-           pathspec(accessor="fs", parse=Data.VFSPath)[-1][:-11] AS Source ,
-           stat(accessor="fs", filename=Data.VFSPath).Size / 8 AS Records
+           pathspec(accessor="fs", parse=Data.VFSPath)[-1][:-5] AS Source ,
+           stat(accessor="fs", filename=Data.VFSPath + ".index").Size / 8 AS Records
          FROM enumerate_flow(client_id=ClientId, flow_id=FlowId)
-         WHERE Type =~ "ResultIndex" AND Records > 0
+         WHERE Type =~ "Result" AND Records > 0
 
        LET _ <= SELECT notebook_update_cell(notebook_id=NotebookId, type="vql",
        input=format(format='''
@@ -206,7 +208,7 @@ sources:
         /*
         # iMessage_Profiles
         */
-        SELECT * FROM source(Source="iMessage_Profiles")
+        SELECT * FROM source(source="iMessage_Profiles")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="iMessage_Profiles")
@@ -234,7 +236,7 @@ sources:
         /*
         # Chromium Browser Autofill_Profiles
         */
-        SELECT * FROM source(Source="Chromium Browser Autofill_Profiles")
+        SELECT * FROM source(source="Chromium Browser Autofill_Profiles")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Autofill_Profiles")
@@ -267,7 +269,7 @@ sources:
         /*
         # Chromium Browser Autofill_Masked Credit Cards
         */
-        SELECT * FROM source(Source="Chromium Browser Autofill_Masked Credit Cards")
+        SELECT * FROM source(source="Chromium Browser Autofill_Masked Credit Cards")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Autofill_Masked Credit Cards")
@@ -290,7 +292,7 @@ sources:
         /*
         # Chromium Browser Bookmarks
         */
-        SELECT * FROM source(Source="Chromium Browser Bookmarks")
+        SELECT * FROM source(source="Chromium Browser Bookmarks")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Chromium Browser Bookmarks")
@@ -349,7 +351,7 @@ sources:
         /*
         # Chromium Browser Cookies_Cookies
         */
-        SELECT * FROM source(Source="Chromium Browser Cookies_Cookies")
+        SELECT * FROM source(source="Chromium Browser Cookies_Cookies")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Cookies_Cookies")
@@ -383,7 +385,7 @@ sources:
         /*
         # Chromium Browser Extensions
         */
-        SELECT * FROM source(Source="Chromium Browser Extensions")
+        SELECT * FROM source(source="Chromium Browser Extensions")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Chromium Browser Extensions")
@@ -432,7 +434,7 @@ sources:
         /*
         # Chromium Browser Favicons
         */
-        SELECT * FROM source(Source="Chromium Browser Favicons")
+        SELECT * FROM source(source="Chromium Browser Favicons")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Favicons")
@@ -465,7 +467,7 @@ sources:
         /*
         # Chromium Browser History_Visits
         */
-        SELECT * FROM source(Source="Chromium Browser History_Visits")
+        SELECT * FROM source(source="Chromium Browser History_Visits")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser History_Visits")
@@ -501,7 +503,7 @@ sources:
         /*
         # Chromium Browser History_Downloads
         */
-        SELECT * FROM source(Source="Chromium Browser History_Downloads")
+        SELECT * FROM source(source="Chromium Browser History_Downloads")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser History_Downloads")
@@ -530,7 +532,7 @@ sources:
       get(item=InterruptReason, field=str(str=interrupt_reason), default="Unknown") AS InterruptReason,
       ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL, OSPath
     FROM Rows
-    WHERE StartTime > DateAfter AND StartTime < DateBefore
+    WHERE LastAccessTime > DateAfter AND LastAccessTime < DateBefore
       AND (SiteURL, DownloadURL, TabURL, TabReferrerURL, ReferrerURL, DownloadURL) =~ FilterRegex
 
     SELECT * FROM
@@ -549,7 +551,7 @@ sources:
         /*
         # Chromium Browser History_Keywords
         */
-        SELECT * FROM source(Source="Chromium Browser History_Keywords")
+        SELECT * FROM source(source="Chromium Browser History_Keywords")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser History_Keywords")
@@ -579,7 +581,7 @@ sources:
         /*
         # Chromium Browser Media_History
         */
-        SELECT * FROM source(Source="Chromium Browser Media_History")
+        SELECT * FROM source(source="Chromium Browser Media_History")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Media_History")
@@ -611,7 +613,7 @@ sources:
         /*
         # Chromium Browser Media_Playback Session
         */
-        SELECT * FROM source(Source="Chromium Browser Media_Playback Session")
+        SELECT * FROM source(source="Chromium Browser Media_Playback Session")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Media_Playback Session")
@@ -643,7 +645,7 @@ sources:
         /*
         # Chromium Browser Network_Predictor
         */
-        SELECT * FROM source(Source="Chromium Browser Network_Predictor")
+        SELECT * FROM source(source="Chromium Browser Network_Predictor")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Network_Predictor")
@@ -667,7 +669,7 @@ sources:
         /*
         # Chromium Browser Notifications_Site Engagements
         */
-        SELECT * FROM source(Source="Chromium Browser Notifications_Site Engagements")
+        SELECT * FROM source(source="Chromium Browser Notifications_Site Engagements")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Chromium Browser Notifications_Site Engagements")
@@ -698,7 +700,7 @@ sources:
         /*
         # Chromium Browser Notifications_App Banners
         */
-        SELECT * FROM source(Source="Chromium Browser Notifications_App Banners")
+        SELECT * FROM source(source="Chromium Browser Notifications_App Banners")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Chromium Browser Notifications_App Banners")
@@ -734,7 +736,7 @@ sources:
         /*
         # Chromium Browser Notifications_Notification Preferences
         */
-        SELECT * FROM source(Source="Chromium Browser Notifications_Notification Preferences")
+        SELECT * FROM source(source="Chromium Browser Notifications_Notification Preferences")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Chromium Browser Notifications_Notification Preferences")
@@ -767,7 +769,7 @@ sources:
         /*
         # Chromium Browser Notifications_Notification Interactions
         */
-        SELECT * FROM source(Source="Chromium Browser Notifications_Notification Interactions")
+        SELECT * FROM source(source="Chromium Browser Notifications_Notification Interactions")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Chromium Browser Notifications_Notification Interactions")
@@ -802,7 +804,7 @@ sources:
         /*
         # Chromium Browser Shortcuts
         */
-        SELECT * FROM source(Source="Chromium Browser Shortcuts")
+        SELECT * FROM source(source="Chromium Browser Shortcuts")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Shortcuts")
@@ -833,7 +835,7 @@ sources:
         /*
         # Chromium Sessions_Sessions
         */
-        SELECT * FROM source(Source="Chromium Sessions_Sessions")
+        SELECT * FROM source(source="Chromium Sessions_Sessions")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Sessions_Sessions")
@@ -869,7 +871,7 @@ sources:
         /*
         # Chromium Browser Top Sites
         */
-        SELECT * FROM source(Source="Chromium Browser Top Sites")
+        SELECT * FROM source(source="Chromium Browser Top Sites")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Chromium Browser Top Sites")
@@ -895,14 +897,14 @@ sources:
         /*
         # Edge Browser Autofill_CombinedAutofill
         */
-        SELECT * FROM source(Source="Edge Browser Autofill_CombinedAutofill")
+        SELECT * FROM source(source="Edge Browser Autofill_CombinedAutofill")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Edge Browser Autofill_CombinedAutofill")
 
     
 
-    LET Output = SELECT timestamp(epoch=date_last_used) AS DateLastUsed
+    LET Output = SELECT timestamp(epoch=date_last_used) AS DateLastUsed, *
     FROM Rows
     WHERE DateLastUsed > DateAfter AND DateLastUsed < DateBefore
 
@@ -922,7 +924,7 @@ sources:
         /*
         # Edge Browser Navigation History_Navigation History
         */
-        SELECT * FROM source(Source="Edge Browser Navigation History_Navigation History")
+        SELECT * FROM source(source="Edge Browser Navigation History_Navigation History")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Edge Browser Navigation History_Navigation History")
@@ -953,7 +955,7 @@ sources:
         /*
         # Firefox Places
         */
-        SELECT * FROM source(Source="Firefox Places")
+        SELECT * FROM source(source="Firefox Places")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Places")
@@ -985,7 +987,7 @@ sources:
         /*
         # Firefox Places_Downloads
         */
-        SELECT * FROM source(Source="Firefox Places_Downloads")
+        SELECT * FROM source(source="Firefox Places_Downloads")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Places_Downloads")
@@ -1016,7 +1018,7 @@ sources:
         /*
         # Firefox Places_History
         */
-        SELECT * FROM source(Source="Firefox Places_History")
+        SELECT * FROM source(source="Firefox Places_History")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Places_History")
@@ -1052,7 +1054,7 @@ sources:
         /*
         # Firefox Cookies
         */
-        SELECT * FROM source(Source="Firefox Cookies")
+        SELECT * FROM source(source="Firefox Cookies")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Cookies")
@@ -1086,7 +1088,7 @@ sources:
         /*
         # Firefox Downloads
         */
-        SELECT * FROM source(Source="Firefox Downloads")
+        SELECT * FROM source(source="Firefox Downloads")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Downloads")
@@ -1119,7 +1121,7 @@ sources:
         /*
         # Firefox Favicons
         */
-        SELECT * FROM source(Source="Firefox Favicons")
+        SELECT * FROM source(source="Firefox Favicons")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Favicons")
@@ -1147,7 +1149,7 @@ sources:
         /*
         # Firefox Form History
         */
-        SELECT * FROM source(Source="Firefox Form History")
+        SELECT * FROM source(source="Firefox Form History")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Firefox Form History")
@@ -1176,7 +1178,7 @@ sources:
         /*
         # IE or Edge WebCacheV01_All Data
         */
-        SELECT * FROM source(Source="IE or Edge WebCacheV01_All Data")
+        SELECT * FROM source(source="IE or Edge WebCacheV01_All Data")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="IE or Edge WebCacheV01_All Data")
@@ -1219,7 +1221,7 @@ sources:
         /*
         # IE or Edge WebCacheV01_Highlights
         */
-        SELECT * FROM source(Source="IE or Edge WebCacheV01_Highlights")
+        SELECT * FROM source(source="IE or Edge WebCacheV01_Highlights")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="IE or Edge WebCacheV01_Highlights")
@@ -1249,7 +1251,7 @@ sources:
         /*
         # MacOS Applications Cache
         */
-        SELECT * FROM source(Source="MacOS Applications Cache")
+        SELECT * FROM source(source="MacOS Applications Cache")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS Applications Cache")
@@ -1288,7 +1290,7 @@ sources:
         /*
         # MacOS NetworkUsage
         */
-        SELECT * FROM source(Source="MacOS NetworkUsage")
+        SELECT * FROM source(source="MacOS NetworkUsage")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS NetworkUsage")
@@ -1327,7 +1329,7 @@ sources:
         /*
         # MacOS Notes
         */
-        SELECT * FROM source(Source="MacOS Notes")
+        SELECT * FROM source(source="MacOS Notes")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS Notes")
@@ -1376,7 +1378,7 @@ sources:
         /*
         # MacOS XProtect Detections
         */
-        SELECT * FROM source(Source="MacOS XProtect Detections")
+        SELECT * FROM source(source="MacOS XProtect Detections")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="MacOS XProtect Detections")
@@ -1406,7 +1408,7 @@ sources:
         /*
         # Windows Activities Cache_ActivityPackageId
         */
-        SELECT * FROM source(Source="Windows Activities Cache_ActivityPackageId")
+        SELECT * FROM source(source="Windows Activities Cache_ActivityPackageId")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Windows Activities Cache_ActivityPackageId")
@@ -1435,7 +1437,7 @@ sources:
         /*
         # Windows Activities Cache_Clipboard
         */
-        SELECT * FROM source(Source="Windows Activities Cache_Clipboard")
+        SELECT * FROM source(source="Windows Activities Cache_Clipboard")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM ApplyFile(SourceName="Windows Activities Cache_Clipboard")
@@ -1464,6 +1466,51 @@ sources:
     })
 
 
+
+  
+- name: "Windows WPNDatabase - Notifications_Notifications"
+  notebook:
+    - type: vql
+      output: "Windows WPNDatabase - Notifications_Notifications - Recalculate to view results"
+      template: |
+        /*
+        # Windows WPNDatabase - Notifications_Notifications
+        */
+        SELECT * FROM source(source="Windows WPNDatabase - Notifications_Notifications")
+        LIMIT 50
+  query: |
+    LET Rows = SELECT * FROM ApplyFile(SourceName="Windows WPNDatabase - Notifications_Notifications")
+
+    
+
+    LET Output = SELECT *, Parent || "" AS Parent,
+        timestamp(winfiletime= ArrivalTime) AS ArrivalTime,
+        if(condition= ExpirationTime > 0,
+           then=timestamp(winfiletime= ExpirationTime),
+          else='Expired') AS ExpirationTime,
+        format(format="%02x", args=ActivityId) As ActivityId,
+        WNSId || "" AS WNSId,
+    
+        if(condition= WNSCreatedTime > 0,
+           then=timestamp(winfiletime= WNSCreatedTime),
+          else='') AS WNSCreatedTime,
+    
+        if(condition= WNSExpirationTime > 0,
+           then=timestamp(winfiletime= WNSExpirationTime),
+          else='') AS WNSExpirationTime,
+    
+        upload(accessor="data",
+           file=Payload,
+           name=format(format="Payload%v.png", args=ID)) AS Payload
+    
+    FROM Rows
+
+    SELECT * FROM
+    if(condition="Windows WPNDatabase - Notifications_Notifications" =~ RuleFilter, then={
+       SELECT * FROM Output
+    })
+
+
 - name: "Windows Search Service_SystemIndex_Gthr"
   notebook:
     - type: vql
@@ -1472,7 +1519,7 @@ sources:
         /*
         # Windows Search Service_SystemIndex_Gthr
         */
-        SELECT * FROM source(Source="Windows Search Service_SystemIndex_Gthr")
+        SELECT * FROM source(source="Windows Search Service_SystemIndex_Gthr")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Windows Search Service_SystemIndex_Gthr")
@@ -1511,7 +1558,7 @@ sources:
         /*
         # Windows Search Service_SystemIndex_GthrPth
         */
-        SELECT * FROM source(Source="Windows Search Service_SystemIndex_GthrPth")
+        SELECT * FROM source(source="Windows Search Service_SystemIndex_GthrPth")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Windows Search Service_SystemIndex_GthrPth")
@@ -1538,7 +1585,7 @@ sources:
         /*
         # Windows Search Service_SystemIndex_PropertyStore
         */
-        SELECT * FROM source(Source="Windows Search Service_SystemIndex_PropertyStore")
+        SELECT * FROM source(source="Windows Search Service_SystemIndex_PropertyStore")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Windows Search Service_SystemIndex_PropertyStore")
@@ -1586,7 +1633,7 @@ sources:
         /*
         # Windows Search Service_SystemIndex_PropertyStore_Highlights
         */
-        SELECT * FROM source(Source="Windows Search Service_SystemIndex_PropertyStore_Highlights")
+        SELECT * FROM source(source="Windows Search Service_SystemIndex_PropertyStore_Highlights")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Windows Search Service_SystemIndex_PropertyStore_Highlights")
@@ -1622,7 +1669,7 @@ sources:
         /*
         # Windows Search Service_BrowsingActivity
         */
-        SELECT * FROM source(Source="Windows Search Service_BrowsingActivity")
+        SELECT * FROM source(source="Windows Search Service_BrowsingActivity")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Windows Search Service_BrowsingActivity")
@@ -1651,7 +1698,7 @@ sources:
         /*
         # Windows Search Service_UserActivityLogging
         */
-        SELECT * FROM source(Source="Windows Search Service_UserActivityLogging")
+        SELECT * FROM source(source="Windows Search Service_UserActivityLogging")
         LIMIT 50
   query: |
     LET Rows = SELECT * FROM FilterFile(SourceName="Windows Search Service_UserActivityLogging")

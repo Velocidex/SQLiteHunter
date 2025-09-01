@@ -1,0 +1,80 @@
+Name: Windows WPNDatabase - Notifications
+Description: |
+  Parse the `wpndatabase.db` file
+
+Author: Andrew Rathbun
+Email: andrew.d.rathbun@gmail.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table'
+    AND (name='Notification' OR
+         name='HandlerAssets' OR
+         name='WNSPushChannel' OR
+         name='TransientTable' OR
+         name='NotificationData');
+
+SQLiteIdentifyValue: 5
+
+Categories:
+  -  Windows
+
+FilenameRegex: "wpndatabase.db"
+Globs:
+  - C:\Users\*\AppData\Local\Microsoft\Windows\Notifications\wpndatabase.db
+
+Sources:
+- name: Notifications
+  VQL: |
+    SELECT *, Parent || "" AS Parent,
+        timestamp(winfiletime= ArrivalTime) AS ArrivalTime,
+        if(condition= ExpirationTime > 0,
+           then=timestamp(winfiletime= ExpirationTime),
+          else='Expired') AS ExpirationTime,
+        format(format="%02x", args=ActivityId) As ActivityId,
+        WNSId || "" AS WNSId,
+
+        if(condition= WNSCreatedTime > 0,
+           then=timestamp(winfiletime= WNSCreatedTime),
+          else='') AS WNSCreatedTime,
+
+        if(condition= WNSExpirationTime > 0,
+           then=timestamp(winfiletime= WNSExpirationTime),
+          else='') AS WNSExpirationTime,
+
+        upload(accessor="data",
+           file=Payload,
+           name=format(format="Payload%v.png", args=ID)) AS Payload
+
+    FROM Rows
+
+  SQL: |
+    SELECT
+       Notification.Id AS ID,
+       Notification.'Order' AS 'Order',
+       Notification.HandlerId AS HandlerId,
+       NotificationHandler.PrimaryId AS Application,
+       NotificationHandler.ParentId AS Parent,
+       NotificationHandler.HandlerType AS HandlerType,
+       Notification.Type AS Type,
+       Notification.Payload AS Payload,
+       Notification.PayloadType AS PayloadType,
+       Notification.Tag AS Tag,
+       Notification."Group" AS "Group",
+       Notification.ArrivalTime AS ArrivalTime,
+       Notification.ExpiryTime AS ExpirationTime,
+       NotificationHandler.CreatedTime AS HandlerCreated,
+       NotificationHandler.ModifiedTime AS HandlerModified,
+       NotificationHandler.WNSId AS WNSId,
+       NotificationHandler.WNFEventName AS WNFEventName,
+       WNSPushChannel.ChannelId AS ChannelID,
+       WNSPushChannel.Uri AS URI,
+       WNSPushChannel.CreatedTime AS WNSCreatedTime,
+       WNSPushChannel.ExpiryTime AS WNSExpirationTime,
+       Notification.ActivityId AS ActivityId
+    FROM Notification
+    JOIN NotificationHandler ON NotificationHandler.RecordId = Notification.HandlerId
+    LEFT JOIN WNSPushChannel ON WNSPushChannel.HandlerId = NotificationHandler.RecordId
+    ORDER BY Id DESC

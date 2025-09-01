@@ -102,6 +102,6 @@ func (self *Artifact) BuildIndex() []byte {
 		})
 	}
 
-	serialized, _ := json.Marshal(defs)
+	serialized, _ := json.MarshalIndent(defs, " ", " ")
 	return serialized
 }
