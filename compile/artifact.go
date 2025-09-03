@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -22,6 +23,7 @@ type Expansion struct {
 	ArtifactName   string
 	CompressedSpec string
 	Categories     []string
+	Rules          []string
 	Spec           api.Spec
 }
 
@@ -58,10 +60,17 @@ func (self *Artifact) Yaml() (string, error) {
 		return "", err
 	}
 
+	var rules []string
+	for k := range self.Rules {
+		rules = append(rules, k)
+	}
+	sort.Strings(rules)
+
 	exp := &Expansion{
 		ArtifactName:   self.Name,
 		CompressedSpec: self.encodeSpec(),
 		Categories:     self.Category.Keys(),
+		Rules:          rules,
 		Spec:           self.Spec,
 	}
 

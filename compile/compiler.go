@@ -17,12 +17,14 @@ type Artifact struct {
 	Spec     api.Spec
 	Name     string
 	Category *ordereddict.Dict
+	Rules    map[string]bool
 	Sources  []api.Definition
 }
 
 func newArtifact() *Artifact {
 	return &Artifact{
 		Name:     "Generic.Forensic.SQLiteHunter",
+		Rules:    make(map[string]bool),
 		Category: ordereddict.NewDict(),
 		Spec: api.Spec{
 			Sources: ordereddict.NewDict(),
@@ -55,6 +57,8 @@ func Compile(defs []api.Definition,
 				Filename: d.FilenameRegex,
 				Rule:     d.Name,
 			})
+
+			res.Rules[d.Name] = true
 		}
 
 		// Each definition can contain multiple queries. Each such
