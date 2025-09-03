@@ -24,7 +24,8 @@ Sources:
 - name: Screenshots
   VQL: |
     SELECT *,
-           timestamp(epoch=VisitTime) AS VisitTime,
+           timestamp(winfiletime=VisitTime * 10) AS VisitTime,
+           VisitTime AS VisitTimeInt,
            upload(accessor="data",
              file=Image,
              name=format(format="Screenshot_%v.png", args=VisitID)) AS Image

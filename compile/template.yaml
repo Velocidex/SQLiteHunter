@@ -78,8 +78,17 @@ export: |
 parameters:
 - name: RuleFilter
   type: regex
-  description: Only collect rules matching this filter.
+  description: Only collect rules matching this regex filter.
   default: "."
+
+- name: Rules
+  type: multichoice
+  description: Only collect these rules
+  default: '[]'
+  choices:
+{{- range $_, $v := .Rules }}
+  - {{ Quote $v -}}
+{{ end }}
 
 - name: MatchFilename
   description: |
@@ -162,6 +171,12 @@ sources:
 
   query: |
     LET category_regex <= join(sep="|", array=all_categories._value)
+
+    LET RuleFilter <= if(condition=Rules,
+                         then=join(array=Rules, sep="|"),
+                         else=RuleFilter)
+
+    LET _ <= log(level="DEBUG", message="Rule Filter is %v", args=RuleFilter)
 
     LET AllGlobs <= filter(list=Specs.globs,
       condition="x=> x.tags =~ category_regex AND x.rule =~ RuleFilter")
