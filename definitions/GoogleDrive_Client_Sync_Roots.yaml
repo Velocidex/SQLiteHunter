@@ -1,0 +1,37 @@
+Name: Google Drive Sync Roots
+Author: Hernan Filannino
+Reference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics
+Categories:
+  - Google
+  - Cloud
+  - SyncClient
+FilenameRegex: "root_preference_sqlite.db"
+SQLiteIdentifyQuery: |
+    SELECT count(*) AS "Check"
+    FROM sqlite_master
+    WHERE type='table'
+      AND name='roots';
+SQLiteIdentifyValue: 1
+Globs:
+  - "C:/Users/*/AppData/Local/Google/DriveFS/root_preference_sqlite.db"
+  - "/Users/*/Library/Application Support/Google/DriveFS/root_preference_sqlite.db"
+Sources:
+- name: Sync Folders
+  VQL: |
+    SELECT *
+    FROM Rows
+    WHERE (root_path, title, media_id) =~ FilterRegex
+  SQL: |
+    SELECT
+      root_id,
+      media_id,
+      title,
+      root_path,
+      account_token,
+      sync_type,
+      destination,
+      state,
+      is_my_drive,
+      doc_id,
+      last_seen_absolute_path
+    FROM roots
