@@ -18,7 +18,7 @@ Globs:
 Sources:
 - name: Mirrored Metadata Items
   VQL: |
-    SELECT *, timestamp(epoch=modified_date /1000 ) AS Timestamp
+    SELECT timestamp(epoch=modified_date ) AS Timestamp, *
     FROM Rows
     WHERE
       if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
@@ -42,4 +42,3 @@ Sources:
       subscribed,
       team_drive_stable_id
     FROM items
-

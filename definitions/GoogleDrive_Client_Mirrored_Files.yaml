@@ -18,7 +18,7 @@ Globs:
 Sources:
 - name: Mirrored Items
   VQL: |
-    SELECT *, timestamp(epoch=local_mtime_ms / 1000) AS Timestamp
+    SELECT timestamp(epoch=local_mtime_ms ) AS Timestamp, *
     FROM Rows
     WHERE
       if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
