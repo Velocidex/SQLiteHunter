@@ -1,0 +1,53 @@
+Name: Google Drive Metadata
+Author: Hernan Filannino
+Reference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics
+Categories:
+  - Google
+  - Cloud
+  - SyncClient
+FilenameRegex: "metadata_sqlite_db"
+SQLiteIdentifyQuery: |
+    SELECT count(*) AS "Check"
+    FROM sqlite_master
+    WHERE type='table'
+      AND name='items';
+SQLiteIdentifyValue: 1
+Globs:
+  - "C:/Users/*/AppData/Local/Google/DriveFS/*/metadata_sqlite_db"
+  - "/Users/*/Library/Application Support/Google/DriveFS/*/metadata_sqlite_db"
+Sources:
+- name: File Metadata
+  VQL: |
+    SELECT timestamp(epoch=modified_date ) AS Timestamp, *
+    FROM Rows
+    WHERE
+      if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
+      if(condition=DateBefore, then=Timestamp < DateBefore, else=TRUE) AND
+      (local_title, mime_type) =~ FilterRegex
+  SQL: |
+    SELECT
+      stable_id,
+      id,
+      trashed,
+      starred,
+      is_owner,
+      mime_type,
+      is_folder,
+      modified_date,
+      shared_with_me_date,
+      viewed_by_me_date,
+      file_size,
+      is_tombstone,
+      local_title,
+      subscribed,
+      team_drive_stable_id
+    FROM items
+- name: Deleted Items
+  VQL: |
+    SELECT * FROM Rows
+  SQL: |
+    SELECT
+      stable_id,
+      -- The proto column is a BLOB and may require external tools for full parsing.
+      proto
+    FROM deleted_items

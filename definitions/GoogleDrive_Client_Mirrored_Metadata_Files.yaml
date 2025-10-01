@@ -1,0 +1,44 @@
+Name: Google Drive Mirrored Metadata Files
+Author: Hernan Filannino
+Reference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics
+Categories:
+  - Google
+  - Cloud
+  - SyncClient
+FilenameRegex: "mirror_metadata_sqlite.db"
+SQLiteIdentifyQuery: |
+    SELECT count(*) AS "Check"
+    FROM sqlite_master
+    WHERE type='table'
+      AND name='items';
+SQLiteIdentifyValue: 1
+Globs:
+  - "C:/Users/*/AppData/Local/Google/DriveFS/*/mirror_metadata_sqlite.db"
+  - "/Users/*/Library/Application Support/Google/DriveFS/*/mirror_metadata_sqlite.db"
+Sources:
+- name: Mirrored Metadata Items
+  VQL: |
+    SELECT timestamp(epoch=modified_date ) AS Timestamp, *
+    FROM Rows
+    WHERE
+      if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
+      if(condition=DateBefore, then=Timestamp < DateBefore, else=TRUE) AND
+      (local_title, mime_type) =~ FilterRegex
+  SQL: |
+    SELECT
+      stable_id,
+      id,
+      trashed,
+      starred,
+      is_owner,
+      mime_type,
+      is_folder,
+      modified_date,
+      shared_with_me_date,
+      viewed_by_me_date,
+      file_size,
+      is_tombstone,
+      local_title,
+      subscribed,
+      team_drive_stable_id
+    FROM items

@@ -1,0 +1,47 @@
+Name: Google Drive Mirrored Files
+Author: Hernan Filannino
+Reference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics
+Categories:
+  - Google
+  - Cloud
+  - SyncClient
+FilenameRegex: "mirror_sqlite.db"
+SQLiteIdentifyQuery: |
+    SELECT count(*) AS "Check"
+    FROM sqlite_master
+    WHERE type='table'
+      AND name='mirror_item';
+SQLiteIdentifyValue: 1
+Globs:
+  - "C:/Users/*/AppData/Local/Google/DriveFS/*/mirror_sqlite.db"
+  - "/Users/*/Library/Application Support/Google/DriveFS/*/mirror_sqlite.db"
+Sources:
+- name: Mirrored Items
+  VQL: |
+    SELECT timestamp(epoch=local_mtime_ms ) AS Timestamp, *
+    FROM Rows
+    WHERE
+      if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
+      if(condition=DateBefore, then=Timestamp < DateBefore, else=TRUE) AND
+      (local_filename, cloud_filename, volume) =~ FilterRegex
+  SQL: |
+    SELECT
+      local_stable_id,
+      stable_id,
+      inode,
+      volume,
+      parent_local_stable_id,
+      local_filename,
+      cloud_filename,
+      local_mtime_ms,
+      cloud_mtime_ms,
+      local_md5_checksum,
+      cloud_md5_checksum,
+      local_size,
+      cloud_size,
+      local_type,
+      cloud_type,
+      shared,
+      read_only,
+      is_root
+    FROM mirror_item
