@@ -18,11 +18,11 @@ Globs:
 Sources:
 - name: Mirrored Metadata Items
   VQL: |
-    SELECT *
+    SELECT *, timestamp(epoch=modified_date) AS Timestamp
     FROM Rows
-    WHERE 
-      if(condition=DateAfter, then=ModifiedDateEpoch > DateAfter, else=TRUE) AND
-      if(condition=DateBefore, then=ModifiedDateEpoch < DateBefore, else=TRUE) AND
+    WHERE
+      if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
+      if(condition=DateBefore, then=Timestamp < DateBefore, else=TRUE) AND
       (local_title, mime_type) =~ FilterRegex
   SQL: |
     SELECT
@@ -33,10 +33,10 @@ Sources:
       is_owner,
       mime_type,
       is_folder,
-      datetime(modified_date, 'unixepoch') AS ModifiedDate,
-      modified_date AS ModifiedDateEpoch,
-      datetime(shared_with_me_date, 'unixepoch') AS SharedWithMeDate,
-      datetime(viewed_by_me_date, 'unixepoch') AS ViewedByMeDate,
+      datetime(modified_date / 1000, 'unixepoch') AS ModifiedDate,
+      modified_date,
+      shared_with_me_date,
+      viewed_by_me_date,
       file_size,
       is_tombstone,
       local_title,

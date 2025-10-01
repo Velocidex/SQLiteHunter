@@ -18,11 +18,11 @@ Globs:
 Sources:
 - name: Mirrored Items
   VQL: |
-    SELECT *
+    SELECT *, timestamp(epoch=local_mtime_ms / 1000) AS Timestamp
     FROM Rows
     WHERE
-      if(condition=DateAfter, then=LocalModifiedTimeEpoch > DateAfter, else=TRUE) AND
-      if(condition=DateBefore, then=LocalModifiedTimeEpoch < DateBefore, else=TRUE) AND
+      if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
+      if(condition=DateBefore, then=Timestamp < DateBefore, else=TRUE) AND
       (local_filename, cloud_filename, volume) =~ FilterRegex
   SQL: |
     SELECT
@@ -33,9 +33,8 @@ Sources:
       parent_local_stable_id,
       local_filename,
       cloud_filename,
-      datetime(local_mtime_ms / 1000, 'unixepoch') as LocalModifiedTime,
-      CAST(local_mtime_ms / 1000 AS INTEGER) as LocalModifiedTimeEpoch,
-      datetime(cloud_mtime_ms / 1000, 'unixepoch') as CloudModifiedTime,
+      local_mtime_ms,
+      cloud_mtime_ms,
       local_md5_checksum,
       cloud_md5_checksum,
       local_size,
