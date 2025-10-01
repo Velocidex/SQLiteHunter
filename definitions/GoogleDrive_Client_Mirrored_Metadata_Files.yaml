@@ -20,9 +20,10 @@ Sources:
   VQL: |
     SELECT *
     FROM Rows
-    WHERE ModifiedDate > DateAfter
-      AND ModifiedDate < DateBefore
-      AND (local_title, mime_type) =~ FilterRegex
+    WHERE 
+      if(condition=DateAfter, then=ModifiedDateEpoch > DateAfter, else=TRUE) AND
+      if(condition=DateBefore, then=ModifiedDateEpoch < DateBefore, else=TRUE) AND
+      (local_title, mime_type) =~ FilterRegex
   SQL: |
     SELECT
       stable_id,
@@ -33,6 +34,7 @@ Sources:
       mime_type,
       is_folder,
       datetime(modified_date, 'unixepoch') AS ModifiedDate,
+      modified_date AS ModifiedDateEpoch,
       datetime(shared_with_me_date, 'unixepoch') AS SharedWithMeDate,
       datetime(viewed_by_me_date, 'unixepoch') AS ViewedByMeDate,
       file_size,
