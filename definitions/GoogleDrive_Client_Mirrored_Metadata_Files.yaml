@@ -18,7 +18,7 @@ Globs:
 Sources:
 - name: Mirrored Metadata Items
   VQL: |
-    SELECT *, timestamp(epoch=modified_date) AS Timestamp
+    SELECT *, timestamp(epoch=modified_date /1000 ) AS Timestamp
     FROM Rows
     WHERE
       if(condition=DateAfter, then=Timestamp > DateAfter, else=TRUE) AND
@@ -33,7 +33,6 @@ Sources:
       is_owner,
       mime_type,
       is_folder,
-      datetime(modified_date / 1000, 'unixepoch') AS ModifiedDate,
       modified_date,
       shared_with_me_date,
       viewed_by_me_date,
