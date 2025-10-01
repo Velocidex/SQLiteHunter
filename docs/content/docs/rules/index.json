@@ -345,69 +345,6 @@
    "RawData": "Name: Firefox Form History\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='moz_formhistory');\n\nSQLiteIdentifyValue: 1\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"formhistory.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/formhistory.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/formhistory.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/formhistory.sqlite\"\n\nSources:\n- VQL: |\n    SELECT ID, FieldName, Value, TimesUsed,\n       timestamp(epoch= firstUsed) AS FirstUsed,\n       timestamp(epoch= lastUsed) AS LastUsed,\n       GUID, OSPath\n    FROM Rows\n    WHERE LastUsed \u003e DateAfter AND LastUsed \u003c DateBefore\n      AND ( FieldName =~ FilterRegex OR Value =~ FilterRegex )\n\n  SQL: |\n    SELECT\n      id AS ID,\n      fieldname AS FieldName,\n      value AS Value,\n      timesUsed AS TimesUsed,\n      firstUsed,\n      lastUsed,\n      guid AS GUID\n    FROM moz_formhistory\n    ORDER BY id ASC\n"
   },
   {
-   "Name": "Google Drive Metadata",
-   "Author": "Hernan Filannino",
-   "Categories": [
-    "Google",
-    "Cloud",
-    "SyncClient"
-   ],
-   "Sources": [
-    {
-     "Name": "File Metadata"
-    },
-    {
-     "Name": "Deleted Items"
-    }
-   ],
-   "RawData": "Name: Google Drive Metadata\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"metadata_sqlite_db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='items';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/*/metadata_sqlite_db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/*/metadata_sqlite_db\"\nSources:\n- name: File Metadata\n  VQL: |\n    SELECT *\n    FROM Rows\n    WHERE\n      -- Use if() for robust optional filtering. DateAfter/Before are epoch integers.\n      if(condition=DateAfter, then=ModifiedDateEpoch \u003e DateAfter, else=TRUE) AND\n      if(condition=DateBefore, then=ModifiedDateEpoch \u003c DateBefore, else=TRUE) AND\n      (local_title, mime_type) =~ FilterRegex\n  SQL: |\n    SELECT\n      stable_id,\n      id,\n      trashed,\n      starred,\n      is_owner,\n      mime_type,\n      is_folder,\n      datetime(modified_date / 1000, 'unixepoch') AS ModifiedDate,\n      CAST(modified_date / 1000 AS INTEGER) AS ModifiedDateEpoch,\n      datetime(shared_with_me_date / 1000, 'unixepoch') AS SharedWithMeDate,\n      datetime(viewed_by_me_date / 1000, 'unixepoch') AS ViewedByMeDate,\n      file_size,\n      is_tombstone,\n      local_title,\n      subscribed,\n      team_drive_stable_id\n    FROM items\n- name: Deleted Items\n  VQL: |\n    SELECT * FROM Rows\n  SQL: |\n    SELECT\n      stable_id,\n      -- The proto column is a BLOB and may require external tools for full parsing.\n      proto\n    FROM deleted_items\n"
-  },
-  {
-   "Name": "Google Drive Mirrored Files",
-   "Author": "Hernan Filannino",
-   "Categories": [
-    "Google",
-    "Cloud",
-    "SyncClient"
-   ],
-   "Sources": [
-    {
-     "Name": "Mirrored Items"
-    }
-   ],
-   "RawData": "Name: Google Drive Mirrored Files\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"mirror_sqlite.db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='mirror_item';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/*/mirror_sqlite.db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/*/mirror_sqlite.db\"\nSources:\n- name: Mirrored Items\n  VQL: |\n    SELECT *\n    FROM Rows\n    WHERE\n      (local_filename, cloud_filename, volume) =~ FilterRegex\n  SQL: |\n    SELECT\n      local_stable_id,\n      stable_id,\n      inode,\n      volume,\n      parent_local_stable_id,\n      local_filename,\n      cloud_filename,\n      datetime(local_mtime_ms / 1000, 'unixepoch') as LocalModifiedTime,\n      local_mtime_ms / 1000 as LocalModifiedTimeEpoch,\n      datetime(cloud_mtime_ms / 1000, 'unixepoch') as CloudModifiedTime,\n      local_md5_checksum,\n      cloud_md5_checksum,\n      local_size,\n      cloud_size,\n      local_type,\n      cloud_type,\n      shared,\n      read_only,\n      is_root\n    FROM mirror_item\n"
-  },
-  {
-   "Name": "Google Drive Mirrored Metadata Files",
-   "Author": "Hernan Filannino",
-   "Categories": [
-    "Google",
-    "Cloud",
-    "SyncClient"
-   ],
-   "Sources": [
-    {
-     "Name": "Mirrored Metadata Items"
-    }
-   ],
-   "RawData": "Name: Google Drive Mirrored Metadata Files\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"mirror_metadata_sqlite.db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='items';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/*/mirror_metadata_sqlite.db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/*/mirror_metadata_sqlite.db\"\nSources:\n- name: Mirrored Metadata Items\n  VQL: |\n    SELECT *\n    FROM Rows\n    WHERE ModifiedDate \u003e DateAfter\n      AND ModifiedDate \u003c DateBefore\n      AND (local_title, mime_type) =~ FilterRegex\n  SQL: |\n    SELECT\n      stable_id,\n      id,\n      trashed,\n      starred,\n      is_owner,\n      mime_type,\n      is_folder,\n      datetime(modified_date, 'unixepoch') AS ModifiedDate,\n      datetime(shared_with_me_date, 'unixepoch') AS SharedWithMeDate,\n      datetime(viewed_by_me_date, 'unixepoch') AS ViewedByMeDate,\n      file_size,\n      is_tombstone,\n      local_title,\n      subscribed,\n      team_drive_stable_id\n    FROM items\n\n"
-  },
-  {
-   "Name": "Google Drive Sync Roots",
-   "Author": "Hernan Filannino",
-   "Categories": [
-    "Google",
-    "Cloud",
-    "SyncClient"
-   ],
-   "Sources": [
-    {
-     "Name": "Sync Folders"
-    }
-   ],
-   "RawData": "Name: Google Drive Sync Roots\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"root_preference_sqlite.db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='roots';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/root_preference_sqlite.db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/root_preference_sqlite.db\"\nSources:\n- name: Sync Folders\n  VQL: |\n    SELECT *\n    FROM Rows\n    WHERE (root_path, title, media_id) =~ FilterRegex\n  SQL: |\n    SELECT\n      root_id,\n      media_id,\n      title,\n      root_path,\n      account_token,\n      sync_type,\n      destination,\n      state,\n      is_my_drive,\n      doc_id,\n      last_seen_absolute_path\n    FROM roots\n"
-  },
-  {
    "Name": "IE or Edge WebCacheV01",
    "Categories": [
     "Edge",
