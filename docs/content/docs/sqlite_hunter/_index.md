@@ -2,6 +2,7 @@
 title: "Velociraptor SQLite Hunter"
 date: 2024-04-01
 weight: 10
+IconClass: fa-solid fa-desktop
 ---
 
 # SQLite Hunter

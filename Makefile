@@ -8,7 +8,10 @@ windows:
 	go build -o sqlitehunter_compiler.exe ./bin/*.go
 
 compile: FORCE
-	go run ./bin/ compile ./definitions/ ./output/SQLiteHunter.yaml --output_zip ./output/SQLiteHunter.zip --index ./docs/content/docs/rules/index.json
+	go run ./bin/ compile ./definitions/ ./output/SQLiteHunter.yaml --output_zip ./output/SQLiteHunter.zip --index ./docs/content/docs/rules/index.json && cp ./output/SQLiteHunter.yaml ./docs/static/artifact/
+
+verify: compile
+	./testing/velociraptor.bin -v artifacts verify ./output/*.yaml --builtin
 
 golden: compile
 	./testing/velociraptor.bin --definitions ./output --config ./testing/test.config.yaml golden --env testFiles=`pwd`/test_files ./testing/testcases -v --filter=${GOLDEN}
