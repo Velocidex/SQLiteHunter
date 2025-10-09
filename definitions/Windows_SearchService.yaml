@@ -7,7 +7,7 @@ Description: |
 Categories:
   - Windows
 
-FilenameRegex: "Windows.edb" or "Windows.*db"
+FilenameRegex: '"Windows.edb" or "Windows.*db"'
 Globs:
   - "C:\\ProgramData\\Microsoft\\Search\\Data\\Applications\\Windows\\Windows.*db"
 
