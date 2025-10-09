@@ -7,9 +7,9 @@ Description: |
 Categories:
   - Windows
 
-FilenameRegex: "Windows.edb"
+FilenameRegex: "Windows..db"
 Globs:
-  - C:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb
+  - "C:\\ProgramData\\Microsoft\\Search\\Data\\Applications\\Windows\\Windows.*db"
 
 Sources:
 - name: SystemIndex_Gthr
