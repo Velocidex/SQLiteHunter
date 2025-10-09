@@ -9,7 +9,7 @@ Categories:
 
 FilenameRegex: "Windows.edb" or "Windows.*db"
 Globs:
-  - "C:\\ProgramData\\Microsoft\\Search\Data\\Applications\\Windows\\Windows.*db"
+  - "C:\\ProgramData\\Microsoft\\Search\\Data\\Applications\\Windows\\Windows.*db"
 
 Sources:
 - name: SystemIndex_Gthr
