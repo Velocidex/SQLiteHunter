@@ -1,0 +1,33 @@
+Name: IntelligencePlatform
+Author: Yogesh Khatri - @swiftForensics, CyberCX
+Description: |
+  Parses the views.db database, part of Apple Intelligence which
+  provides detailed connect/disconnect events on recent wifi
+  connections.
+
+Globs:
+  - "/Users/*/Library/IntelligencePlatform/Artifacts/internal/views.db"
+
+Categories:
+  - MacOS
+
+FilenameRegex: "views.db"
+
+SQLiteIdentifyQuery: |
+  SELECT count(*) AS `Check`
+  FROM sqlite_master
+  WHERE type='table' AND name='wifiContextEvents';
+SQLiteIdentifyValue: 1
+
+Sources:
+  - name: Wifi
+    SQL: |
+      SELECT behaviorType, behaviorIdentifier, timestamp
+      FROM wifiContextEvents ORDER BY timestamp
+    VQL: |
+      SELECT timestamp(cocoatime=timestamp) AS Timestamp,
+             behaviorType,
+             split(string=behaviorIdentifier, sep=':')[0] AS event,
+             split(string=behaviorIdentifier, sep=':')[1] AS network,
+             OSPath[1] AS User
+      FROM Rows
