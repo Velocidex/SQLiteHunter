@@ -7,14 +7,27 @@ Globs:
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Vivaldi/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Chromium/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge/User Data
     - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera Stable\
+    - C:\Users\*\AppData\Local\Packages\TheBrowserCompany.Arc_*\LocalCache\Local\Arc\User Data
+    - C:\Users\*\AppData\{Roaming,Local}/EPISoftware/EpiBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/AVAST Software/Browser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/CentBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Comodo/{Chromodo,Dragon}/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/CryptoTab Browser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Shift/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Slimjet/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/WaveBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/YandexBrowser/User Data
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome/
     - /Users/*/Library/Application Support/Microsoft Edge/
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\zen\Profiles
   LinuxFirefoxProfiles:
     - /home/*/.mozilla/firefox/*.default*
     - /home/*/snap/firefox/common/.mozilla/firefox/*.default*
