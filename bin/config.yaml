@@ -12,6 +12,9 @@ Globs:
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome/
+    - /Users/*/Library/Application Support/Google/Chrome Beta/
+    - /Users/*/Library/Application Support/Google/Chrome Canary/
+    - /Users/*/Library/Application Support/Google/Chrome Dev/
     - /Users/*/Library/Application Support/Microsoft Edge/
     - /Users/*/Library/Application Support/Microsoft Edge Beta/
     - /Users/*/Library/Application Support/Microsoft Edge Canary/
