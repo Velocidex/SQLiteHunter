@@ -93,7 +93,7 @@ parameters:
 - name: MatchFilename
   description: |
     If set we use the filename to detect the type of sqlite file.
-    When unset we use heristics (slower)
+    When unset we use heuristics (slower)
   type: bool
   default: Y
 
@@ -116,7 +116,7 @@ parameters:
   default: .
 
 - name: All
-  description: Select all tagrgets
+  description: Select all targets
   type: bool
   default: Y
 

@@ -16,7 +16,7 @@ FilenameRegex: "downloads.sqlite"
 Globs:
   - "{{WindowsFirefoxProfiles}}/*/downloads.sqlite"
   - "{{LinuxFirefoxProfiles}}/downloads.sqlite"
-  - "{{MacOSFirefoxProfiles}}/downloads.sqlite"
+  - "{{MacOSFirefoxProfiles}}/*/downloads.sqlite"
 
 Sources:
 - VQL: |

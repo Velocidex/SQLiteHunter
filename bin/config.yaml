@@ -13,10 +13,11 @@ Globs:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome/
     - /Users/*/Library/Application Support/Microsoft Edge/
+    - /Users/*/Library/Application Support/Chromium/
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
   LinuxFirefoxProfiles:
     - /home/*/.mozilla/firefox/*.default*
     - /home/*/snap/firefox/common/.mozilla/firefox/*.default*
   MacOSFirefoxProfiles:
-    - /Users/*/Library/Application Support/Firefox/Profiles/*.default*
+    - /Users/*/Library/Application Support/Firefox/Profiles

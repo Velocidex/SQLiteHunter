@@ -17,7 +17,7 @@ FilenameRegex: "places.sqlite"
 Globs:
   - "{{WindowsFirefoxProfiles}}/*/places.sqlite"
   - "{{LinuxFirefoxProfiles}}/places.sqlite"
-  - "{{MacOSFirefoxProfiles}}/places.sqlite"
+  - "{{MacOSFirefoxProfiles}}/*/places.sqlite"
 
 Sources:
 - Preamble: |
