@@ -8,6 +8,9 @@ Globs:
     - C:\Users\*\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge SxS/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge Beta/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge Dev/User Data
     - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera Stable\
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
