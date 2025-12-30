@@ -10,6 +10,7 @@ Globs:
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome SxS/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome Beta/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome Dev/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Chromium/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge SxS/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge Beta/User Data
