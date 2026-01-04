@@ -6,29 +6,23 @@ Globs:
     - /home/*/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome SxS/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome Beta/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome Dev/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Chromium/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge SxS/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge Beta/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge Dev/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome*/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Google/Chrome*/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Chromium*/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Chromium*/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge*/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Microsoft/Edge*/User Data
     - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera Stable\
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Opera Software\Opera Stable\
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
-    - /Users/*/Library/Application Support/Google/Chrome/
-    - /Users/*/Library/Application Support/Google/Chrome Beta/
-    - /Users/*/Library/Application Support/Google/Chrome Canary/
-    - /Users/*/Library/Application Support/Google/Chrome Dev/
-    - /Users/*/Library/Application Support/Microsoft Edge/
-    - /Users/*/Library/Application Support/Microsoft Edge Beta/
-    - /Users/*/Library/Application Support/Microsoft Edge Canary/
-    - /Users/*/Library/Application Support/Microsoft Edge Dev/
-    - /Users/*/Library/Application Support/Chromium/
+    - /Users/*/Library/Application Support/Google/Chrome*/
+    - /Users/*/Library/Application Support/Microsoft Edge*/
+    - /Users/*/Library/Application Support/Chromium*/
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
   LinuxFirefoxProfiles:
     - /home/*/.mozilla/firefox/*.default*
     - /home/*/snap/firefox/common/.mozilla/firefox/*.default*
