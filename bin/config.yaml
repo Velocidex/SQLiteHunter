@@ -15,11 +15,16 @@ Globs:
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Microsoft/Edge*/User Data
     - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera Stable\
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Opera Software\Opera Stable\
+    - C:\Users\*\AppData\{Roaming,Local}/Island/Island/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Island/Island/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Palo Alto Networks/PrismaAccessBrowser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Palo Alto Networks/PrismaAccessBrowser/User Data
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome*/
     - /Users/*/Library/Application Support/Microsoft Edge*/
     - /Users/*/Library/Application Support/Chromium*/
+    - /Users/*/Library/Application Support/PAB/Prisma Access Browser/
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
