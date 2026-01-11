@@ -65,7 +65,8 @@ Sources:
       dateAdded,
       lastModified
     FROM moz_annos
-    WHERE anno_attribute_id IN (1,2)
+    INNER JOIN moz_anno_attributes ON moz_annos.anno_attribute_id = moz_anno_attributes.id
+    WHERE moz_anno_attributes.name IN ('downloads/destinationFileURI','downloads/destinationFileName','downloads/metaData')
     ORDER BY moz_annos.dateAdded ASC
 
 - name: History
