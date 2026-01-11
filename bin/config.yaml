@@ -19,6 +19,8 @@ Globs:
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Island/Island/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Palo Alto Networks/PrismaAccessBrowser/User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Palo Alto Networks/PrismaAccessBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Comodo/Dragon/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Comodo/Dragon/User Data
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome*/
@@ -28,8 +30,40 @@ Globs:
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\librewolf\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\librewolf\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\Waterfox\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Waterfox\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\zen\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\zen\Profiles
+    - C:\Users\*\Desktop\Tor Browser\Browser\TorBrowser\Data\Browser
+    - C:\Users\*\AppData\{Roaming,Local}\Mullvad\MullvadBrowser\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Mullvad\MullvadBrowser\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\Floorp\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Floorp\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\Moonchild Productions\Pale Moon\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Moonchild Productions\Pale Moon\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\Moonchild Productions\Basilisk\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Moonchild Productions\Basilisk\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\Basilisk-Dev\Basilisk\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Basilisk-Dev\Basilisk\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\Mozilla\SeaMonkey\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Mozilla\SeaMonkey\Profiles
+    - C:\Users\*\AppData\{Roaming,Local}\K-Meleon
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\K-Meleon
+    - C:\Users\*\AppData\{Roaming,Local}\Comodo\IceDragon\Profiles
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Comodo\IceDragon\Profiles
   LinuxFirefoxProfiles:
     - /home/*/.mozilla/firefox/*.default*
     - /home/*/snap/firefox/common/.mozilla/firefox/*.default*
   MacOSFirefoxProfiles:
     - /Users/*/Library/Application Support/Firefox/Profiles
+    - /Users/*/Library/Application Support/librewolf/Profiles
+    - /Users/*/Library/Application Support/Waterfox/Profiles
+    - /Users/*/Library/Application Support/zen/Profiles
+    - /Users/*/Library/Application Support/TorBrowser-Data/Browser
+    - /Users/*/Library/Application Support/MullvadBrowser/Profiles
+    - /Users/*/Library/Application Support/Floorp/Profiles
+    - /Users/*/Library/Application Support/Pale Moon/Profiles
+    - /Users/*/Library/Application Support/Basilisk/Profiles
+    - /Users/*/Library/Application Support/SeaMonkey/Profiles
