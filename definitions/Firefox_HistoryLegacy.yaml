@@ -1,0 +1,59 @@
+Name: Firefox Places History Legacy
+Author: Andrew Rathbun, Reece394
+Email: andrew.d.rathbun@gmail.com
+Reference: https://github.com/EricZimmerman/SQLECmd
+SQLiteIdentifyQuery: |
+  SELECT (
+  SELECT COUNT(*)
+  FROM sqlite_master
+  WHERE type='table'
+     AND (name='moz_historyvisits' OR name='moz_bookmarks'
+          OR name='moz_places' OR name='moz_inputhistory')) +
+  (SELECT CASE WHEN (SELECT COUNT(*) FROM pragma_table_info('moz_places') WHERE name IN ('description','preview_image_url')) > 1
+  THEN 0 ELSE 1 END) AS `Check`;
+SQLiteIdentifyValue: 5
+Categories:
+  - Firefox
+  - Browser
+
+FilenameRegex: "places.sqlite"
+Globs:
+  - "{{WindowsFirefoxProfiles}}/*/places.sqlite"
+  - "{{LinuxFirefoxProfiles}}/places.sqlite"
+  - "{{MacOSFirefoxProfiles}}/*/places.sqlite"
+
+Sources:
+- Preamble: |
+    LET VisitType <= dict(`1`='TRANSITION_LINK', `2`='TRANSITION_TYPED', `3`='TRANSITION_BOOKMARK',
+      `4`='TRANSITION_EMBED', `5`= 'TRANSITION_REDIRECT_PERMANENT', `6`='TRANSITION_REDIRECT_TEMPORARY',
+      `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')
+
+  VQL: |
+    SELECT VisitID, FromVisitID,
+       timestamp(epoch= visit_date) AS VisitDate,
+       timestamp(epoch= last_visit_date) AS LastVisitDate,
+       VisitCount, URL, Title,
+       get(item= VisitType, field=str(str=visit_type), default="Unknown") AS VisitType,
+       Bool(Value=hidden) AS Hidden,
+       Bool(Value=typed) AS Typed,
+       Frecency, OSPath
+    FROM Rows
+    WHERE VisitDate > DateAfter AND VisitDate < DateBefore
+      AND (Title, URL, Description) =~ FilterRegex
+
+  SQL: |
+    SELECT
+      moz_historyvisits.id AS VisitID,
+      moz_historyvisits.from_visit AS FromVisitID,
+      moz_historyvisits.visit_date,
+      moz_places.last_visit_date,
+      moz_places.visit_count AS VisitCount,
+      moz_places.url AS URL,
+      moz_places.title AS Title,
+      moz_historyvisits.visit_type,
+      moz_places.hidden,
+      moz_places.typed,
+      moz_places.frecency AS Frecency
+    FROM moz_places
+    INNER JOIN moz_historyvisits ON moz_places.id = moz_historyvisits.place_id
+    ORDER BY moz_historyvisits.visit_date ASC
