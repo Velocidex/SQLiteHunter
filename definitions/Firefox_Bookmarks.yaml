@@ -20,8 +20,9 @@ Globs:
   - "{{MacOSFirefoxProfiles}}/*/places.sqlite"
 
 Sources:
-- Preamble: |
-    LET BookmarkTypes <= dict(`1`="URL", `2`="Folder", `3`="Separator")
+- name: Bookmarks
+  Preamble: |
+    LET BookmarkTypes <= dict(`1`='URL', `2`='Folder', `3`='Separator')
 
   VQL: |
     SELECT ID, ParentID,
