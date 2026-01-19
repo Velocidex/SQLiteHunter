@@ -16,7 +16,7 @@ FilenameRegex: "favicons.sqlite"
 Globs:
   - "{{WindowsFirefoxProfiles}}/*/favicons.sqlite"
   - "{{LinuxFirefoxProfiles}}/favicons.sqlite"
-  - "{{MacOSFirefoxProfiles}}/favicons.sqlite"
+  - "{{MacOSFirefoxProfiles}}/*/favicons.sqlite"
 
 Sources:
 - VQL: |

@@ -16,6 +16,7 @@ FilenameRegex: "Cookies"
 Globs:
   - "{{LinuxChromeProfiles}}/*/Cookies"
   - "{{WindowsChromeProfiles}}/*/Cookies"
+  - "{{WindowsChromeProfiles}}/*/Network/Cookies"
   - "{{MacOSChromeProfiles}}/*/Cookies"
 
 Sources:

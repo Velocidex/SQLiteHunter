@@ -16,7 +16,7 @@ FilenameRegex: "cookies.sqlite"
 Globs:
   - "{{WindowsFirefoxProfiles}}/*/cookies.sqlite"
   - "{{LinuxFirefoxProfiles}}/cookies.sqlite"
-  - "{{MacOSFirefoxProfiles}}/cookies.sqlite"
+  - "{{MacOSFirefoxProfiles}}/*/cookies.sqlite"
 
 Sources:
 - VQL: |

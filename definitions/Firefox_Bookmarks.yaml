@@ -17,11 +17,12 @@ FilenameRegex: "places.sqlite"
 Globs:
   - "{{WindowsFirefoxProfiles}}/*/places.sqlite"
   - "{{LinuxFirefoxProfiles}}/places.sqlite"
-  - "{{MacOSFirefoxProfiles}}/places.sqlite"
+  - "{{MacOSFirefoxProfiles}}/*/places.sqlite"
 
 Sources:
-- Preamble: |
-    LET BookmarkTypes <= dict(`1`="URL", `2`="Folder", `3`="Separator")
+- name: Bookmarks
+  Preamble: |
+    LET BookmarkTypes <= dict(`1`='URL', `2`='Folder', `3`='Separator')
 
   VQL: |
     SELECT ID, ParentID,
@@ -65,41 +66,6 @@ Sources:
       dateAdded,
       lastModified
     FROM moz_annos
-    WHERE anno_attribute_id IN (1,2)
+    INNER JOIN moz_anno_attributes ON moz_annos.anno_attribute_id = moz_anno_attributes.id
+    WHERE moz_anno_attributes.name IN ('downloads/destinationFileURI','downloads/destinationFileName','downloads/metaData')
     ORDER BY moz_annos.dateAdded ASC
-
-- name: History
-  Preamble: |
-    LET VisitType <= dict(`1`='TRANSITION_LINK', `2`='TRANSITION_TYPED', `3`='TRANSITION_BOOKMARK',
-      `4`='TRANSITION_EMBED', `5`= 'TRANSITION_REDIRECT_PERMANENT', `6`='TRANSITION_REDIRECT_TEMPORARY',
-      `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')
-
-  VQL: |
-    SELECT VisitID, FromVisitID,
-       timestamp(epoch= last_visit_date) AS LastVisitDate,
-       VisitCount, URL, Title, Description,
-       get(item= VisitType, field=str(str=visit_type), default="Unknown") AS VisitType,
-       Bool(Value=hidden) AS Hidden,
-       Bool(Value=typed) AS Typed,
-       Frecency, PreviewImageURL, OSPath
-    FROM Rows
-    WHERE LastVisitDate > DateAfter AND LastVisitDate < DateBefore
-      AND (Title, URL, Description) =~ FilterRegex
-
-  SQL: |
-    SELECT
-      moz_historyvisits.id AS VisitID,
-      moz_historyvisits.from_visit AS FromVisitID,
-      moz_places.last_visit_date,
-      moz_places.visit_count AS VisitCount,
-      moz_places.url AS URL,
-      moz_places.title AS Title,
-      moz_places.description AS Description,
-      moz_historyvisits.visit_type,
-      moz_places.hidden,
-      moz_places.typed,
-      moz_places.frecency AS Frecency,
-      moz_places.preview_image_url AS PreviewImageURL
-    FROM moz_places
-    INNER JOIN moz_historyvisits ON moz_places.origin_id = moz_historyvisits.id
-    ORDER BY moz_places.last_visit_date ASC
