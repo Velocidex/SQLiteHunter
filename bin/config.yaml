@@ -6,21 +6,6 @@ Globs:
     - /home/*/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Vivaldi/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Chromium/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Microsoft/Edge/User Data
-    - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera Stable\
-    - C:\Users\*\AppData\Local\Packages\TheBrowserCompany.Arc_*\LocalCache\Local\Arc\User Data
-    - C:\Users\*\AppData\{Roaming,Local}/EPISoftware/EpiBrowser/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/AVAST Software/Browser/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/CentBrowser/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Comodo/{Chromodo,Dragon}/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/CryptoTab Browser/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Shift/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Slimjet/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/WaveBrowser/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/YandexBrowser/User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/BraveSoftware/Brave*/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Google/Chrome*/User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Google/Chrome*/User Data
@@ -34,8 +19,27 @@ Globs:
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Island/Island/User Data
     - C:\Users\*\AppData\{Roaming,Local}/Palo Alto Networks/PrismaAccessBrowser/User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Palo Alto Networks/PrismaAccessBrowser/User Data
-    - C:\Users\*\AppData\{Roaming,Local}/Comodo/Dragon/User Data
-    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Comodo/Dragon/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Comodo/{Chromodo,Dragon}/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Comodo/{Chromodo,Dragon}/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Vivaldi/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Vivaldi/User Data
+    - C:\Users\*\AppData\Local\Packages\TheBrowserCompany.Arc_*\LocalCache\Local\Arc\User Data
+    - C:\Users\*\AppData\{Roaming,Local}/EPISoftware/EpiBrowser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/EPISoftware/EpiBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/AVAST Software/Browser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/AVAST Software/Browser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/CentBrowser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/CentBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/CryptoTab Browser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/CryptoTab Browser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Shift/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Shift/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Slimjet/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Slimjet/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/WaveBrowser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/WaveBrowser/User Data
+    - C:\Users\*\AppData\{Roaming,Local}/Yandex/YandexBrowser/User Data
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}/Yandex/YandexBrowser/User Data
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/BraveSoftware/Brave*/
     - /Users/*/Library/Application Support/Google/Chrome*/
@@ -44,7 +48,6 @@ Globs:
     - /Users/*/Library/Application Support/PAB/Prisma Access Browser/
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
-    - C:\Users\*\AppData\{Roaming,Local}\zen\Profiles
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Mozilla\Firefox\Profiles
     - C:\Users\*\AppData\{Roaming,Local}\librewolf\Profiles
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\librewolf\Profiles

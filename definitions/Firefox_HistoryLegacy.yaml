@@ -39,7 +39,7 @@ Sources:
        Frecency, OSPath
     FROM Rows
     WHERE VisitDate > DateAfter AND VisitDate < DateBefore
-      AND (Title, URL, Description) =~ FilterRegex
+      AND (Title, URL) =~ FilterRegex
 
   SQL: |
     SELECT
