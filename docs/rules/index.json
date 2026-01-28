@@ -1,0 +1,580 @@
+[
+  {
+   "Name": "IntelligencePlatform",
+   "Author": "Yogesh Khatri - @swiftForensics, CyberCX",
+   "Description": "Parses the views.db database, part of Apple Intelligence which\nprovides detailed connect/disconnect events on recent wifi\nconnections.\n",
+   "Categories": [
+    "MacOS"
+   ],
+   "Sources": [
+    {
+     "Name": "Wifi"
+    }
+   ],
+   "RawData": "Name: IntelligencePlatform\nAuthor: Yogesh Khatri - @swiftForensics, CyberCX\nDescription: |\n  Parses the views.db database, part of Apple Intelligence which\n  provides detailed connect/disconnect events on recent wifi\n  connections.\n\nGlobs:\n  - \"/Users/*/Library/IntelligencePlatform/Artifacts/internal/views.db\"\n\nCategories:\n  - MacOS\n\nFilenameRegex: \"views.db\"\n\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table' AND name='wifiContextEvents';\nSQLiteIdentifyValue: 1\n\nSources:\n  - name: Wifi\n    SQL: |\n      SELECT behaviorType, behaviorIdentifier, timestamp\n      FROM wifiContextEvents ORDER BY timestamp\n    VQL: |\n      SELECT timestamp(cocoatime=timestamp) AS Timestamp,\n             behaviorType,\n             split(string=behaviorIdentifier, sep=':')[0] AS event,\n             split(string=behaviorIdentifier, sep=':')[1] AS network,\n             OSPath[1] AS User\n      FROM Rows\n"
+  },
+  {
+   "Name": "iMessage",
+   "Author": "x64-julian",
+   "Description": "Parses the `chat.db` from IOS platforms.\n",
+   "Categories": [
+    "MacOS"
+   ],
+   "Sources": [
+    {
+     "Name": "Profiles"
+    }
+   ],
+   "RawData": "Name: iMessage\nAuthor: x64-julian\nDescription: |\n  Parses the `chat.db` from IOS platforms.\n\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='chat_handle_join' OR name='message_attachment_join'\n          OR name='sync_deleted_messages');\nSQLiteIdentifyValue: 3\nCategories:\n  - MacOS\nFilenameRegex: \"chat.db\"\nGlobs:\n  - \"/Users/*/Library/Messages/chat.db\"\n\nSources:\n- name: Profiles\n  VQL: |\n    SELECT timestamp(epoch=date / 1000000000 + 978307200) AS Timestamp, *\n    FROM Rows\n    WHERE Timestamp \u003e DateAfter AND Timestamp \u003c DateBefore\n      AND (MessageText, RoomName) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      m.rowid,\n      coalesce(m.cache_roomnames, h.id) AS ThreadId,\n      m.is_from_me AS IsFromMe,\n\n      CASE when m.is_from_me = 1 THEN m.account\n      ELSE h.id\n      END AS FromPhoneNumber,\n\n      CASE when m.is_from_me = 0 THEN m.account\n      ELSE coalesce(h2.id, h.id)\n      END AS ToPhoneNumber,\n\n      m.service AS Service,\n      m.date,\n      m.text AS MessageText,\n      c.display_name AS RoomName\n    FROM message as m\n      left join handle as h on m.handle_id = h.rowid\n      left join chat as c on m.cache_roomnames = c.room_name -- note: chat.room_name is not unique, this may cause one-to-many join\n      left join chat_handle_join as ch on c.rowid = ch.chat_id\n      left join handle as h2 on ch.handle_id = h2.rowid\n    WHERE\n        -- try to eliminate duplicates due to non-unique\n        -- message.cache_roomnames/chat.room_name\n        (h2.service is null or m.service = h2.service)\n\n    ORDER BY m.date DESC;\n"
+  },
+  {
+   "Name": "Chromium Browser Autofill",
+   "Author": "Andrew Rathbun",
+   "Description": "Parses the `Web Data` file in the Chromium profile.\n\nThis file contains autofill data for forms such as email, addresses,\nnames etc.\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Profiles"
+    },
+    {
+     "Name": "Masked Credit Cards"
+    }
+   ],
+   "RawData": "Name: Chromium Browser Autofill\nDescription: |\n  Parses the `Web Data` file in the Chromium profile.\n\n  This file contains autofill data for forms such as email, addresses,\n  names etc.\n\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='autofill' OR name='credit_cards'\n          OR name='offer_data' OR name='server_addresses' OR name='keywords');\nSQLiteIdentifyValue: 5\nCategories:\n  - Chrome\n  - Browser\n\nFilenameRegex: \"Web Data\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Web Data\"\n  - \"{{WindowsChromeProfiles}}/*/Web Data\"\n  - \"{{MacOSChromeProfiles}}/*/Web Data\"\n\nSources:\n- name: Profiles\n  VQL: |\n    SELECT GUID,\n      timestamp(epoch= date_modified) AS DateModified,\n      timestamp(epoch= use_date) AS UseDate,\n      FirstName, MiddleName, LastName, EmailAddress,\n      PhoneNumber, CompanyName, StreetAddress,\n      City, State, ZipCode, UseCount, OSPath\n    FROM Rows\n    WHERE UseDate \u003e DateAfter AND UseDate \u003c DateBefore\n      AND (FirstName, MiddleName, LastName, EmailAddress, CompanyName, StreetAddress) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      autofill_profiles.guid AS GUID,\n      date_modified,\n      use_date,\n      autofill_profile_names.first_name AS FirstName,\n      autofill_profile_names.middle_name AS MiddleName,\n      autofill_profile_names.last_name AS LastName,\n      autofill_profile_emails.email as EmailAddress,\n      autofill_profile_phones.number AS PhoneNumber,\n      autofill_profiles.company_name AS CompanyName,\n      autofill_profiles.street_address AS StreetAddress,\n      autofill_profiles.city AS City,\n      autofill_profiles.state AS State,\n      autofill_profiles.zipcode AS ZipCode,\n      autofill_profiles.use_count AS UseCount\n    FROM\n      autofill_profiles\n      INNER JOIN autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid\n      INNER JOIN autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid\n      INNER JOIN autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid\n    ORDER BY\n      autofill_profiles.guid ASC\n\n- name: Masked Credit Cards\n  VQL: \"SELECT * FROM Rows\"\n  SQL: |\n    SELECT\n      masked_credit_cards.id AS ID,\n      masked_credit_cards.name_on_card AS NameOnCard,\n      masked_credit_cards.network AS CardNetwork,\n      masked_credit_cards.last_four AS LastFour,\n      masked_credit_cards.exp_month AS ExpMonth,\n      masked_credit_cards.exp_year AS ExpYear,\n      masked_credit_cards.bank_name AS BankName,\n      masked_credit_cards.nickname AS CardNickname,\n      masked_credit_cards.card_issuer AS CardIssuer,\n      masked_credit_cards.instrument_id AS InstrumentID\n    FROM masked_credit_cards\n    ORDER BY masked_credit_cards.id ASC\n"
+  },
+  {
+   "Name": "Chromium Browser Bookmarks",
+   "Author": "Sikha Puthanveedu @SikhaMohan, Mike Cohen",
+   "Description": "Parses the browser's Bookmarks file.\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Chromium Browser Bookmarks\nDescription: |\n  Parses the browser's Bookmarks file.\n\nAuthor: Sikha Puthanveedu @SikhaMohan, Mike Cohen\nCategories:\n  - Chrome\n  - Browser\n\nFilenameRegex: \"Bookmarks\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Bookmarks\"\n  - \"{{WindowsChromeProfiles}}/*/Bookmarks\"\n  - \"{{MacOSChromeProfiles}}/*/Bookmarks\"\n\nSources:\n- Preamble: |\n     -- Recursive function to report the details of a folder\n     LET ReportFolder(Data, BaseName) = SELECT * FROM chain(a={\n       -- First row emit the data about the actual folder\n       SELECT BaseName + \" | \" + Data.name AS Name,\n              timestamp(winfiletime=int(int=Data.date_added) * 10) AS DateAdded,\n              timestamp(winfiletime=int(int=Data.date_last_used) * 10) AS DateLastUsed,\n              Data.type AS Type,\n              Data.url || \"\"  AS URL\n       FROM scope()\n     },\n     b={\n        -- If this folder has children recurse into it\n        SELECT * FROM foreach(row={\n           SELECT _value FROM items(item=Data.children)\n        },  query={\n           SELECT * FROM ReportFolder(Data=_value, BaseName=BaseName + \" | \" + Data.name)\n        })\n     })\n\n     LET MatchingFiles = SELECT OSPath, parse_json(data=read_file(filename=OSPath)) AS Data\n     FROM Rows\n\n  VQL: |\n     SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT * FROM chain(\n       a={\n         SELECT OSPath, *, \"bookmark_bar\" AS Type\n         FROM ReportFolder(Data=Data.roots.bookmark_bar, BaseName=\"\")\n       },\n       b={\n         SELECT OSPath, *, \"other\" AS Type\n         FROM ReportFolder(Data=Data.roots.other, BaseName=\"\")\n       },\n       c={\n         SELECT OSPath, *, \"synced\" AS Type\n         FROM ReportFolder(Data=Data.roots.synced, BaseName=\"\")\n       })\n     })\n"
+  },
+  {
+   "Name": "Chromium Browser Cookies",
+   "Author": "Andrew Rathbun",
+   "Description": "Parses the cookies held by the Chromium browser.\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Cookies"
+    }
+   ],
+   "RawData": "Name: Chromium Browser Cookies\nDescription: |\n  Parses the cookies held by the Chromium browser.\n\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master WHERE type='table' AND (name='cookies' OR name='meta');\nSQLiteIdentifyValue: 2\nCategories:\n  - Chrome\n  - Browser\nFilenameRegex: \"Cookies\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Cookies\"\n  - \"{{WindowsChromeProfiles}}/*/Cookies\"\n  - \"{{WindowsChromeProfiles}}/*/Network/Cookies\"\n  - \"{{MacOSChromeProfiles}}/*/Cookies\"\n\nSources:\n- name: Cookies\n  VQL: |\n    SELECT timestamp(winfiletime=(creation_utc * 10) || 0) AS CreationUTC,\n           timestamp(winfiletime=(expires_utc * 10) || 0) AS ExpiresUTC,\n           timestamp(winfiletime=(last_access_utc * 10) || 0) AS LastAccessUTC,\n           HostKey, Name, Path,\n           Bool(Value=is_secure) AS IsSecure,\n           Bool(Value=is_httponly) AS IsHttpOnly,\n           Bool(Value=has_expires) AS HasExpiration,\n           Bool(Value=is_persistent) AS IsPersistent,\n           Priority, SourcePort, OSPath\n    FROM Rows\n    WHERE LastAccessUTC \u003e DateAfter AND LastAccessUTC \u003c DateBefore\n      AND (Name, Path) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      cookies.creation_utc,\n      cookies.expires_utc,\n      cookies.last_access_utc,\n      cookies.host_key AS HostKey,\n      cookies.name AS Name,\n      cookies.path AS Path,\n      cookies.is_secure,\n      cookies.is_httponly,\n      cookies.has_expires,\n      cookies.is_persistent,\n      cookies.priority AS Priority,\n      cookies.source_port AS SourcePort\n    FROM cookies\n    ORDER BY cookies.creation_utc ASC\n"
+  },
+  {
+   "Name": "Chromium Browser Extensions",
+   "Author": "Mike Cohen",
+   "Description": "Parses all installed chromium extensions.\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Chromium Browser Extensions\nDescription: |\n  Parses all installed chromium extensions.\n\nAuthor: Mike Cohen\nCategories:\n  - Chrome\n  - Browser\n\nFilenameRegex: \"manifest.json\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Extensions/**/manifest.json\"\n  - \"{{WindowsChromeProfiles}}/*/Extensions/**/manifest.json\"\n  - \"{{MacOSChromeProfiles}}/*/Extensions/**/manifest.json\"\n\nSources:\n- Preamble: |\n    -- Resolve the message string against the Locale dict\n    LET ResolveName(Message, Locale) = get(item=Locale,\n          field=lowcase(string=parse_string_with_regex(regex=\"^__MSG_(.+)__$\", string=Message).g1),\n          default=Message).message || Message\n\n    -- Read the manifest files\n    LET ManifestData = SELECT OSPath, parse_json(data=read_file(filename=OSPath)) AS Manifest\n    FROM Rows\n\n    -- Find the Locale file to help with.\n    LET LocaleData = SELECT *, if(condition=Manifest.default_locale, else=dict(),\n         then=parse_json(data=read_file(\n            filename=OSPath.Dirname + \"_locales\" + Manifest.default_locale + \"messages.json\"))) AS Locale\n    FROM ManifestData\n\n    LET GetIcon(Manifest) = Manifest.icons.`128` || Manifest.icons.`64` || Manifest.icons.`32` || Manifest.icons.`16`\n\n  VQL: |\n    SELECT OSPath, Manifest.author.email AS Email,\n      ResolveName(Message = Manifest.name, Locale=Locale) AS name,\n      ResolveName(Message = Manifest.description, Locale=Locale) AS description,\n      Manifest.oauth2.scopes as Scopes,\n      Manifest.permissions as Permissions,\n      Manifest.key as Key, if(condition=GetIcon(Manifest=Manifest),\n                then=upload(file=OSPath.Dirname + GetIcon(Manifest=Manifest))) AS Image,\n      Manifest AS _Manifest\n    FROM LocaleData\n    WHERE (name, description) =~ FilterRegex\n"
+  },
+  {
+   "Name": "Chromium Browser Favicons",
+   "Author": "Andrew Rathbun, Phill Moore",
+   "Description": "Extracts known favicons for visited websites.\n\nAlso uploads and previews the image thumbnails.\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Chromium Browser Favicons\nDescription: |\n  Extracts known favicons for visited websites.\n\n  Also uploads and previews the image thumbnails.\n\nAuthor: Andrew Rathbun, Phill Moore\nEmail: andrew.d.rathbun@gmail.com, @phillmoore\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='icon_mapping' OR name='favicons' OR name='favicon_bitmaps');\nSQLiteIdentifyValue: 3\nCategories:\n  - Chrome\n  - Browser\n\nFilenameRegex: \"Favicons\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Favicons\"\n  - \"{{WindowsChromeProfiles}}/*/Favicons\"\n  - \"{{MacOSChromeProfiles}}/*/Favicons\"\n\nSources:\n- VQL: |\n    SELECT ID, IconID,\n      timestamp(winfiletime= (LastUpdated * 10) || 0) AS LastUpdated,\n      PageURL, FaviconURL,\n      upload(accessor=\"data\",\n         file=_image,\n         name=format(format=\"Image%v.png\", args=ID)) AS Image,\n      OSPath as _OSPath\n    FROM Rows\n    WHERE LastUpdated \u003e DateAfter AND LastUpdated \u003c DateBefore\n\n  SQL: |\n    SELECT\n      favicons.id AS ID,\n      favicon_bitmaps.icon_id AS IconID,\n      favicon_bitmaps.image_data as _image,\n      favicon_bitmaps.last_updated AS LastUpdated,\n      icon_mapping.page_url AS PageURL,\n      favicons.url AS FaviconURL\n    FROM favicons\n    INNER JOIN icon_mapping\n    INNER JOIN favicon_bitmaps\n      ON icon_mapping.icon_id = favicon_bitmaps.icon_id\n      AND favicons.id = favicon_bitmaps.icon_id\n    ORDER BY favicons.id ASC\n"
+  },
+  {
+   "Name": "Chromium Browser History",
+   "Author": "Andrew Rathbun",
+   "Description": "Extracts the Chromium Browser History\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Visits"
+    },
+    {
+     "Name": "Downloads"
+    },
+    {
+     "Name": "Keywords"
+    }
+   ],
+   "RawData": "Name: Chromium Browser History\nDescription: |\n  Extracts the Chromium Browser History\n\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='urls' OR name='visits' OR name='downloads' OR name='segments');\nSQLiteIdentifyValue: 4\nCategories:\n  - Chrome\n  - Browser\nFilenameRegex: \"History\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/History\"\n  - \"{{WindowsChromeProfiles}}/*/History\"\n  - \"{{MacOSChromeProfiles}}/*/History\"\n\nSources:\n- name: Visits\n  VQL: |\n    SELECT ID,\n       timestamp(winfiletime=(visit_time * 10) || 0) AS VisitTime,\n       timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,\n       URLTitle, URL, VisitCount, TypedCount,\n       if(condition=hidden =~ '1', then=\"Yes\", else=\"No\") AS Hidden,\n       VisitID, FromVisitID,\n       visit_duration / 1000000 AS VisitDurationInSeconds,\n       OSPath\n    FROM Rows\n    WHERE VisitTime \u003e DateAfter\n      AND VisitTime \u003c DateBefore\n      AND (URLTitle, URL) =~ FilterRegex\n  SQL: |\n    SELECT\n      urls.id AS ID,\n      visits.visit_time as visit_time,\n      urls.last_visit_time as last_visit_time,\n      urls.title AS URLTitle,\n      urls.url AS URL,\n      urls.visit_count AS VisitCount,\n      urls.typed_count AS TypedCount,\n      urls.hidden as hidden,\n      visits.id AS VisitID,\n      visits.from_visit AS FromVisitID,\n      visits.visit_duration as visit_duration\n    FROM urls\n    LEFT JOIN visits ON urls.id = visits.url\n    ORDER BY visits.visit_time ASC\n\n- name: Downloads\n  Preamble: |\n    LET StateLookup \u003c= dict(`0`='In Progress', `1`='Complete', `2`=\"Cancelled\", `3`=\"Interrupted\", `4`=\"Interrupted\")\n    LET DangerType \u003c= dict(`0`='Not Dangerous', `1`=\"Dangerous\", `2`='Dangerous URL', `3`='Dangerous Content',\n        `4`='Content May Be Malicious', `5`='Uncommon Content', `6`='Dangerous But User Validated',\n        `7`='Dangerous Host', `8`='Potentially Unwanted', `9`='Whitelisted by Policy',\n        `10`='Download Pending Detailed Verdict', `11`='Blocked By Policy Password Protected', `12`='Blocked By Policy Download Too Large',\n        `13`='Sensitive Content Warning', `14`='Sensitive Content Blocked', `15`='Deep Scanned Safe',\n        `16`='Deep Scanned Dangerous But Opened By User', `17`='Prompt For Deep Scanning', `18`='Blocked Unsupported Filetype',\n        `19`='Dangerous Associated With Account Compromise', `20`='Deep Scan Failed', `21`='Encrypted Archive Prompt for Local Password Scanning',\n        `22`='Encrypted Archive Prompt for Local Password Scanning Pending Detailed Verdict', `23`='Blocked by Policy Scan Failed')\n    LET InterruptReason \u003c= dict(`0`= 'No Interrupt', `1`= 'File Error', `2`='Access Denied', `3`='Disk Full',\n      `5`='Path Too Long',`6`='File Too Large', `7`='Virus', `10`='Temporary Problem', `11`='Blocked',\n      `12`='Security Check Failed', `13`='Resume Error File Too Short', `14`='File Hash Mismatch', `15`='File Same As Source',\n      `20`='Network Error', `21`='Operation Timed Out', `22`='Connection Lost', `23`='Server Down',\n      `24`='Network Request Invalid', `30`='Server Error', `31`='Range Request Error',\n      `32`='Server Precondition Error', `33`='Unable to get file', `34`='Server Unauthorized',\n      `35`='Server Certificate Problem', `36`='Server Access Forbidden', `37`='Server Unreachable',\n      `38`='Content Length Mismatch', `39`='Cross Origin Redirect', `40`='Cancelled', `41`='Browser Shutdown',\n      `50`='Browser Crashed')\n\n  VQL: |\n    SELECT ID, GUID, CurrentPath, TargetPath, OriginalMIMEType, ReceivedBytes, TotalBytes,\n      timestamp(winfiletime=(start_time * 10) || 0) AS StartTime,\n      timestamp(winfiletime=(end_time * 10) || 0) AS EndTime,\n      timestamp(winfiletime=(opened * 10) || 0) AS Opened,\n      timestamp(winfiletime=(last_access_time * 10) || 0) AS LastAccessTime,\n      timestamp(epoch=last_modified) AS LastModified,\n      get(item=StateLookup, field=str(str=state), default=\"Unknown\") AS State,\n      get(item=DangerType, field=str(str=danger_type), default=\"Unknown\") AS DangerType,\n      get(item=InterruptReason, field=str(str=interrupt_reason), default=\"Unknown\") AS InterruptReason,\n      ReferrerURL, SiteURL, TabURL, TabReferrerURL, DownloadURL, OSPath\n    FROM Rows\n    WHERE LastAccessTime \u003e DateAfter AND LastAccessTime \u003c DateBefore\n      AND (SiteURL, DownloadURL, TabURL, TabReferrerURL, ReferrerURL, DownloadURL) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      downloads.id AS ID,\n      downloads.guid AS GUID,\n      downloads.current_path AS CurrentPath,\n      downloads.target_path AS TargetPath,\n      downloads.original_mime_type AS OriginalMIMEType,\n      downloads.received_bytes AS ReceivedBytes,\n      downloads.total_bytes AS TotalBytes,\n      downloads.start_time,\n      downloads.end_time,\n      downloads.opened,\n      downloads.last_access_time,\n      downloads.last_modified,\n      downloads.state,\n      downloads.danger_type,\n      downloads.interrupt_reason,\n      downloads.referrer AS ReferrerURL,\n      downloads.site_url AS SiteURL,\n      downloads.tab_url AS TabURL,\n      downloads.tab_referrer_url AS TabReferrerURL,\n      DownloadURL.url AS DownloadURL\n    FROM downloads\n    INNER JOIN downloads_url_chains AS DownloadURL ON downloads.id = DownloadURL.id\n    ORDER BY downloads.id ASC\n\n- name: Keywords\n  VQL: |\n    SELECT KeywordID, URLID,\n       timestamp(winfiletime=(last_visit_time * 10) || 0) AS LastVisitedTime,\n       KeywordSearchTerm, Title, URL, OSPath\n    FROM Rows\n    WHERE LastVisitedTime \u003e DateAfter AND LastVisitedTime \u003c DateBefore\n      AND (Title, KeywordSearchTerm, URL) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      keyword_search_terms.keyword_id AS KeywordID,\n      keyword_search_terms.url_id AS URLID,\n      urls.last_visit_time,\n      keyword_search_terms.term AS KeywordSearchTerm,\n      urls.title AS Title,\n      urls.url AS URL\n    FROM keyword_search_terms\n    INNER JOIN urls ON keyword_search_terms.url_id = urls.id\n    ORDER BY keyword_search_terms.keyword_id ASC\n"
+  },
+  {
+   "Name": "Chromium Browser Media",
+   "Author": "Andrew Rathbun",
+   "Description": "Parses metadata about viewed media, such as videos.\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "History"
+    },
+    {
+     "Name": "Playback Session"
+    }
+   ],
+   "RawData": "Name: Chromium Browser Media\nDescription: |\n  Parses metadata about viewed media, such as videos.\n\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='origin' OR name='playback' OR name='playbackSession');\nSQLiteIdentifyValue: 3\nCategories:\n  - Chrome\n  - Browser\nFilenameRegex: \"Media History\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Media History\"\n  - \"{{WindowsChromeProfiles}}/*/Media History\"\n  - \"{{MacOSChromeProfiles}}/*/Media History\"\n\nSources:\n- name: History\n  VQL: |\n    SELECT ID, URL, WatchTimeSeconds,\n       Bool(Value=has_video) AS HasVideo,\n       Bool(Value=has_audio) AS HasAudio,\n       timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated,\n       OriginID, OSPath\n    FROM Rows\n    WHERE LastUpdated \u003e DateAfter AND LastUpdated \u003c DateBefore\n      AND URL =~ FilterRegex\n\n  SQL: |\n    SELECT\n      playback.id AS ID,\n      playback.url AS URL,\n      playback.watch_time_s AS WatchTimeSeconds,\n      playback.has_video,\n      playback.has_audio,\n      playback.last_updated_time_s,\n      playback.origin_id AS OriginID\n    FROM playback\n    ORDER BY playback.id ASC\n\n- name: Playback Session\n  VQL: |\n    SELECT ID,\n      timestamp(winfiletime=last_updated_time_s || 0) AS LastUpdated, URL,\n      duration_ms / 1000 AS DurationInSeconds,\n      position_ms / 1000 AS PositionInSeconds,\n      Title, Artist, Album, SourceTitle, OriginID, OSPath\n    FROM Rows\n    WHERE LastUpdated \u003e DateAfter AND LastUpdated \u003c DateBefore\n      AND URL =~ FilterRegex\n\n  SQL: |\n    SELECT\n      playbackSession.id AS ID,\n      playbackSession.last_updated_time_s,\n      playbackSession.url AS URL,\n      playbackSession.duration_ms,\n      playbackSession.position_ms,\n      playbackSession.title AS Title,\n      playbackSession.artist AS Artist,\n      playbackSession.album AS Album,\n      playbackSession.source_title AS SourceTitle,\n      playbackSession.origin_id AS OriginID\n    FROM playbackSession\n    ORDER BY playbackSession.id\n"
+  },
+  {
+   "Name": "Chromium Browser Network",
+   "Author": "Andrew Rathbun",
+   "Description": "Parses the `Network Action Predictor` database\n",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Predictor"
+    }
+   ],
+   "RawData": "Name: Chromium Browser Network\nDescription: |\n  Parses the `Network Action Predictor` database\n\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='resource_prefetch_predictor_host_redirect'\n         OR name='network_action_predictor' OR name='resource_prefetch_predictor_metadata');\nSQLiteIdentifyValue: 3\nCategories:\n  - Chrome\n  - Browser\nFilenameRegex: \"Network Action Predictor\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Network Action Predictor\"\n  - \"{{WindowsChromeProfiles}}/*/Network Action Predictor\"\n  - \"{{MacOSChromeProfiles}}/*/Network Action Predictor\"\n\nSources:\n- name: Predictor\n  VQL: |\n    SELECT * FROM Rows\n    WHERE UserText =~ FilterRegex\n\n  SQL: |\n    SELECT\n       network_action_predictor.id AS ID,\n       network_action_predictor.user_text AS UserText,\n       network_action_predictor.url AS URL,\n       network_action_predictor.number_of_hits AS NumberOfHits,\n       network_action_predictor.number_of_misses AS NumberOfMisses\n    FROM network_action_predictor, resource_prefetch_predictor_host_redirect\n    ORDER BY network_action_predictor.id ASC\n"
+  },
+  {
+   "Name": "Chromium Browser Notifications",
+   "Author": "Maxime Thiebaut (@0xThiebaut)",
+   "Categories": [
+    "Chrome",
+    "Edge",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Site Engagements"
+    },
+    {
+     "Name": "App Banners"
+    },
+    {
+     "Name": "Notification Preferences"
+    },
+    {
+     "Name": "Notification Interactions"
+    }
+   ],
+   "RawData": "Name: Chromium Browser Notifications\nAuthor: Maxime Thiebaut (@0xThiebaut)\nCategories:\n  - Chrome\n  - Edge\n  - Browser\n\nFilenameRegex: \"Preferences\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Preferences\"\n  - \"{{WindowsChromeProfiles}}/*/Preferences\"\n  - \"{{MacOSChromeProfiles}}/*/Preferences\"\n\nSources:\n- name: Site Engagements\n  Preamble: |\n    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows\n\n  VQL: |\n    SELECT * FROM foreach(row={\n      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON\n    },  query={\n      SELECT _key AS Site,\n         timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,\n         timestamp(winfiletime=int(int=_value.setting.lastEngagementTime) * 10 || 0) AS LastEngagementTime,\n         OSPath\n      FROM items(item=exceptions.site_engagement)\n    })\n\n- name: App Banners\n  Preamble: |\n    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows\n\n  VQL: |\n    SELECT * FROM foreach(row={\n      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON\n    },  query={\n      SELECT _key AS Site,\n         timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,\n         {\n           SELECT _key AS Site,\n              timestamp(winfiletime=int(int=_value.couldShowBannerEvents) * 10 || 0) AS CouldShowBannerEvents,\n              timestamp(winfiletime=int(int=_value.next_install_text_animation.last_shown) * 10 || 0) AS LastShown\n           FROM items(item=_value.setting)\n         } AS Setting,\n         OSPath\n      FROM items(item=exceptions.app_banner)\n    })\n\n- name: Notification Preferences\n  Preamble: |\n    LET ContentSettings \u003c= array(`0`=\"Default\",`1`=\"Allow\",`2`=\"Block\",`3`=\"Ask\",`4`=\"Session Only\",`5`=\"Detect Important Content\")\n\n    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows\n\n  VQL: |\n    SELECT * FROM foreach(row={\n      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON\n    },  query={\n      SELECT _key AS Site,\n        timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,\n        ContentSettings[_value.setting] AS Setting,\n        OSPath\n      FROM items(item=exceptions.notifications)\n    })\n\n- name: Notification Interactions\n  Preamble: |\n    LET JSON = SELECT parse_json(data=read_file(filename=OSPath)) AS Data, OSPath FROM Rows\n    LET S = scope()\n\n  VQL: |\n    SELECT * FROM foreach(row={\n      SELECT OSPath, Data.profile.content_settings.exceptions AS exceptions FROM JSON\n    },  query={\n      SELECT _key AS URL,\n        timestamp(winfiletime=int(int=_value.last_modified) * 10 || 0) AS LastModified,\n        _value.display_count as DisplayCount,\n        _value.click_count as ClickCount,\n        OSPath\n      FROM items(item=S.notification_interactions || dict())\n    })\n"
+  },
+  {
+   "Name": "Chromium Browser Shortcuts",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Chromium Browser Shortcuts\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='meta' OR name='omni_box_shortcuts');\nSQLiteIdentifyValue: 2\nCategories:\n  - Chrome\n  - Browser\n\nFilenameRegex: \"Shortcuts\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Shortcuts\"\n  - \"{{WindowsChromeProfiles}}/*/Shortcuts\"\n  - \"{{MacOSChromeProfiles}}/*/Shortcuts\"\n\nSources:\n- VQL: |\n    SELECT ID,\n      timestamp(winfiletime= (last_access_time * 10) || 0) AS LastAccessTime,\n      TextTyped, FillIntoEdit, URL, Contents,\n      Description, Type, Keyword, TimesSelectedByUser, OSPath\n    FROM Rows\n    WHERE LastAccessTime \u003e DateAfter AND LastAccessTime \u003c DateBefore\n      AND (Contents, Description) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      omni_box_shortcuts.last_access_time,\n      omni_box_shortcuts.text AS TextTyped,\n      omni_box_shortcuts.fill_into_edit AS FillIntoEdit,\n      omni_box_shortcuts.url AS URL,\n      omni_box_shortcuts.contents AS Contents,\n      omni_box_shortcuts.description AS Description,\n      omni_box_shortcuts.type AS Type,\n      omni_box_shortcuts.keyword AS Keyword,\n      omni_box_shortcuts.number_of_hits AS TimesSelectedByUser,\n      omni_box_shortcuts.id AS ID\n    FROM omni_box_shortcuts\n    ORDER BY omni_box_shortcuts.last_access_time ASC\n"
+  },
+  {
+   "Name": "Chromium Sessions",
+   "Author": "Mike Cohen",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Sessions"
+    }
+   ],
+   "RawData": "Name: Chromium Sessions\nAuthor: Mike Cohen\nReference: https://www.inversecos.com/2022/10/recovering-cleared-browser-history.html\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master WHERE type='table' AND (name='cookies' OR name='meta');\nSQLiteIdentifyValue: 2\nCategories:\n  - Chrome\n  - Browser\nFilenameRegex: \"Session\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Sessions/Session_*\"\n  - \"{{WindowsChromeProfiles}}/*/Sessions/Session_*\"\n  - \"{{MacOSChromeProfiles}}/*/Sessions/Session_*\"\n\nSources:\n- name: Sessions\n  VQL: |\n    SELECT timestamp(winfiletime=(creation_utc * 10) || 0) AS CreationUTC,\n           timestamp(winfiletime=(expires_utc * 10) || 0) AS ExpiresUTC,\n           timestamp(winfiletime=(last_access_utc * 10) || 0) AS LastAccessUTC,\n           HostKey, Name, Path,\n           Bool(Value=is_secure) AS IsSecure,\n           Bool(Value=is_httponly) AS IsHttpOnly,\n           Bool(Value=has_expires) AS HasExpiration,\n           Bool(Value=is_persistent) AS IsPersistent,\n           Priority, SourcePort, OSPath\n    FROM Rows\n    WHERE LastAccessUTC \u003e DateAfter AND LastAccessUTC \u003c DateBefore\n      AND (Name, Path) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      cookies.creation_utc,\n      cookies.expires_utc,\n      cookies.last_access_utc,\n      cookies.host_key AS HostKey,\n      cookies.name AS Name,\n      cookies.path AS Path,\n      cookies.is_secure,\n      cookies.is_httponly,\n      cookies.has_expires,\n      cookies.is_persistent,\n      cookies.priority AS Priority,\n      cookies.source_port AS SourcePort\n    FROM cookies\n    ORDER BY cookies.creation_utc ASC\n"
+  },
+  {
+   "Name": "Chromium Browser Top Sites",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Chrome",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Chromium Browser Top Sites\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='meta' OR name='top_sites');\nSQLiteIdentifyValue: 2\nCategories:\n  - Chrome\n  - Browser\n\nFilenameRegex: \"Top Sites\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Top Sites\"\n  - \"{{WindowsChromeProfiles}}/*/Top Sites\"\n  - \"{{MacOSChromeProfiles}}/*/Top Sites\"\n\nSources:\n- VQL: |\n    SELECT * FROM Rows\n    WHERE ( URL =~ FilterRegex OR Title =~ FilterRegex )\n\n  SQL: |\n    SELECT\n      top_sites.url_rank AS URLRank,\n      top_sites.url AS URL,\n      top_sites.title AS Title\n    FROM top_sites\n    ORDER BY top_sites.url_rank ASC\n"
+  },
+  {
+   "Name": "Edge Browser Autofill",
+   "Author": "Chris Hayes - Reliance Cyber",
+   "Categories": [
+    "Edge",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "CombinedAutofill"
+    }
+   ],
+   "RawData": "Name: Edge Browser Autofill\nAuthor: Chris Hayes - Reliance Cyber\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='autofill_edge_field_client_info' OR name='autofill_edge_field_values');\nSQLiteIdentifyValue: 2\nCategories:\n  - Edge\n  - Browser\n\nFilenameRegex: \"Web Data\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Web Data\"\n  - \"{{WindowsChromeProfiles}}/*/Web Data\"\n  - \"{{MacOSChromeProfiles}}/*/Web Data\"\n\nSources:\n- name: CombinedAutofill\n  VQL: |\n    SELECT timestamp(epoch=date_last_used) AS DateLastUsed, *\n    FROM Rows\n    WHERE DateLastUsed \u003e DateAfter AND DateLastUsed \u003c DateBefore\n\n  SQL: |\n    SELECT\n       autofill_edge_field_client_info.form_signature_v1,\n       autofill_edge_field_client_info.form_signature_v2,\n       autofill_edge_field_client_info.domain_value,\n       autofill_edge_field_values.date_last_used,\n       GROUP_CONCAT(autofill_edge_field_client_info.label || ': ' || autofill_edge_field_values.value, ', ') AS label_value_pairs,\n       json_group_object(autofill_edge_field_client_info.label, autofill_edge_field_values.value) AS label_value_json\n    FROM\n       autofill_edge_field_values\n    JOIN\n       autofill_edge_field_client_info\n    ON\n       autofill_edge_field_values.field_id = autofill_edge_field_client_info.field_id\n    GROUP BY\n       autofill_edge_field_client_info.form_signature_v1,\n       autofill_edge_field_client_info.form_signature_v2,\n       autofill_edge_field_client_info.domain_value,\n       autofill_edge_field_values.date_last_used;\n"
+  },
+  {
+   "Name": "Edge Browser Collections",
+   "Author": "John Woeltje \u0026 David Diehl",
+   "Categories": [
+    "Edge",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Collections, Items, and Comments"
+    }
+   ],
+   "RawData": "Name: Edge Browser Collections\nAuthor: John Woeltje \u0026 David Diehl\nEmail: 19861970+jfdubya@users.noreply.github.com\nReference: https://support.microsoft.com/en-us/microsoft-edge/organize-your-ideas-with-collections-in-microsoft-edge-60fd7bba-6cfd-00b9-3787-b197231b507e\n\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master WHERE type='table' AND (name='collections' OR name='items');\nSQLiteIdentifyValue: 2\n\nCategories:\n  - Edge\n  - Browser\nFilenameRegex: collectionsSQLite\n\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/Collections/collectionsSQLite\"\n  - \"{{WindowsChromeProfiles}}/*/Collections/collectionsSQLite\"\n  - \"{{MacOSChromeProfiles}}/*/Collections/collectionsSQLite\"\n\nSources:\n- name:  Collections, Items, and Comments\n  Preamble: |\n    LET ExtractImage(Data) = base64decode(\n      string=split(string=parse_json(data=Data).image, sep=\",\")[1])\n\n  VQL: |\n    SELECT *,\n       timestamp(epoch=Collection_CreationUTC) AS Collection_CreationUTC,\n       timestamp(epoch=Collection_ModifiedUTC) AS Collection_ModifiedUTC,\n       timestamp(epoch=ColletionSync_DateLastSynced) AS ColletionSync_DateLastSynced,\n       timestamp(epoch=Item_CreationUTC) AS Item_CreationUTC,\n       timestamp(epoch=Item_ModifiedUTC) AS Item_ModifiedUTC,\n       parse_json(data= Item_Source) AS Item_Source,\n       upload(accessor=\"data\",\n              file=ExtractImage(Data=Image),\n              name=format(format=\"Screenshot_%v.png\", args=item_id)) AS Image,\n       timestamp(epoch=ItemSync_DaeLastSynced) AS ItemSync_DaeLastSynced\n    FROM Rows\n\n  SQL: |\n        SELECT\n           /* Collections table */\n           collections.date_created AS Collection_CreationUTC,\n           collections.date_modified AS Collection_ModifiedUTC,\n           collections.title as Collection_Title,\n           collections.position as Collection_Position,\n           collections.is_syncable as Collection_IsSyncable,\n           collections.suggestion_url as Collection_SuggestionUrl,\n           collections.suggestion_dismissed as Collection_SuggestionDismissed,\n           collections.suggestion_type as Collection_SuggestionType,\n           cast(collections.thumbnail as varchar) as Collection_Thumbnail,\n           collections.is_custom_thumbnail as Collection_IsCustomThumbnail,\n           collections.tag as Collection_Tag,\n           collections.thumbnail_url as Collection_ThumbnailUrl,\n           collections.is_marked_for_deletion as Collection_IsMarkedForDeletion,\n\n           /* Collections_Sync table */\n           collections_sync.date_last_synced AS ColletionSync_DateLastSynced,\n           collections_sync.is_syncable AS CollectionSync_IsSyncable,\n           collections_sync.server_id AS CollectionSync_ServerId,\n\n           /* Items table */\n           items.date_created AS Item_CreationUTC,\n           items.date_modified AS Item_ModifiedUTC,\n           items.source AS Item_Source,\n           items.Title AS Item_Title,\n           items.entity_blob AS Item_EntityBlob,\n           items.canonical_image_data AS Image,\n           items.third_party_data AS Item_ThirdPartyData,\n           items.favicon_url AS Item_FaviconUrl,\n           items.text_content AS Item_TextContent,\n           items.html_content AS Item_HtmlContent,\n           items.type AS Item_Type,\n           items.tag AS Item_Tag,\n\n           /* Items Offline Data */\n           items_offline_data.offline_file_data AS Item_OfflineFileData,\n\n           /* Items_Sync Data */\n           items_sync.date_last_synced AS ItemSync_DaeLastSynced,\n           items_sync.is_syncable AS ItemSync_IsSyncable,\n\n           /* Comments table */\n           comments.text as Comment_Text,\n           comments.properties as Comment_Properties,\n\n           /* All the raw fields here */\n           collections.id as collection_id,\n           collections.date_created as raw_collection_created,\n           collections.date_modified as raw_collection_modified,\n           items.id AS item_id,\n           items.date_created AS raw_item_created,\n           items.date_modified AS raw_item_modified,\n           comments.id as comment_id,\n           comments.parent_id as comment_parent_id\n\n        FROM items\n          left join collections_items_relationship\n             on items.id = collections_items_relationship.item_id\n          left join collections\n             on collections_items_relationship.parent_id = collections.id\n          left join collections_sync\n             on collections.id = collections_sync.collection_id\n          left join comments\n             on items.id = comments.parent_id\n          left join items_offline_data\n             on items.id = items_offline_data.item_id\n          left join items_sync\n            on items.id = items_sync.item_id\n\n        ORDER BY Collection_Title ASC, items.date_created DESC\n"
+  },
+  {
+   "Name": "Edge Browser Navigation History",
+   "Author": "Suyash Tripathi",
+   "Categories": [
+    "Edge",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Navigation History"
+    }
+   ],
+   "RawData": "Name: Edge Browser Navigation History\nAuthor: Suyash Tripathi\nEmail: suyash.tripathi@cybercx.com.au\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND name='navigation_history';\nSQLiteIdentifyValue: 1\nCategories:\n  - Edge\n  - Browser\nFilenameRegex: \"WebAssistDatabase\"\nGlobs:\n  - \"{{WindowsChromeProfiles}}/*/WebAssistDatabase\"\n  - \"{{MacOSChromeProfiles}}/*/WebAssistDatabase\"\n\nSources:\n- name: Navigation History\n  VQL: |\n    SELECT ID,\n       timestamp(epoch=`Last Visited Time`) AS `Last Visited Time`,\n       Title, URL, VisitCount, OSPath\n    FROM Rows\n    WHERE `Last Visited Time` \u003e DateAfter\n      AND `Last Visited Time` \u003c DateBefore\n      AND (Title, URL) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      navigation_history.id AS ID,\n      navigation_history.last_visited_time AS 'Last Visited Time',\n      navigation_history.title AS Title,\n      navigation_history.url AS URL,\n      navigation_history.num_visits AS VisitCount\n    FROM\n      navigation_history\n    ORDER BY\n      navigation_history.last_visited_time ASC;\n"
+  },
+  {
+   "Name": "Edge Browser History Screenshots",
+   "Author": "Michal Minar, Reece394",
+   "Description": "Extracts the Edge Browser History Screenshots if enabled.\n",
+   "Categories": [
+    "Edge",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Screenshots"
+    }
+   ],
+   "RawData": "Name: Edge Browser History Screenshots\nDescription: |\n  Extracts the Edge Browser History Screenshots if enabled.\n\nAuthor: Michal Minar, Reece394\nEmail: michal.minar@istrosec.com\nReference: https://medium.com/@DCSO_CyTec/microsoft-edge-forensics-screenshot-history-703b9b8392f8\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master WHERE type='table' AND (name='edge_visits');\n\nSQLiteIdentifyValue: 1\nCategories:\n  - Edge\n  - Browser\n\nFilenameRegex: \"History\"\nGlobs:\n  - \"{{LinuxChromeProfiles}}/*/History\"\n  - \"{{WindowsChromeProfiles}}/*/History\"\n  - \"{{MacOSChromeProfiles}}/*/History\"\n\nSources:\n- name: Screenshots\n  VQL: |\n    SELECT *,\n           timestamp(winfiletime=VisitTime * 10) AS VisitTime,\n           VisitTime AS VisitTimeInt,\n           upload(accessor=\"data\",\n             file=Image,\n             name=format(format=\"Screenshot_%v.png\", args=VisitID)) AS Image\n    FROM Rows\n\n  SQL: |\n    SELECT visit_time AS VisitTime,\n           u.url as URL,\n           u.title as Title,\n           ev.data AS Image,\n           ev.visit_id AS VisitID\n    FROM edge_visits ev\n    JOIN visits v on v.id = ev.visit_id\n    JOIN urls u on u.id=v.url\n    WHERE ev.data NOT NULL\n    ORDER BY visit_time ASC;\n"
+  },
+  {
+   "Name": "Firefox Places",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "Bookmarks"
+    },
+    {
+     "Name": "Downloads"
+    }
+   ],
+   "RawData": "Name: Firefox Places\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='moz_historyvisits' OR name='moz_bookmarks'\n          OR name='moz_places' OR name='moz_inputhistory');\nSQLiteIdentifyValue: 4\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"places.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/places.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/places.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/places.sqlite\"\n\nSources:\n- name: Bookmarks\n  Preamble: |\n    LET BookmarkTypes \u003c= dict(`1`='URL', `2`='Folder', `3`='Separator')\n\n  VQL: |\n    SELECT ID, ParentID,\n       get(item= BookmarkTypes, field=str(str=type), default=\"Unknown\") AS Type,\n       timestamp(epoch=dateAdded) AS DateAdded,\n       timestamp(epoch=lastModified) AS LastModified,\n       Position, Title, URL, ForeignKey, OSPath\n    FROM Rows\n    WHERE LastModified \u003e DateAfter AND LastModified \u003c DateBefore\n      AND (Title, URL) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      Bookmarks.id AS ID,\n      Bookmarks.parent AS ParentID,\n      Bookmarks.type,\n      Bookmarks.dateAdded,\n      Bookmarks.lastModified,\n      Bookmarks.position AS Position,\n      Bookmarks.title AS Title,\n      moz_places.url AS URL,\n      Bookmarks.fk AS ForeignKey\n    FROM moz_bookmarks AS Bookmarks\n    LEFT JOIN moz_places ON Bookmarks.fk = moz_places.id\n    ORDER BY Bookmarks.id ASC\n\n- name: Downloads\n  Preamble: |\n    LET DownloadTypes \u003c= dict(`downloads/destinationFileURI`='FileURI', `downloads/destinationFileName`='Filename', `downloads/metaData`='Metadata')\n\n  VQL: |\n    SELECT PlaceID, URL, Content,\n       get(item= DownloadTypes, field=str(str=name), default=\"Unknown\") AS Type,\n       timestamp(epoch=dateAdded) AS DateAdded,\n       timestamp(epoch=lastModified) AS LastModified,\n       OSPath\n    FROM Rows\n    WHERE LastModified \u003e DateAfter AND LastModified \u003c DateBefore\n      AND (URL, Content) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      moz_annos.place_id AS PlaceID,\n      moz_places.url AS URL,\n      moz_annos.content AS Content,\n      moz_anno_attributes.name,\n      dateAdded,\n      lastModified\n    FROM moz_annos\n    INNER JOIN moz_anno_attributes ON moz_annos.anno_attribute_id = moz_anno_attributes.id\n    INNER JOIN moz_places ON moz_places.id = moz_annos.place_id\n    WHERE moz_anno_attributes.name IN ('downloads/destinationFileURI','downloads/destinationFileName','downloads/metaData')\n    ORDER BY moz_annos.dateAdded ASC\n"
+  },
+  {
+   "Name": "Firefox Cookies",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Firefox Cookies\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='moz_cookies');\nSQLiteIdentifyValue: 1\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"cookies.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/cookies.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/cookies.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/cookies.sqlite\"\n\nSources:\n- VQL: |\n    SELECT ID, Host, Name, Value,\n       timestamp(epoch= creationTime) AS CreationTime,\n       timestamp(epoch= lastAccessed) AS LastAccessedTime,\n       timestamp(epoch= expiry) AS Expiration,\n       Bool(Value= isSecure) AS IsSecure,\n       Bool(Value= isHttpOnly) AS IsHTTPOnly, OSPath\n    FROM Rows\n    WHERE LastAccessedTime \u003e DateAfter\n      AND LastAccessedTime \u003c DateBefore\n      AND ( Name =~ FilterRegex OR Value =~ FilterRegex )\n\n  SQL: |\n    SELECT\n      moz_cookies.id AS ID,\n      moz_cookies.host AS Host,\n      moz_cookies.name AS Name,\n      moz_cookies.value AS Value,\n      moz_cookies.creationTime,\n      moz_cookies.lastAccessed,\n      moz_cookies.expiry,\n      moz_cookies.isSecure,\n      moz_cookies.isHttpOnly\n    FROM moz_cookies\n    ORDER BY moz_cookies.id ASC\n"
+  },
+  {
+   "Name": "Firefox Downloads",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Firefox Downloads\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='moz_downloads');\nSQLiteIdentifyValue: 1\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"downloads.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/downloads.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/downloads.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/downloads.sqlite\"\n\nSources:\n- VQL: |\n    SELECT ID, Name, MIMEType, Source, Target,\n       timestamp(epoch= startTime) AS StartTime,\n       timestamp(epoch= endTime) AS EndTime,\n       timestamp(epoch= expiry) AS Expiration,\n       CurrentBytes, MaxBytes, OSPath\n    FROM Rows\n    WHERE StartTime \u003e DateAfter\n      AND StartTime \u003c DateBefore\n      AND Name =~ FilterRegex\n\n  SQL: |\n    SELECT\n       moz_downloads.id AS ID,\n       moz_downloads.name AS Name,\n       moz_downloads.mimeType AS MIMEType,\n       moz_downloads.source AS Source,\n       moz_downloads.target AS Target,\n       startTime,\n       endTime,\n       moz_downloads.currBytes AS CurrentBytes,\n       moz_downloads.maxBytes AS MaxBytes\n    FROM moz_downloads\n    ORDER BY moz_downloads.id ASC\n"
+  },
+  {
+   "Name": "Firefox Favicons",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Firefox Favicons\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='moz_icons' OR name='moz_icons_to_pages' OR name='moz_pages_w_icons');\nSQLiteIdentifyValue: 3\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"favicons.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/favicons.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/favicons.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/favicons.sqlite\"\n\nSources:\n- VQL: |\n    SELECT ID, PageURL, FaviconURL,\n       timestamp(epoch= expire_ms) AS Expiration,\n       OSPath\n    FROM Rows\n  SQL: |\n    SELECT\n      moz_icons.id AS ID,\n      moz_pages_w_icons.page_url AS PageURL,\n      moz_icons.icon_url AS FaviconURL,\n      moz_icons.expire_ms\n    FROM moz_icons\n    INNER JOIN moz_icons_to_pages ON moz_icons.id = moz_icons_to_pages.icon_id\n    INNER JOIN moz_pages_w_icons ON moz_icons_to_pages.page_id = moz_pages_w_icons.id\n    ORDER BY moz_icons.expire_ms ASC\n"
+  },
+  {
+   "Name": "Firefox Form History",
+   "Author": "Andrew Rathbun",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Firefox Form History\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='moz_formhistory');\n\nSQLiteIdentifyValue: 1\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"formhistory.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/formhistory.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/formhistory.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/formhistory.sqlite\"\n\nSources:\n- VQL: |\n    SELECT ID, FieldName, Value, TimesUsed,\n       timestamp(epoch= firstUsed) AS FirstUsed,\n       timestamp(epoch= lastUsed) AS LastUsed,\n       GUID, OSPath\n    FROM Rows\n    WHERE LastUsed \u003e DateAfter AND LastUsed \u003c DateBefore\n      AND ( FieldName =~ FilterRegex OR Value =~ FilterRegex )\n\n  SQL: |\n    SELECT\n      id AS ID,\n      fieldname AS FieldName,\n      value AS Value,\n      timesUsed AS TimesUsed,\n      firstUsed,\n      lastUsed,\n      guid AS GUID\n    FROM moz_formhistory\n    ORDER BY id ASC\n"
+  },
+  {
+   "Name": "Firefox Places History",
+   "Author": "Andrew Rathbun, Reece394",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Firefox Places History\nAuthor: Andrew Rathbun, Reece394\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT (\n  SELECT COUNT(*)\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='moz_historyvisits' OR name='moz_bookmarks'\n          OR name='moz_places' OR name='moz_inputhistory')) +\n  (SELECT CASE WHEN (SELECT COUNT(*) FROM pragma_table_info('moz_places') WHERE name IN ('description','preview_image_url')) \u003e 1\n  THEN 1 ELSE 0 END) AS `Check`;\nSQLiteIdentifyValue: 5\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"places.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/places.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/places.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/places.sqlite\"\n\nSources:\n- Preamble: |\n    LET VisitType \u003c= dict(`1`='TRANSITION_LINK', `2`='TRANSITION_TYPED', `3`='TRANSITION_BOOKMARK',\n      `4`='TRANSITION_EMBED', `5`= 'TRANSITION_REDIRECT_PERMANENT', `6`='TRANSITION_REDIRECT_TEMPORARY',\n      `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')\n\n  VQL: |\n    SELECT VisitID, FromVisitID,\n       timestamp(epoch= visit_date) AS VisitDate,\n       timestamp(epoch= last_visit_date) AS LastVisitDate,\n       VisitCount, URL, Title, Description,\n       get(item= VisitType, field=str(str=visit_type), default=\"Unknown\") AS VisitType,\n       Bool(Value=hidden) AS Hidden,\n       Bool(Value=typed) AS Typed,\n       Frecency, PreviewImageURL, OSPath\n    FROM Rows\n    WHERE VisitDate \u003e DateAfter AND VisitDate \u003c DateBefore\n      AND (Title, URL, Description) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      moz_historyvisits.id AS VisitID,\n      moz_historyvisits.from_visit AS FromVisitID,\n      moz_historyvisits.visit_date,\n      moz_places.last_visit_date,\n      moz_places.visit_count AS VisitCount,\n      moz_places.url AS URL,\n      moz_places.title AS Title,\n      moz_places.description AS Description,\n      moz_historyvisits.visit_type,\n      moz_places.hidden,\n      moz_places.typed,\n      moz_places.frecency AS Frecency,\n      moz_places.preview_image_url AS PreviewImageURL\n    FROM moz_places\n    INNER JOIN moz_historyvisits ON moz_places.id = moz_historyvisits.place_id\n    ORDER BY moz_historyvisits.visit_date ASC\n"
+  },
+  {
+   "Name": "Firefox Places History Legacy",
+   "Author": "Andrew Rathbun, Reece394",
+   "Categories": [
+    "Firefox",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: Firefox Places History Legacy\nAuthor: Andrew Rathbun, Reece394\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT (\n  SELECT COUNT(*)\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='moz_historyvisits' OR name='moz_bookmarks'\n          OR name='moz_places' OR name='moz_inputhistory')) +\n  (SELECT CASE WHEN (SELECT COUNT(*) FROM pragma_table_info('moz_places') WHERE name IN ('description','preview_image_url')) \u003e 1\n  THEN 0 ELSE 1 END) AS `Check`;\nSQLiteIdentifyValue: 5\nCategories:\n  - Firefox\n  - Browser\n\nFilenameRegex: \"places.sqlite\"\nGlobs:\n  - \"{{WindowsFirefoxProfiles}}/*/places.sqlite\"\n  - \"{{LinuxFirefoxProfiles}}/places.sqlite\"\n  - \"{{MacOSFirefoxProfiles}}/*/places.sqlite\"\n\nSources:\n- Preamble: |\n    LET VisitType \u003c= dict(`1`='TRANSITION_LINK', `2`='TRANSITION_TYPED', `3`='TRANSITION_BOOKMARK',\n      `4`='TRANSITION_EMBED', `5`= 'TRANSITION_REDIRECT_PERMANENT', `6`='TRANSITION_REDIRECT_TEMPORARY',\n      `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')\n\n  VQL: |\n    SELECT VisitID, FromVisitID,\n       timestamp(epoch= visit_date) AS VisitDate,\n       timestamp(epoch= last_visit_date) AS LastVisitDate,\n       VisitCount, URL, Title,\n       get(item= VisitType, field=str(str=visit_type), default=\"Unknown\") AS VisitType,\n       Bool(Value=hidden) AS Hidden,\n       Bool(Value=typed) AS Typed,\n       Frecency, OSPath\n    FROM Rows\n    WHERE VisitDate \u003e DateAfter AND VisitDate \u003c DateBefore\n      AND (Title, URL) =~ FilterRegex\n\n  SQL: |\n    SELECT\n      moz_historyvisits.id AS VisitID,\n      moz_historyvisits.from_visit AS FromVisitID,\n      moz_historyvisits.visit_date,\n      moz_places.last_visit_date,\n      moz_places.visit_count AS VisitCount,\n      moz_places.url AS URL,\n      moz_places.title AS Title,\n      moz_historyvisits.visit_type,\n      moz_places.hidden,\n      moz_places.typed,\n      moz_places.frecency AS Frecency\n    FROM moz_places\n    INNER JOIN moz_historyvisits ON moz_places.id = moz_historyvisits.place_id\n    ORDER BY moz_historyvisits.visit_date ASC\n"
+  },
+  {
+   "Name": "Google Drive Metadata",
+   "Author": "Hernan Filannino",
+   "Categories": [
+    "Google",
+    "Cloud",
+    "SyncClient"
+   ],
+   "Sources": [
+    {
+     "Name": "File Metadata"
+    },
+    {
+     "Name": "Deleted Items"
+    }
+   ],
+   "RawData": "Name: Google Drive Metadata\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"metadata_sqlite_db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='items';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/*/metadata_sqlite_db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/*/metadata_sqlite_db\"\nSources:\n- name: File Metadata\n  VQL: |\n    SELECT timestamp(epoch=modified_date ) AS Timestamp, *\n    FROM Rows\n    WHERE\n      if(condition=DateAfter, then=Timestamp \u003e DateAfter, else=TRUE) AND\n      if(condition=DateBefore, then=Timestamp \u003c DateBefore, else=TRUE) AND\n      (local_title, mime_type) =~ FilterRegex\n  SQL: |\n    SELECT\n      stable_id,\n      id,\n      trashed,\n      starred,\n      is_owner,\n      mime_type,\n      is_folder,\n      modified_date,\n      shared_with_me_date,\n      viewed_by_me_date,\n      file_size,\n      is_tombstone,\n      local_title,\n      subscribed,\n      team_drive_stable_id\n    FROM items\n- name: Deleted Items\n  VQL: |\n    SELECT * FROM Rows\n  SQL: |\n    SELECT\n      stable_id,\n      -- The proto column is a BLOB and may require external tools for full parsing.\n      proto\n    FROM deleted_items\n"
+  },
+  {
+   "Name": "Google Drive Mirrored Files",
+   "Author": "Hernan Filannino",
+   "Categories": [
+    "Google",
+    "Cloud",
+    "SyncClient"
+   ],
+   "Sources": [
+    {
+     "Name": "Mirrored Items"
+    }
+   ],
+   "RawData": "Name: Google Drive Mirrored Files\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"mirror_sqlite.db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='mirror_item';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/*/mirror_sqlite.db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/*/mirror_sqlite.db\"\nSources:\n- name: Mirrored Items\n  VQL: |\n    SELECT timestamp(epoch=local_mtime_ms ) AS Timestamp, *\n    FROM Rows\n    WHERE\n      if(condition=DateAfter, then=Timestamp \u003e DateAfter, else=TRUE) AND\n      if(condition=DateBefore, then=Timestamp \u003c DateBefore, else=TRUE) AND\n      (local_filename, cloud_filename, volume) =~ FilterRegex\n  SQL: |\n    SELECT\n      local_stable_id,\n      stable_id,\n      inode,\n      volume,\n      parent_local_stable_id,\n      local_filename,\n      cloud_filename,\n      local_mtime_ms,\n      cloud_mtime_ms,\n      local_md5_checksum,\n      cloud_md5_checksum,\n      local_size,\n      cloud_size,\n      local_type,\n      cloud_type,\n      shared,\n      read_only,\n      is_root\n    FROM mirror_item\n"
+  },
+  {
+   "Name": "Google Drive Mirrored Metadata Files",
+   "Author": "Hernan Filannino",
+   "Categories": [
+    "Google",
+    "Cloud",
+    "SyncClient"
+   ],
+   "Sources": [
+    {
+     "Name": "Mirrored Metadata Items"
+    }
+   ],
+   "RawData": "Name: Google Drive Mirrored Metadata Files\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"mirror_metadata_sqlite.db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='items';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/*/mirror_metadata_sqlite.db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/*/mirror_metadata_sqlite.db\"\nSources:\n- name: Mirrored Metadata Items\n  VQL: |\n    SELECT timestamp(epoch=modified_date ) AS Timestamp, *\n    FROM Rows\n    WHERE\n      if(condition=DateAfter, then=Timestamp \u003e DateAfter, else=TRUE) AND\n      if(condition=DateBefore, then=Timestamp \u003c DateBefore, else=TRUE) AND\n      (local_title, mime_type) =~ FilterRegex\n  SQL: |\n    SELECT\n      stable_id,\n      id,\n      trashed,\n      starred,\n      is_owner,\n      mime_type,\n      is_folder,\n      modified_date,\n      shared_with_me_date,\n      viewed_by_me_date,\n      file_size,\n      is_tombstone,\n      local_title,\n      subscribed,\n      team_drive_stable_id\n    FROM items\n"
+  },
+  {
+   "Name": "Google Drive Sync Roots",
+   "Author": "Hernan Filannino",
+   "Categories": [
+    "Google",
+    "Cloud",
+    "SyncClient"
+   ],
+   "Sources": [
+    {
+     "Name": "Sync Folders"
+    }
+   ],
+   "RawData": "Name: Google Drive Sync Roots\nAuthor: Hernan Filannino\nReference: https://www.securityblue.team/blog/posts/cloud-surfing-google-drive-forensics\nCategories:\n  - Google\n  - Cloud\n  - SyncClient\nFilenameRegex: \"root_preference_sqlite.db\"\nSQLiteIdentifyQuery: |\n    SELECT count(*) AS \"Check\"\n    FROM sqlite_master\n    WHERE type='table'\n      AND name='roots';\nSQLiteIdentifyValue: 1\nGlobs:\n  - \"C:/Users/*/AppData/Local/Google/DriveFS/root_preference_sqlite.db\"\n  - \"/Users/*/Library/Application Support/Google/DriveFS/root_preference_sqlite.db\"\nSources:\n- name: Sync Folders\n  VQL: |\n    SELECT *\n    FROM Rows\n    WHERE (root_path, title, media_id) =~ FilterRegex\n  SQL: |\n    SELECT\n      root_id,\n      media_id,\n      title,\n      root_path,\n      account_token,\n      sync_type,\n      destination,\n      state,\n      is_my_drive,\n      doc_id,\n      last_seen_absolute_path\n    FROM roots\n"
+  },
+  {
+   "Name": "IE or Edge WebCacheV01",
+   "Categories": [
+    "Edge",
+    "InternetExplorer",
+    "Browser"
+   ],
+   "Sources": [
+    {
+     "Name": "All Data"
+    },
+    {
+     "Name": "Highlights"
+    }
+   ],
+   "RawData": "Name: IE or Edge WebCacheV01\nCategories:\n  - Edge\n  - InternetExplorer\n  - Browser\n\nFilenameRegex: \"WebCacheV01.dat\"\nGlobs:\n  - C:/Users/*/AppData/Local/Microsoft/Windows/WebCache/WebCacheV01.dat\n\nSources:\n- name: All Data\n  Preamble: |\n    LET MatchingFiles = SELECT OSPath FROM Rows\n    LET S = scope()\n\n    LET Containers(OSPath) = SELECT Table\n    FROM parse_ese_catalog(file=OSPath)\n    WHERE Table =~ \"Container_\"\n    GROUP BY Table\n\n    LET AllHits(OSPath) = SELECT * FROM foreach(row={\n        SELECT * FROM Containers(OSPath=OSPath)\n    }, query={\n       SELECT timestamp(winfiletime=ExpiryTime) AS ExpiryTime,\n          timestamp(winfiletime=ModifiedTime) AS ModifiedTime,\n          timestamp(winfiletime=AccessedTime) AS AccessedTime,\n          S.Url AS Url, *\n       FROM parse_ese(file=OSPath, table=Table)\n    })\n\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n      SELECT * FROM AllHits(OSPath=OSPath)\n    })\n    WHERE AccessedTime \u003e DateAfter AND AccessedTime \u003c DateBefore\n      AND Url =~ FilterRegex\n\n\n- name: Highlights\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n      SELECT AccessedTime, ModifiedTime, ExpiryTime, Url\n      FROM AllHits(OSPath=OSPath)\n    })\n    WHERE AccessedTime \u003e DateAfter AND AccessedTime \u003c DateBefore\n      AND Url =~ FilterRegex\n"
+  },
+  {
+   "Name": "MacOS Applications Cache",
+   "Author": "Wes Lambert - @therealwlambert",
+   "Description": "Applications can use the NSURL cache to store specific data that is\nuseful to the operation of the application in a `Cache.db` file on\ndisk. The data contained within this file could potentially be\nuseful to investigators or incident responders, such as URLs that\nwere accessed, as well as data requested or returned.\n",
+   "Categories": [
+    "MacOS"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: MacOS Applications Cache\nAuthor: Wes Lambert - @therealwlambert\nDescription: |\n  Applications can use the NSURL cache to store specific data that is\n  useful to the operation of the application in a `Cache.db` file on\n  disk. The data contained within this file could potentially be\n  useful to investigators or incident responders, such as URLs that\n  were accessed, as well as data requested or returned.\n\nReference: https://developer.apple.com/documentation/foundation/nsurl\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='cfurl_cache_response' OR name='cfurl_cache_blob_data'\n          OR name='cfurl_cache_receiver_data');\nSQLiteIdentifyValue: 3\nCategories:\n  - MacOS\n\nFilenameRegex: \"Cache.db\"\nGlobs:\n  - \"/Users/*/Library/Caches/*/Cache.db\"\n\nSources:\n- VQL: |\n    SELECT\n       time_stamp AS Timestamp,\n       OSPath.Base AS Application,\n       entry_ID AS EntryID,\n       version AS Version,\n       hash_value AS Hash,\n       storage_policy AS StoragePolicy,\n       request_key AS URL,\n       plist(file=request_object, accessor=\"data\") AS Request,\n       plist(file=response_object, accessor=\"data\") AS Response,\n       partition AS Partition,\n       OSPath\n    FROM Rows\n    WHERE Timestamp \u003e DateAfter AND Timestamp \u003c DateBefore\n      AND Application =~ FilterRegex\n\n  SQL: |\n    SELECT cfurl_cache_response.entry_ID AS entry_ID,\n           version, hash_value, storage_policy, request_key,\n           time_stamp, partition, request_object, response_object\n    FROM cfurl_cache_response\n    INNER JOIN cfurl_cache_blob_data ON cfurl_cache_response.entry_ID = cfurl_cache_blob_data.entry_ID\n    INNER JOIN cfurl_cache_receiver_data ON cfurl_cache_response.entry_ID = cfurl_cache_receiver_data.entry_ID\n"
+  },
+  {
+   "Name": "MacOS NetworkUsage",
+   "Author": "Wes Lambert - @therealwlambert",
+   "Description": "On macOS, the NetUsage DB can provide various details around\napplication network utilization. With this artifact, we can get an\nidea of what applications are utilizing the network for\ncommunications and to what degree. We can also identify if usage\nhas occurred through a WIFI network or a wired network.\n\nMore information about this database can be found here:\n\nhttp://www.mac4n6.com/blog/2019/1/6/network-and-application-usage-using-netusagesqlite-amp-datausagesqlite-ios-databases\n",
+   "Categories": [
+    "MacOS"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: MacOS NetworkUsage\nAuthor: Wes Lambert - @therealwlambert\nDescription: |\n   On macOS, the NetUsage DB can provide various details around\n   application network utilization. With this artifact, we can get an\n   idea of what applications are utilizing the network for\n   communications and to what degree. We can also identify if usage\n   has occurred through a WIFI network or a wired network.\n\n   More information about this database can be found here:\n\n   http://www.mac4n6.com/blog/2019/1/6/network-and-application-usage-using-netusagesqlite-amp-datausagesqlite-ios-databases\n\nReference: http://www.mac4n6.com/blog/2019/1/6/network-and-application-usage-using-netusagesqlite-amp-datausagesqlite-ios-databases\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='ZLIVEUSAGE' OR name='ZPROCESS');\nSQLiteIdentifyValue: 2\nCategories:\n  - MacOS\n\nFilenameRegex: \"netusage.sqlite\"\nGlobs:\n  - /private/var/networkd/netusage.sqlite\n  - /private/var/networkd/db/netusage.sqlite\n\nSources:\n- VQL: |\n    SELECT timestamp(epoch= ZTIMESTAMP + 978307200) AS Timestamp,\n      timestamp(epoch= ZFIRSTTIMESTAMP + 978307200) AS FirstTimestamp,\n      timestamp(epoch= LIVE_USAGE_TIMESTAMP + 978307200) AS LiveUsageTimestamp,\n      ZBUNDLENAME AS BundleID,\n      ZPROCNAME AS ProcessName,\n      ZWIFIIN AS WifiIn,\n      ZWIFIOUT AS WifiOut,\n      ZWWANIN AS WanIn,\n      ZWWANOUT AS WandOut,\n      ZWIREDIN AS WiredIn,\n      ZWIREDOUT AS WiredOut,\n      ZXIN AS _XIn,\n      ZXOUT AS _XOut,\n      Z_PK AS LiveUsageTableID\n    FROM Rows\n\n  SQL: |\n    SELECT\n      ZPROCESS.ZTIMESTAMP,\n      ZPROCESS.ZFIRSTTIMESTAMP,\n      ZLIVEUSAGE.ZTIMESTAMP AS LIVE_USAGE_TIMESTAMP\",\n      ZBUNDLENAME,\n      ZPROCNAME,\n      ZWIFIIN,\n      ZWIFIOUT,\n      ZWWANIN,\n      ZWWANOUT,\n      ZWIREDIN,\n      ZWIREDOUT,\n      ZXIN,\n      ZXOUT,\n      ZLIVEUSAGE.Z_PK,\n    FROM ZLIVEUSAGE\n    LEFT JOIN ZPROCESS ON ZPROCESS.Z_PK = ZLIVEUSAGE.ZHASPROCESS\n"
+  },
+  {
+   "Name": "MacOS Notes",
+   "Author": "Wes Lambert - @therealwlambert",
+   "Description": "This artifact provides details about notes taken using the default\nNotes application on macOS.  These notes can be useful during an\ninvestigation, especially if tied to interesting files.\n\nDeleted notes and attachments can also be recovered in some\ninstances.\n\nThe SQL query within this artifact was primarily derived from\nYogesh Khatri's referenced blog post.\n\nNOTE: This artifact may not cover all attachments at this time, and\nthere are many more great pieces of data to discover! More\ninformation can be found in the `ZICCLOUDSYNCINGOBJECT` table.\n",
+   "Categories": [
+    "MacOS"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: MacOS Notes\nAuthor: Wes Lambert - @therealwlambert\nDescription: |\n   This artifact provides details about notes taken using the default\n   Notes application on macOS.  These notes can be useful during an\n   investigation, especially if tied to interesting files.\n\n   Deleted notes and attachments can also be recovered in some\n   instances.\n\n   The SQL query within this artifact was primarily derived from\n   Yogesh Khatri's referenced blog post.\n\n   NOTE: This artifact may not cover all attachments at this time, and\n   there are many more great pieces of data to discover! More\n   information can be found in the `ZICCLOUDSYNCINGOBJECT` table.\n\nReference: http://www.swiftforensics.com/2018/02/reading-notes-database-on-macos.html\n\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='ZICNOTEDATA' OR name='ZICCLOUDSYNCINGOBJECT');\nSQLiteIdentifyValue: 2\nCategories:\n  - MacOS\n\nFilenameRegex: \"NoteStore.sqlite|NotesV.+storedata\"\nGlobs:\n  - /Users/*/Library/Containers/com.apple.Notes/Data/Library/Notes/NotesV*.storedata\n  - /Users/*/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite\n\nSources:\n- VQL: |\n    SELECT Key AS _Key,\n     OSPath[1] AS User,\n     Note,\n     Title,\n     Snippet,\n     NoteID AS _NoteID,\n     timestamp(cocoatime=CreatedTS) AS CreatedTime,\n     timestamp(cocoatime=LastOpenedDate) AS LastOpenedTime,\n     timestamp(cocoatime=DirModificationDate) AS LastDirModifcation,\n     Account AS _Account,\n     Directory,\n     DirectoryID,\n     AttachmentName,\n     AttachmentSize,\n     AttachmentUUID,\n     if(condition=AttachmentUUID,\n        then=OSPath[:2] + '/Library/Group Containers/group.com.apple.notes/Accounts/LocalAccount/Media/' + AttachmentUUID + '/' + AttachmentName) AS AttachmentLocation,\n     AccountName AS _AccountName,\n     AccountID AS _AccountID,\n     AccountType AS _AccountType,\n     gunzip(string=Data) AS Data,\n     OSPath\n    FROM Rows\n    WHERE LastOpenedTime \u003e DateAfter AND LastOpenedTime \u003c DateBefore\n      AND ( Title =~ FilterRegex OR Data =~ FilterRegex )\n\n  SQL: |\n    SELECT n.Z_PK AS Key,\n      n.ZNOTE as Note,\n      c1.ZTITLE1 as Title,\n      c1.ZSNIPPET as Snippet,\n      c1.ZIDENTIFIER as NoteID,\n      c1.ZCREATIONDATE3  as CreatedTS,\n      c1.ZFOLDERMODIFICATIONDATE AS DirModificationDate,\n      c1.ZLASTOPENEDDATE AS LastOpenedDate,\n      c2.ZACCOUNT3 as Account,\n      c2.ZTITLE2 as Directory,\n      c2.ZIDENTIFIER as DirectoryID,\n      c4.ZFILENAME as AttachmentName,\n      c3.ZFILESIZE as AttachmentSize,\n      c4.ZIDENTIFIER as AttachmentUUID,\n      c5.ZNAME as AccountName,\n      c5.ZIDENTIFIER as AccountID,\n      c5.ZACCOUNTTYPE as AccountType,\n      n.ZDATA as Data\n    FROM ZICNOTEDATA as n\n      LEFT JOIN ZICCLOUDSYNCINGOBJECT as c1 ON c1.ZNOTEDATA = n.Z_PK\n      LEFT JOIN ZICCLOUDSYNCINGOBJECT as c2 ON c2.Z_PK = c1.ZFOLDER\n      LEFT JOIN ZICCLOUDSYNCINGOBJECT as c3 ON c3.ZNOTE= n.ZNOTE\n      LEFT JOIN ZICCLOUDSYNCINGOBJECT as c4 ON c4.ZATTACHMENT1= c3.Z_PK\n      LEFT JOIN ZICCLOUDSYNCINGOBJECT as c5 ON c5.Z_PK = c1.ZACCOUNT2\n    ORDER BY Key\n"
+  },
+  {
+   "Name": "MacOS XProtect Detections",
+   "Author": "Matt Green - @mgreen27",
+   "Description": "This artifact provides details about XProtect detections on macOS.\n\nmacOS includes built-in antivirus technology called XProtect for \nthe signature-based detection and removal of malware. The system \nuses YARA and behavorial signatures.\n",
+   "Categories": [
+    "MacOS"
+   ],
+   "Sources": [
+    {
+     "Name": ""
+    }
+   ],
+   "RawData": "Name: MacOS XProtect Detections\nAuthor: Matt Green - @mgreen27\nDescription: |\n   This artifact provides details about XProtect detections on macOS.\n\n   macOS includes built-in antivirus technology called XProtect for \n   the signature-based detection and removal of malware. The system \n   uses YARA and behavorial signatures.\n\nReference: https://www.huntress.com/blog/dmxprotect-stop-drop-shut-malware-down-before-it-opens-up-shop\n\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND name='events';\nSQLiteIdentifyValue: 1\n\nCategories:\n  - MacOS\n\nFilenameRegex: \"XPdb\"\nGlobs:\n  - \"/private/var/protected/xprotect/XPdb\"\n\nSources:\n- VQL: |\n    SELECT *\n    FROM Rows\n    WHERE dt \u003e DateAfter\n      AND dt \u003c DateBefore\n      AND (violated_rule, exec_path, responsible_path, responsible_signing_id,\n        exec_cdhash, exec_sha256, responsible_cdhash, responsible_sha256 ) =~ FilterRegex\n\n  SQL: |\n    SELECT * FROM events\n"
+  },
+  {
+   "Name": "Windows Activities Cache",
+   "Author": "Eric Zimmerman",
+   "Categories": [
+    "Windows"
+   ],
+   "Sources": [
+    {
+     "Name": "ActivityPackageId"
+    },
+    {
+     "Name": "Clipboard"
+    }
+   ],
+   "RawData": "Name: Windows Activities Cache\nAuthor: Eric Zimmerman\nEmail: saericzimmerman@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n     AND (name='Activity' OR name='Activity_PackageId' OR name='ActivityOperation');\nSQLiteIdentifyValue: 3\nCategories:\n  - Windows\n\nFilenameRegex: \"ActivitiesCache.db\"\nGlobs:\n  - \"C:/Users/*/AppData/Local/ConnectedDevicesPlatform/L.*/ActivitiesCache.db\"\n\nSources:\n- name: ActivityPackageId\n  VQL: |\n    SELECT format(format=\"%0X-%0X-%0X-%0X-%0X\", args=[\n      ActivityId[0:4], ActivityId[4:6], ActivityId[6:8],\n      ActivityId[8:10], ActivityId[10:] ]) AS ActivityId,\n      Platform, PackageName, ExpirationTime, OSPath\n    FROM Rows\n\n  SQL: |\n    Select ActivityId, Platform, PackageName, ExpirationTime\n    FROM Activity_PackageId\n\n- name: Clipboard\n  SQL: |\n    SELECT * FROM ActivityOperation\n  VQL: |\n      SELECT\n        CreatedTime,\n        timestamp(epoch=LastModifiedTime) AS LastModifiedTime,\n        timestamp(epoch=LastModifiedOnClient) AS LastModifiedOnClient,\n        StartTime,\n        EndTime,\n        Payload,\n        OSPath[1] AS User,\n        base64decode(string=parse_json_array(data=ClipboardPayload)[0].content) AS ClipboardPayload,\n        OSPath AS Path,\n        Mtime\n      FROM Rows\n      WHERE StartTime \u003e DateAfter\n        AND StartTime \u003c DateBefore\n        AND ClipboardPayload =~ FilterRegex\n"
+  },
+  {
+   "Name": "Windows WPNDatabase - Notifications",
+   "Author": "Andrew Rathbun",
+   "Description": "Parse the `wpndatabase.db` file\n",
+   "Categories": [
+    "Windows"
+   ],
+   "Sources": [
+    {
+     "Name": "Notifications"
+    }
+   ],
+   "RawData": "Name: Windows WPNDatabase - Notifications\nDescription: |\n  Parse the `wpndatabase.db` file\n\nAuthor: Andrew Rathbun\nEmail: andrew.d.rathbun@gmail.com\nReference: https://github.com/EricZimmerman/SQLECmd\n\nSQLiteIdentifyQuery: |\n  SELECT count(*) AS `Check`\n  FROM sqlite_master\n  WHERE type='table'\n    AND (name='Notification' OR\n         name='HandlerAssets' OR\n         name='WNSPushChannel' OR\n         name='TransientTable' OR\n         name='NotificationData');\n\nSQLiteIdentifyValue: 5\n\nCategories:\n  -  Windows\n\nFilenameRegex: \"wpndatabase.db\"\nGlobs:\n  - C:\\Users\\*\\AppData\\Local\\Microsoft\\Windows\\Notifications\\wpndatabase.db\n\nSources:\n- name: Notifications\n  VQL: |\n    SELECT *, Parent || \"\" AS Parent,\n        timestamp(winfiletime= ArrivalTime) AS ArrivalTime,\n        if(condition= ExpirationTime \u003e 0,\n           then=timestamp(winfiletime= ExpirationTime),\n          else='Expired') AS ExpirationTime,\n        format(format=\"%02x\", args=ActivityId) As ActivityId,\n        WNSId || \"\" AS WNSId,\n\n        if(condition= WNSCreatedTime \u003e 0,\n           then=timestamp(winfiletime= WNSCreatedTime),\n          else='') AS WNSCreatedTime,\n\n        if(condition= WNSExpirationTime \u003e 0,\n           then=timestamp(winfiletime= WNSExpirationTime),\n          else='') AS WNSExpirationTime,\n\n        upload(accessor=\"data\",\n           file=Payload,\n           name=format(format=\"Payload%v.png\", args=ID)) AS Payload\n\n    FROM Rows\n\n  SQL: |\n    SELECT\n       Notification.Id AS ID,\n       Notification.'Order' AS 'Order',\n       Notification.HandlerId AS HandlerId,\n       NotificationHandler.PrimaryId AS Application,\n       NotificationHandler.ParentId AS Parent,\n       NotificationHandler.HandlerType AS HandlerType,\n       Notification.Type AS Type,\n       Notification.Payload AS Payload,\n       Notification.PayloadType AS PayloadType,\n       Notification.Tag AS Tag,\n       Notification.\"Group\" AS \"Group\",\n       Notification.ArrivalTime AS ArrivalTime,\n       Notification.ExpiryTime AS ExpirationTime,\n       NotificationHandler.CreatedTime AS HandlerCreated,\n       NotificationHandler.ModifiedTime AS HandlerModified,\n       NotificationHandler.WNSId AS WNSId,\n       NotificationHandler.WNFEventName AS WNFEventName,\n       WNSPushChannel.ChannelId AS ChannelID,\n       WNSPushChannel.Uri AS URI,\n       WNSPushChannel.CreatedTime AS WNSCreatedTime,\n       WNSPushChannel.ExpiryTime AS WNSExpirationTime,\n       Notification.ActivityId AS ActivityId\n    FROM Notification\n    JOIN NotificationHandler ON NotificationHandler.RecordId = Notification.HandlerId\n    LEFT JOIN WNSPushChannel ON WNSPushChannel.HandlerId = NotificationHandler.RecordId\n    ORDER BY Id DESC\n"
+  },
+  {
+   "Name": "Windows Search Service",
+   "Description": "Analysis of the Windows search index database. See\nhttps://www.aon.com/cyber-solutions/aon_cyber_labs/windows-search-index-the-forensic-artifact-youve-been-searching-for/\n",
+   "Categories": [
+    "Windows"
+   ],
+   "Sources": [
+    {
+     "Name": "SystemIndex_Gthr"
+    },
+    {
+     "Name": "SystemIndex_GthrPth"
+    },
+    {
+     "Name": "SystemIndex_PropertyStore"
+    },
+    {
+     "Name": "SystemIndex_PropertyStore_Highlights"
+    },
+    {
+     "Name": "BrowsingActivity"
+    },
+    {
+     "Name": "UserActivityLogging"
+    }
+   ],
+   "RawData": "Name: Windows Search Service\n\nDescription: |\n  Analysis of the Windows search index database. See\n  https://www.aon.com/cyber-solutions/aon_cyber_labs/windows-search-index-the-forensic-artifact-youve-been-searching-for/\n\nCategories:\n  - Windows\n\nFilenameRegex: \"Windows..db\"\nGlobs:\n  - \"C:\\\\ProgramData\\\\Microsoft\\\\Search\\\\Data\\\\Applications\\\\Windows\\\\Windows.*db\"\n\nSources:\n- name: SystemIndex_Gthr\n  Preamble: |\n    LET MatchingFiles = SELECT OSPath FROM Rows\n\n    LET FormatTimeB(T) = timestamp(winfiletime=parse_binary(\n       filename=T, accessor=\"data\", struct=\"uint64b\"))\n\n    LET FormatTime(T) = timestamp(winfiletime=parse_binary(\n       filename=T, accessor=\"data\", struct=\"uint64\"))\n\n    LET FormatSize(T) = parse_binary(\n       filename=T, accessor=\"data\", struct=\"uint64\")\n\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT ScopeID, DocumentID, SDID,\n          FormatTimeB(T=LastModified) AS LastModified,\n          FileName\n       FROM parse_ese(file=OSPath, table= \"SystemIndex_Gthr\")\n    })\n    WHERE LastModified \u003e DateAfter AND LastModified \u003c DateBefore\n      AND FileName =~ FilterRegex\n\n- name: SystemIndex_GthrPth\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT Scope, Parent, Name\n       FROM parse_ese(file=OSPath, table= \"SystemIndex_GthrPth\")\n    })\n    WHERE Name =~ FilterRegex\n\n- name: SystemIndex_PropertyStore\n  Preamble: |\n    LET X = scope()\n\n    -- The PropertyStore columns look like\n    -- \u003crandom\u003e-ProperName so we strip the\n    -- random part off to display it properly.\n    LET FilterDict(Dict) = to_dict(item={\n      SELECT split(sep_string=\"-\", string=_key)[1] || _key AS _key, _value\n      FROM items(item=Dict)\n    })\n\n    LET PropStore(OSPath) = SELECT *,\n       FormatTime(T=X.System_Search_GatherTime) AS System_Search_GatherTime,\n       FormatSize(T=X.System_Size) AS System_Size,\n       FormatTime(T=X.System_DateModified) AS System_DateModified,\n       FormatTime(T=X.System_DateAccessed) AS System_DateAccessed,\n       FormatTime(T=X.System_DateCreated) AS System_DateCreated\n    FROM foreach(row={\n       SELECT *, FilterDict(Dict=_value) AS _value\n       FROM items(item={\n         SELECT * FROM parse_ese(file=OSPath, table=\"SystemIndex_PropertyStore\")\n      })\n    }, column=\"_value\")\n\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT *\n       FROM PropStore(OSPath=OSPath)\n    })\n    WHERE System_DateAccessed \u003e DateAfter AND System_DateAccessed \u003c DateBefore\n\n- name: SystemIndex_PropertyStore_Highlights\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT WorkID,\n          System_Search_GatherTime,\n          System_Size,\n          System_DateModified,\n          System_DateCreated,\n          X.System_FileOwner AS System_FileOwner,\n          X.System_ItemPathDisplay AS System_ItemPathDisplay,\n          X.System_ItemType AS System_ItemType,\n          X.System_FileAttributes AS System_FileAttributes,\n          X.System_Search_AutoSummary AS System_Search_AutoSummary\n       FROM PropStore(OSPath=OSPath)\n    })\n    WHERE System_DateAccessed \u003e DateAfter AND System_DateAccessed \u003c DateBefore\n\n- name: BrowsingActivity\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT X.ItemPathDisplay AS ItemPathDisplay,\n          X.Activity_ContentUri AS Activity_ContentUri,\n          X.Activity_Description AS Activity_Description\n       FROM PropStore(OSPath=OSPath)\n       WHERE Activity_ContentUri\n    })\n\n- name: UserActivityLogging\n  VQL: |\n    SELECT * FROM foreach(row=MatchingFiles, query={\n       SELECT X.System_ItemPathDisplay AS System_ItemPathDisplay,\n           FormatTime(T=X.ActivityHistory_StartTime) AS ActivityHistory_StartTime,\n           FormatTime(T=X.ActivityHistory_EndTime) AS ActivityHistory_EndTime,\n           X.ActivityHistory_AppId AS ActivityHistory_AppId\n       FROM PropStore(OSPath=OSPath)\n       WHERE ActivityHistory_AppId\n    })\n    WHERE ActivityHistory_StartTime \u003e DateAfter\n      AND ActivityHistory_StartTime \u003c DateBefore\n"
+  }
+ ]
