@@ -7,14 +7,20 @@ Globs:
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\*\*\User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\*\User Data
+    - C:\Users\*\AppData\{Roaming,Local}\*\*\User Data\Snapshots\*\
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\*\User Data\Snapshots\*\
     - C:\Users\*\AppData\{Roaming,Local}\*\User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\User Data
+    - C:\Users\*\AppData\{Roaming,Local}\*\User Data\Snapshots\*\
+    - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\User Data\Snapshots\*\
     - C:\Users\*\AppData\{Roaming,Local}\Opera Software\Opera*\
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\Opera Software\Opera*\
     - C:\Users\*\AppData\Local\Packages\TheBrowserCompany.Arc_*\LocalCache\Local\Arc\User Data
   MacOSChromeProfiles:
     - /Users/*/Library/Application Support/*/*/
+    - /Users/*/Library/Application Support/*/*/Snapshots/*/
     - /Users/*/Library/Application Support/*/
+    - /Users/*/Library/Application Support/*/Snapshots/*/
   WindowsFirefoxProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\*\*\Profiles
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\*\Profiles
