@@ -1,5 +1,5 @@
 Name: Safari Browser History
-Author: araesa
+Author: araesa, Reece394
 Description: |
   Parses Safari browsing history from the History.db database.
   Joins history_items and history_visits tables to produce a
@@ -36,7 +36,7 @@ Sources:
        RedirectSource, RedirectDestination, OSPath
     FROM Rows
     WHERE VisitTime > DateAfter AND VisitTime < DateBefore
-      AND (URL, Title) =~ FilterRegex
+      AND (URL, Title, RedirectSource, RedirectDestination) =~ FilterRegex
 
   SQL: |
     SELECT
@@ -49,8 +49,12 @@ Sources:
       hv.origin AS Origin,
       hv.load_successful AS LoadSuccessful,
       hv.http_non_get AS HttpNonGet,
-      hv.redirect_source AS RedirectSource,
-      hv.redirect_destination AS RedirectDestination
+      rs_hi.url AS RedirectSource,
+      rd_hi.url AS RedirectDestination
     FROM history_items hi
     JOIN history_visits hv ON hi.id = hv.history_item
+    LEFT JOIN history_visits rs ON hv.redirect_source = rs.id
+    LEFT JOIN history_items rs_hi ON rs.history_item = rs_hi.id
+    LEFT JOIN history_visits rd ON hv.redirect_destination = rd.id
+    LEFT JOIN history_items rd_hi ON rd.history_item = rd_hi.id
     ORDER BY hv.visit_time ASC
