@@ -1,0 +1,237 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="
+  SQLite Hunter
+  #
+
+This repository maintains the source for the
+Generic.Forensic.SQLiteHunter VQL artifact. This artifact is
+designed to be an efficient and mostly automated artifact to analyze
+and collect SQLite based artifacts from various applications on the
+endpoint.
+The produced artifact is self contained and can be loaded into
+Velociraptor (https://docs.velociraptor.app) to hunt quickly and
+efficiently across a large number of endpoints.
+SQLite has become the de facto standard for storing application data,
+in many types of applications:"><meta name=theme-color media="(prefers-color-scheme: light)" content="#ffffff"><meta name=theme-color media="(prefers-color-scheme: dark)" content="#343a40"><meta name=color-scheme content="light dark"><meta property="og:url" content="http://sqlitehunter.velocidex.com/docs/sqlite_hunter/"><meta property="og:site_name" content="Velociraptor SQLite Hunting"><meta property="og:title" content="Velociraptor SQLite Hunter"><meta property="og:description" content="SQLite Hunter # This repository maintains the source for the Generic.Forensic.SQLiteHunter VQL artifact. This artifact is designed to be an efficient and mostly automated artifact to analyze and collect SQLite based artifacts from various applications on the endpoint.
+The produced artifact is self contained and can be loaded into Velociraptor (https://docs.velociraptor.app) to hunt quickly and efficiently across a large number of endpoints.
+SQLite has become the de facto standard for storing application data, in many types of applications:"><meta property="og:locale" content="en_us"><meta property="og:type" content="website"><title>&lt;span class="icon">
+&lt;i class="fa-solid fa-desktop">&lt;/i>
+&lt;/span>
+Velociraptor SQLite Hunter
+| Velociraptor SQLite Hunting</title><link rel=icon href=/favicon.png><link rel=manifest href=/manifest.json><link rel=canonical href=http://sqlitehunter.velocidex.com/docs/sqlite_hunter/><link rel=stylesheet href=/book.min.f4bc2b0f80cbd784c51fa6123079c0ec4d90946148cb1cc5e0279ca61d81a19d.css integrity="sha256-9LwrD4DL14TFH6YSMHnA7E2QlGFIyxzF4Cecph2BoZ0=" crossorigin=anonymous><link rel=alternate type=application/rss+xml href=http://sqlitehunter.velocidex.com/docs/sqlite_hunter/index.xml title="Velociraptor SQLite Hunting"><script src=/js/jquery-3.3.1.min.js?1703133391></script><link href=https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css?1703133392 rel=stylesheet><link href=/css/theme.css rel=stylesheet><link href=//cdn.datatables.net/2.3.0/css/dataTables.dataTables.min.css rel=stylesheet><script src=//cdn.datatables.net/2.3.0/js/dataTables.min.js></script><link href=//cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css rel=stylesheet><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js integrity="sha512-0UbR6HN0dY8fWN9T7fF658896tsPgnbRREHCNq46J9/JSn8GonXDZmqtTc3qS879GM0zV49b9LPhdc/maKP8Kg==" crossorigin=anonymous referrerpolicy=no-referrer></script><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.css integrity="sha512-56GJrpSgHk6Mc9Fltt+bQKcICJoEpxtvozXPA5n5OT0rfWiqGlJmJCI/vl16kctf/0XbBloh03vl7OF2xFnR8g==" crossorigin=anonymous referrerpolicy=no-referrer><script>$(document).ready(function(){$(".json-renderer").each(function(){try{data=JSON.parse($(this).text()),$(this).jsonViewer(data,{collapsed:!0,rootCollapsable:!1})}catch{}}),$(".datatable").each(function(){new DataTable(this,{paging:!0})}),$(".scroll-datatable").each(function(){let e=$(this),t=new DataTable(this,{paging:!1,scrollY:200})})})</script></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><div class=book-menu-content><nav><h2 class=book-brand><a class="flex align-center" href=/><span>Velociraptor SQLite Hunting</span></a></h2><ul><li><a href=/docs/sqlite_hunter/ class=active><span class=icon><i class="fa-solid fa-desktop"></i>
+</span>Velociraptor SQLite Hunter</a><ul></ul></li><li><a href=/docs/rules/><span class=icon><i class="fa-solid fa-book"></i>
+</span>Rules</a><ul></ul></li><li><a href=/docs/github/><span class=icon><i class="fa-brands fa-github"></i>
+</span>Github</a><ul></ul></li></ul></nav><script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script></div></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/svg/menu.svg class=book-icon alt=Menu></label><h3><span class=icon><i class="fa-solid fa-desktop"></i>
+</span>Velociraptor SQLite Hunter</h3><label for=toc-control><img src=/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><a href=#how-do-we-hunt-for-sqlite-files>How do we hunt for SQLite files?</a></li><li><a href=#how-is-this-repository-organized>How is this repository organized?</a></li><li><a href=#example-development-walk-through>Example Development Walk Through</a><ul><li><a href=#step-1-get-a-sample-file>Step 1: Get a sample file.</a></li><li><a href=#writing-the-definition-file>Writing the definition file.</a></li><li><a href=#testing-the-definition>Testing the definition</a></li><li><a href=#time-boxing-and-filtering>Time boxing and filtering</a></li></ul></li></ul></nav></aside></header><article class="markdown book-article"><h1 id=sqlite-hunter>SQLite Hunter
+<a class=anchor href=#sqlite-hunter>#</a></h1><p>This repository maintains the source for the
+<code>Generic.Forensic.SQLiteHunter</code> VQL artifact. This artifact is
+designed to be an efficient and mostly automated artifact to analyze
+and collect SQLite based artifacts from various applications on the
+endpoint.</p><p>The produced artifact is self contained and can be loaded into
+Velociraptor (<a href=https://docs.velociraptor.app>https://docs.velociraptor.app</a>) to hunt quickly and
+efficiently across a large number of endpoints.</p><p>SQLite has become the de facto standard for storing application data,
+in many types of applications:</p><ul><li>Web Browsers, e.g. <code>Chrome</code>, <code>Firefox</code>, <code>Opera</code>, <code>Edge</code></li><li>Operating Systems</li><li>Various applications, such as <code>iMessage</code>, <code>TCC</code> etc</li></ul><h2 id=how-do-we-hunt-for-sqlite-files>How do we hunt for SQLite files?
+<a class=anchor href=#how-do-we-hunt-for-sqlite-files>#</a></h2><p>Compiling this repository will produce a single artifact called
+<code>Generic.Forensic.SQLiteHunter</code> with multiple sources. Each artifact
+source targets a single aspect of a single application and is applied
+to a single SQLite file.</p><p>Since SQLite files can be used for many different applications we use
+three phases; Collection of SQLite files, Identification of the SQLite
+application based on the file, and finally analysis of the file:</p><ol><li><p>In the first phase we collect prospective SQLite files for the
+desired targets based on glob expressions to quickly locate the
+usual places these are stored. For example, looking for Chrome
+Browser History files typically these are stored in
+<code>C:\Users\*\AppData\{Roaming,Local}\Google\Chrome\User Data</code>.</p><p>By employing targeted glob expressions we can quickly locate
+relevant files. However the user can also provide a generic glob
+expression for us to use other files (e.g. files collected by some
+other means off a different system).</p></li><li><p>Since different applications use SQLite in different ways, we want
+to have specialized treatment for each application type -
+extracting relevant data and potentially enriching it for enhanced
+analysis.</p><p>Looking at the prospective files found in stage 1 we need to
+classify each file to a specific type. Each artifact source targets
+a specific application and SQLite file. In order to identify the
+file the source runs the <code>SQLiteIdentifyQuery</code> on the SQLite file
+(as described below).</p><p>In the common mode we can use the filename itself to quickly
+classify the file this is a shortcut to speed things up. If the
+files could have been renamed, you can specify <code>MatchFilename</code> to
+be false in which case only the <code>SQLiteIdentifyQuery</code> method will be
+used (this will be slower).</p></li><li><p>Once a file is identified as belonging to a particular application,
+the artifact source can run the specified SQL on the file. Since
+pure SQL is very limited in the type of data it can use and it is
+also harder to use, the output is enriched further via a VQL query.</p><p>Being able to apply VQL to the output of the SQL query makes
+crafting the SQL much easier (for example timestamp conversions are
+much easier in VQL than SQL). Additionally the VQL can be used to
+enrich the data from other sources (e.g. <code>GeoIP</code> etc).</p></li></ol><h2 id=how-is-this-repository-organized>How is this repository organized?
+<a class=anchor href=#how-is-this-repository-organized>#</a></h2><p>The main logic is stored in YAML definitions stored in the
+<code>definitions</code> directory:</p><ol><li><p><code>Name</code>: This is the first part of the artifact source name that
+will be produced.</p></li><li><p><code>Author</code>,<code>Email</code>, <code>Reference</code>: Self explanatory.</p></li><li><p><code>SQLiteIdentifyQuery</code> and <code>SQLiteIdentifyValue</code>: To test if the SQLite
+file is one that should be targeted by this definition,
+Velociraptor will run the <code>SQLiteIdentifyQuery</code> which should produce
+one row and one column called <code>Check</code>. The value in this column
+will be checked against <code>SQLiteIdentifyValue</code> to determine if the
+file qualifies for this map.</p></li><li><p><code>Categories</code>: A list of keywords that can be used to limit the
+collection to only certain categories. Note that some categories
+may overlap (e.g. Chrome and Browser).</p></li><li><p><code>FilenameRegex</code>: A regex that can be used to the filename to shortcut
+identification of the file when <code>MatchFilename</code> is enabled. NOTE
+that we do this in addition to the <code>SQLiteIdentifyQuery</code> so it is
+only an optimization to speed up processing.</p></li><li><p><code>Globs</code>: A list of glob expressions. This list can be interpolated
+with the globs in <code>config.yaml</code>.</p></li><li><p><code>Sources</code>: This is a list of source definitions that will be
+converted to an artifact source. Each of these may contain:</p><ul><li><code>Name</code>: If more than one source is specified in a definition, they
+can have a name. This name will be used together with the main
+definition source to build the Artifact source name in the final
+artifact.</li><li><code>VQL</code>: This is a VQL query that will be used to build the artifact
+source. The query must end with <code>SELECT .... FROM Rows</code>.</li><li><code>SQL</code>: This is the SQL query that will be applied to the SQLite
+file. Generally it is easier to apply enrichment, processing etc
+in the VQL so the SQL query can be much simpler.</li><li><code>SQLiteIdentifyQuery</code> and <code>SQLiteIdentifyValue</code> - if these appear
+within the source they will override the definition. This allows
+for different sources to be written for different versions of the
+SQLite tables.</li></ul></li></ol><h2 id=example-development-walk-through>Example Development Walk Through
+<a class=anchor href=#example-development-walk-through>#</a></h2><p>In the following section I will describe how to add new definitions to
+the SQLiteHunter artifact with this repository. Because SQLiteHunter
+is a combined artifact that operates on all targets we need to compile
+the artifact each time we want to use it.</p><p>The general process for development is:</p><ol><li>Obtain a test file (e.g. a SQLite file from a target system or
+similar). Store this file in the test_files directory somewhere.</li><li>Write a definitions file in the definitions directory (more on that later).</li><li>Compile the artifact using <code>make compile</code> or just from the top level</li></ol><pre tabindex=0><code>./sqlitehunter_compiler &gt; output/SQLiteHunter.yaml
+</code></pre><ol start=4><li>Now simply collect the new target using Velociraptor directly.</li></ol><p>Lets work through an example. For this example I will write the <code>Edge Browser Navigation History</code> target from the SQLECmd project.</p><h3 id=step-1-get-a-sample-file>Step 1: Get a sample file.
+<a class=anchor href=#step-1-get-a-sample-file>#</a></h3><p>This targets the file <code>C:\Users\User\AppData\Local\Microsoft\Edge\User Data\Default\WebAssistDatabase</code> so I copy this file into the
+test_files directory. It is highly recommended to share a sample file
+in your PR in order for automated tests to be built.</p><h3 id=writing-the-definition-file>Writing the definition file.
+<a class=anchor href=#writing-the-definition-file>#</a></h3><p>I will start off creating a new definition file in the definitions
+directory: <code>EdgeBrowser_NavigationHistory.yaml</code></p><p>The file starts off with the common fields:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>Name</span>: <span style=color:#ae81ff>Edge Browser Navigation History</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>Author</span>: <span style=color:#ae81ff>Suyash Tripathi</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>Email</span>: <span style=color:#ae81ff>suyash.tripathi@cybercx.com.au</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>Reference</span>: <span style=color:#ae81ff>https://github.com/EricZimmerman/SQLECmd</span>
+</span></span></code></pre></div><p>Next I will add the <code>SQLiteIdentifyQuery</code> that Velociraptor will run
+to determine if this is in fact a <code>WebAssistDatabase</code>. A good check
+(which is used in the original SQLECmd map) is to check if the file
+contains a <code>navigation_history</code> table.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>SQLiteIdentifyQuery</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  SELECT count(*) AS `Check`
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  FROM sqlite_master
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  WHERE type=&#39;table&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    AND name=&#39;navigation_history&#39;;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>SQLiteIdentifyValue</span>: <span style=color:#ae81ff>1</span>
+</span></span></code></pre></div><p>The query is expected to return 1 row.</p><p>Next I will add a new category for this definition. I will give it the
+Test category for now so I can isolate just this definition during
+development. Normally SQLiteHunter is designed to operate on many
+targets automatically which makes it a bit harder to use in
+development. This way we can just run a single target using the
+<code>--args All=N --args Test=Y</code> arguments.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>Categories</span>:
+</span></span><span style=display:flex><span>  - <span style=color:#ae81ff>Edge</span>
+</span></span><span style=display:flex><span>  - <span style=color:#ae81ff>Test</span>
+</span></span><span style=display:flex><span>  - <span style=color:#ae81ff>Browser</span>
+</span></span></code></pre></div><p>Next we set the file matching filters. These allow Velociraptor to
+identify potential files by filename which is a lot faster than having
+to read and test every file. Usually the filename is expected to be
+<code>WebAssistDatabase</code> and it lives in the Edge profile directories.</p><p>The Edge browser is also available on MacOS so we need to add globs
+for that.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>FilenameRegex</span>: <span style=color:#e6db74>&#34;WebAssistDatabase&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>Globs</span>:
+</span></span><span style=display:flex><span>  - <span style=color:#e6db74>&#34;{{WindowsChromeProfiles}}/*/WebAssistDatabase&#34;</span>
+</span></span><span style=display:flex><span>  - <span style=color:#e6db74>&#34;{{MacOSChromeProfiles}}/*/WebAssistDatabase&#34;</span>
+</span></span></code></pre></div><p>Now come the interesting part - we need to add the actual Source for
+extracting the data. The SQLiteHunter artifact is structured in a two
+pass form - first the SQL is run on the SQLite file, then the
+resulting rows are passed through a VQL query which is able to
+enrich/post process the data.</p><p>For the moment we just want to add an SQL query that will run on the
+SQLite file and simply pass the VQL through unchanged.</p><p>A good start is the SQL from the SQLECmd repository:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>Sources</span>:
+</span></span><span style=display:flex><span>- <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Navigation History</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>VQL</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    SELECT * FROM Rows</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>SQL</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    SELECT
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.id AS ID,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      datetime(navigation_history.last_visited_time, &#39;unixepoch&#39;) AS &#39;Last Visited Time&#39;,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.title AS Title,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.url AS URL,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.num_visits AS VisitCount
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    FROM
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    ORDER BY
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.last_visited_time ASC;</span>
+</span></span></code></pre></div><p>The VQL part is a simple pass-through query while the SQL part is take
+directly from the SQLECmd project.</p><h3 id=testing-the-definition>Testing the definition
+<a class=anchor href=#testing-the-definition>#</a></h3><p>We are now ready to test the definition. First compile it with <code>make compile</code>, next test with Velociraptor (from the top level directory):</p><pre tabindex=0><code>make compile  &amp;&amp; ./velociraptor-v0.7.1-linux-amd64 --definitions ./output/ -v artifacts collect Generic.Forensic.SQLiteHunter --args CustomGlob=`pwd`/test_files/Edge/* --args All=N --args Test=Y
+</code></pre><p>If you do not want to build the <code>sqlitehunter_compiler</code> you can just
+download it from the Releases page of this repository and place it at
+the top level of the repository - otherwise you can build it from
+source using just <code>make</code> at the top level.</p><p>This command:</p><ol><li>Uses the Velociraptor binary appropriate for the platform you are
+running on</li><li>Adds the <code>--definitions</code> to get Velociraptor to automatically load
+the new artifact (overriding the built in version).</li><li>Uses the <code>-v</code> flag to have detailed logging - you should look for
+helpful messages or errors during development.</li><li>Adds the <code>CustomGlob</code> parameter to force the <code>SQLiteHunter</code>
+artifact to search the <code>test_files</code> directory instead of the
+system. Leaving this out will force it to search the current system
+which may be useful as well.</li><li>Finally we turn all <code>All</code> processing and focus on collecting only
+the <code>Test</code> category. This can be omitted if the <code>CustomGlob</code> is
+very specific so other targets are not triggered anyway. The
+purpose of this is to just speed up the development cycle.</li></ol><p>Let&rsquo;s look at some of the output on my system:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z Globs for category Test is /home/mic/projects/SQLiteHunter/test_files/Edge/*
+</span></span><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z Starting collection of Generic.Forensic.SQLiteHunter/AllFiles
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z sqlite: Will try to copy /home/mic/projects/SQLiteHunter/test_files/Edge/WebAssistDatabase to temp file
+</span></span><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z sqlite: Using local copy /tmp/tmp210798471.sqlite
+</span></span><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z /home/mic/projects/SQLiteHunter/test_files/Edge/WebAssistDatabase was identified as Edge Browser Navigation History_Navigation History
+</span></span><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z sqlite: removing tempfile /tmp/tmp210798471.sqlite
+</span></span><span style=display:flex><span>[INFO] 2023-12-08T23:10:29Z /home/mic/projects/SQLiteHunter/test_files/Edge/WebAssistDatabase matched by filename WebAssistDatabase
+</span></span><span style=display:flex><span>[
+</span></span><span style=display:flex><span> {
+</span></span><span style=display:flex><span>  &#34;OSPath&#34;: &#34;/home/mic/projects/SQLiteHunter/test_files/Edge/WebAssistDatabase&#34;
+</span></span><span style=display:flex><span> },
+</span></span><span style=display:flex><span> {
+</span></span><span style=display:flex><span>  &#34;ID&#34;: 0,
+</span></span><span style=display:flex><span>  &#34;Last Visited Time&#34;: &#34;2023-08-21 02:13:07&#34;,
+</span></span><span style=display:flex><span>  &#34;Title&#34;: &#34;Japanese language - Wikipedia&#34;,
+</span></span><span style=display:flex><span>  &#34;URL&#34;: &#34;https://en.wikipedia.org/wiki/Japanese_language&#34;,
+</span></span><span style=display:flex><span>  &#34;VisitCount&#34;: 1,
+</span></span><span style=display:flex><span>  &#34;OSPath&#34;: &#34;/home/mic/projects/SQLiteHunter/test_files/Edge/WebAssistDatabase&#34;
+</span></span><span style=display:flex><span> },
+</span></span></code></pre></div><p>The first logged message shows that selecting the Test category
+results in the <code>CustomGlob</code> being used (if <code>CustomGlob</code> is not specified
+it will resolve to the globs given in the definition file.</p><p>Next we see the SQLite file being copied to a temp file (this is done
+to protect the integrity of the SQLite files from changes due to
+journaling etc and to avoid locked SQLite files from generating an
+error).</p><p>Next we see the file is identified as an
+<code>Edge Browser Navigation History</code> file based on the <code>SQLiteIdentifyQuery</code> query.</p><p>Then we see the rows generated by the SQLite file.</p><p>The output looks almost right but there is a problem - the <code>Last Visited Time</code> timestamp is not formatted correctly as an ISO timestamp
+(there is a missing timezone specifier). This is because formatting
+times was done using the SQL query but this does not generate correct
+timestamps.</p><p>It is generally better to use VQL to format times correctly. Lets fix
+this by moving the timestamp formatting code from SQL to VQL:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>Sources</span>:
+</span></span><span style=display:flex><span>- <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Navigation History</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>VQL</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    SELECT ID,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       timestamp(epoch=`Last Visited Time`) AS `Last Visited Time`,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       Title, URL, VisitCount
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    FROM Rows</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>SQL</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    SELECT
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.id AS ID,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.last_visited_time AS &#39;Last Visited Time&#39;,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.title AS Title,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.url AS URL,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.num_visits AS VisitCount
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    FROM
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    ORDER BY
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      navigation_history.last_visited_time ASC;</span>
+</span></span></code></pre></div><p>Now the output is more correct and properly formatted:</p><pre tabindex=0><code>{
+  &#34;ID&#34;: 0,
+  &#34;Last Visited Time&#34;: &#34;2023-08-27T08:02:34Z&#34;,
+  &#34;Title&#34;: &#34;Microsoft Edge | What&#39;s New&#34;,
+  &#34;URL&#34;: &#34;https://www.microsoft.com/en-us/edge/update/116?form=MT00GR\u0026channel=stable\u0026version=116.0.1938.54&#34;,
+  &#34;VisitCount&#34;: 1
+},
+</code></pre><h3 id=time-boxing-and-filtering>Time boxing and filtering
+<a class=anchor href=#time-boxing-and-filtering>#</a></h3><p>While this works pretty well, we lack the ability to control the
+output of the artifact based on filtering or time boxing. The user may
+specify the following parameters: <code>DateAfter</code>, <code>DateBefore</code> and
+<code>FilterRegex</code> to narrow output in the artifact.</p><p>Each source interprets these constraints in the way that makes sense
+to them. In this case we should implement time boxing based on the
+<code>Last Visit Time</code> and allow the user to filter by Title and URL:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>Sources</span>:
+</span></span><span style=display:flex><span>- <span style=color:#f92672>name</span>: <span style=color:#ae81ff>Navigation History</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>VQL</span>: |<span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    SELECT ID,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       timestamp(epoch=`Last Visited Time`) AS `Last Visited Time`,
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       Title, URL, VisitCount
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    FROM Rows
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    WHERE `Last Visited Time` &gt; DateAfter
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      AND `Last Visited Time` &lt; DateBefore
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      AND (Title, URL) =~ FilterRegex</span>
+</span></span></code></pre></div><p>You can verify these filters work by specifying the parameters on the
+command line:</p><pre tabindex=0><code>make compile  &amp;&amp; ./velociraptor-v0.7.1-linux-amd64 --definitions ./output/ -v artifacts collect Generic.Forensic.SQLiteHunter --args CustomGlob=`pwd`/test_files/Edge/* --args All=N --args Test=Y --args FilterRegex=Audio
+</code></pre></article><footer class=book-footer><div class="flex flex-wrap justify-between"></div><script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script></footer><div class=book-comments></div><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><div class=book-toc-content><nav id=TableOfContents><ul><li><a href=#how-do-we-hunt-for-sqlite-files>How do we hunt for SQLite files?</a></li><li><a href=#how-is-this-repository-organized>How is this repository organized?</a></li><li><a href=#example-development-walk-through>Example Development Walk Through</a><ul><li><a href=#step-1-get-a-sample-file>Step 1: Get a sample file.</a></li><li><a href=#writing-the-definition-file>Writing the definition file.</a></li><li><a href=#testing-the-definition>Testing the definition</a></li><li><a href=#time-boxing-and-filtering>Time boxing and filtering</a></li></ul></li></ul></nav></div></aside></main></body></html>
