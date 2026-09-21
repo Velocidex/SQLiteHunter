@@ -29,7 +29,7 @@ Sources:
       `7`='TRANSITION_DOWNLOAD', `8`='TRANSITION_FRAMED_LINK', `9`='TRANSITION_RELOAD')
 
   VQL: |
-    SELECT VisitID, FromVisitID,
+    SELECT VisitID, FromVisitID, PlaceID,
        timestamp(epoch= visit_date) AS VisitDate,
        timestamp(epoch= last_visit_date) AS LastVisitDate,
        VisitCount, URL, Title,
@@ -45,6 +45,7 @@ Sources:
     SELECT
       moz_historyvisits.id AS VisitID,
       moz_historyvisits.from_visit AS FromVisitID,
+      moz_historyvisits.place_id AS PlaceID,
       moz_historyvisits.visit_date,
       moz_places.last_visit_date,
       moz_places.visit_count AS VisitCount,

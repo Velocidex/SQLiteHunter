@@ -1,9 +1,13 @@
 Globs:
   LinuxChromeProfiles:
     - /home/*/.config/google-chrome
+    - /root/.config/google-chrome
     - /home/*/.config/chrome-remote-desktop/chrome-profile
+    - /root/.config/chrome-remote-desktop/chrome-profile
     - /home/*/.config/chromium
+    - /root/.config/chromium
     - /home/*/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
+    - /root/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\*\*\User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\*\User Data
@@ -30,8 +34,12 @@ Globs:
     - C:\Users\*\AppData\{Roaming,Local}\K-Meleon
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\K-Meleon
   LinuxFirefoxProfiles:
-    - /home/*/.mozilla/firefox/*.default*
-    - /home/*/snap/firefox/common/.mozilla/firefox/*.default*
+    - /home/*/.mozilla/firefox/*
+    - /root/.mozilla/firefox/*
+    - /home/*/snap/firefox/common/.mozilla/firefox/*
+    - /root/snap/firefox/common/.mozilla/firefox/*
+    - /home/*/.config/mozilla/firefox/*
+    - /root/.config/mozilla/firefox/*
   MacOSFirefoxProfiles:
     - /Users/*/Library/Application Support/*/Profiles
     - /Users/*/Library/Application Support/TorBrowser-Data/Browser
