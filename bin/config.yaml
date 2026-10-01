@@ -4,10 +4,12 @@ Globs:
     - /root/.config/google-chrome
     - /home/*/.config/chrome-remote-desktop/chrome-profile
     - /root/.config/chrome-remote-desktop/chrome-profile
-    - /home/*/.config/chromium
-    - /root/.config/chromium
+    - /home/*/{snap/chromium/common,.config}/chromium
+    - /root/{snap/chromium/common,.config}/chromium
     - /home/*/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
     - /root/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
+    - /home/*/.config/microsoft-edge*/
+    - /root/.config/microsoft-edge*/
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\*\*\User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\*\User Data
