@@ -1,6 +1,7 @@
 package testing
 
 import (
+	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,7 +19,7 @@ import (
 )
 
 const (
-	VelociraptorUrl        = "https://github.com/Velocidex/velociraptor/releases/download/v0.74/velociraptor-v0.74.5-linux-amd64-musl"
+	VelociraptorUrl        = "https://github.com/Velocidex/velociraptor/releases/download/v0.77.3/velociraptor-v0.77.3-linux-amd64-musl.gz"
 	VelociraptorBinaryPath = "./velociraptor.bin"
 )
 
@@ -48,7 +49,10 @@ func (self *SQLiteHunterTestSuite) findAndPrepareBinary() {
 		defer out.Close()
 
 		// Write the body to file
-		_, err = io.Copy(out, resp.Body)
+		gz, err := gzip.NewReader(resp.Body)
+		assert.NoError(t, err)
+
+		_, err = io.Copy(out, gz)
 		assert.NoError(t, err)
 	}
 }

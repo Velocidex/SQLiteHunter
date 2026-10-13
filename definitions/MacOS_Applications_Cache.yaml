@@ -23,7 +23,10 @@ Globs:
   - "/Users/*/Library/Caches/*/Cache.db"
 
 Sources:
-- VQL: |
+- Preamble: |
+    // linter: symbol_mask_warn:version
+
+  VQL: |
     SELECT
        time_stamp AS Timestamp,
        OSPath.Base AS Application,

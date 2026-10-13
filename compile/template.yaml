@@ -196,7 +196,7 @@ sources:
   {{ $action = "ApplyFile" }}
 {{ end -}}
 
-- name: {{ Quote $v.Key }}
+- name: {{ Sanitize $v.Key }}
   notebook:
     - type: none
       output: "{{ $v.Key }} - Recalculate to view results"

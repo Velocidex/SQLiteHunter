@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/Velocidex/SQLiteHunter/api"
+	"github.com/Velocidex/SQLiteHunter/definitions"
 	"github.com/Velocidex/ordereddict"
 
 	_ "embed"
@@ -42,6 +43,7 @@ func (self *Artifact) Yaml() (string, error) {
 			"Quote": func(in interface{}) interface{} {
 				return fmt.Sprintf("%q", in)
 			},
+			"Sanitize": definitions.SanitizeName,
 			"DictRange": func(in interface{}) interface{} {
 				var res []dictValue
 
