@@ -12,14 +12,14 @@ Output: [
   "Site": "https://docs.velociraptor.app:443,*",
   "LastModified": "2024-01-22T04:19:19Z",
   "LastEngagementTime": "2024-01-21T20:10:29Z",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Site Engagements",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_Site_Engagements",
   "OSPath": "Preferences"
  },
  {
   "Site": "https://github.com:443,*",
   "LastModified": "2024-01-22T04:19:19Z",
   "LastEngagementTime": "2024-01-21T20:17:51Z",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Site Engagements",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_Site_Engagements",
   "OSPath": "Preferences"
  },
  {
@@ -30,7 +30,7 @@ Output: [
    "CouldShowBannerEvents": "2024-01-21T14:33:10Z",
    "LastShown": "2024-01-21T14:32:36Z"
   },
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_App_Banners",
   "OSPath": "Preferences"
  },
  {
@@ -41,7 +41,7 @@ Output: [
    "CouldShowBannerEvents": "2024-01-23T01:36:02Z",
    "LastShown": "2024-01-23T01:35:54Z"
   },
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_App_Banners",
   "OSPath": "Preferences"
  },
  {
@@ -52,7 +52,7 @@ Output: [
    "CouldShowBannerEvents": "2024-01-21T14:48:57Z",
    "LastShown": "2024-01-21T14:48:23Z"
   },
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_App_Banners",
   "OSPath": "Preferences"
  },
  {
@@ -63,14 +63,14 @@ Output: [
    "CouldShowBannerEvents": "2024-01-21T14:37:03Z",
    "LastShown": "2024-01-21T14:36:56Z"
   },
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_App Banners",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_App_Banners",
   "OSPath": "Preferences"
  },
  {
   "Site": "https://appuals.com:443,*",
   "LastModified": "2019-10-14T06:39:30Z",
   "Setting": "Block",
-  "_Source": "Generic.Forensic.SQLiteHunter/Chromium Browser Notifications_Notification Preferences",
+  "_Source": "Generic.Forensic.SQLiteHunter/Chromium_Browser_Notifications_Notification_Preferences",
   "OSPath": "Preferences"
  }
 ]
