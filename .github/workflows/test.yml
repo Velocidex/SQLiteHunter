@@ -20,7 +20,7 @@ jobs:
       with:
         repository: velocidex/velociraptor
         tag: v0.77.3
-        fileName: "velociraptor-v0.77.3-linux-amd64-musl"
+        fileName: "velociraptor-v0.77.3-linux-amd64-musl.gz"
         out-file-path: tests
 
     - name: Build artifacts
@@ -29,7 +29,8 @@ jobs:
 
     - name: Run Velociraptor
       run: |
-        mv ${{ fromJson(steps.velociraptor.outputs.downloaded_files)[0]}} ./tests/velociraptor.bin
+        mv ${{ fromJson(steps.velociraptor.outputs.downloaded_files)[0]}} ./tests/velociraptor.bin.gz
+        gunzip ./tests/velociraptor.bin.gz
         chmod +x ./tests/velociraptor.bin
         ls -l ./output/
         ./tests/velociraptor.bin artifacts verify --builtin -v ./output/*.yaml
