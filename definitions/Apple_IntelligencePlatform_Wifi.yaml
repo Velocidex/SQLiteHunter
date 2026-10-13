@@ -21,6 +21,8 @@ SQLiteIdentifyValue: 1
 
 Sources:
   - name: Wifi
+    Preamble: |
+      // linter: symbol_mask_warn:timestamp
     SQL: |
       SELECT behaviorType, behaviorIdentifier, timestamp
       FROM wifiContextEvents ORDER BY timestamp
