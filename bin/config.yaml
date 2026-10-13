@@ -10,6 +10,8 @@ Globs:
     - /root/{snap/brave/*/,}.config/BraveSoftware/Brave-Browser
     - /home/*/.config/microsoft-edge*/
     - /root/.config/microsoft-edge*/
+    - /home/*/.config/vivaldi*/
+    - /root/.config/vivaldi*/
   WindowsChromeProfiles:
     - C:\Users\*\AppData\{Roaming,Local}\*\*\User Data
     - C:\Windows\{System32,SysWOW64}\config\systemprofile\AppData\{Roaming,Local}\*\*\User Data

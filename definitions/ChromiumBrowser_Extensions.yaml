@@ -2,6 +2,11 @@ Name: Chromium Browser Extensions
 Description: |
   Parses all installed chromium extensions.
 
+  Manifest V3 extensions list the sites they can read or change in
+  `host_permissions` rather than `permissions`, so both are reported.
+  `ContentScriptMatches` lists the sites where the extension injects
+  its own scripts.
+
 Author: Mike Cohen
 Categories:
   - Chrome
@@ -9,9 +14,9 @@ Categories:
 
 FilenameRegex: "manifest.json"
 Globs:
-  - "{{LinuxChromeProfiles}}/*/Extensions/**/manifest.json"
-  - "{{WindowsChromeProfiles}}/*/Extensions/**/manifest.json"
-  - "{{MacOSChromeProfiles}}/*/Extensions/**/manifest.json"
+  - "{{LinuxChromeProfiles}}/*/Extensions/*/*/manifest.json"
+  - "{{WindowsChromeProfiles}}/*/Extensions/*/*/manifest.json"
+  - "{{MacOSChromeProfiles}}/*/Extensions/*/*/manifest.json"
 
 Sources:
 - Preamble: |
@@ -24,20 +29,39 @@ Sources:
     LET ManifestData = SELECT OSPath, parse_json(data=read_file(filename=OSPath)) AS Manifest
     FROM Rows
 
+    -- Message names are case insensitive so lower case the keys to
+    -- match ResolveName()
+    LET LowerKeys(Item) = to_dict(item={
+       SELECT lowcase(string=_key) AS _key, _value FROM items(item=Item)
+    })
+
     -- Find the Locale file to help with.
     LET LocaleData = SELECT *, if(condition=Manifest.default_locale, else=dict(),
-         then=parse_json(data=read_file(
-            filename=OSPath.Dirname + "_locales" + Manifest.default_locale + "messages.json"))) AS Locale
+         then=LowerKeys(Item=parse_json(data=read_file(
+            filename=OSPath.Dirname + "_locales" + Manifest.default_locale + "messages.json")))) AS Locale
     FROM ManifestData
 
     LET GetIcon(Manifest) = Manifest.icons.`128` || Manifest.icons.`64` || Manifest.icons.`32` || Manifest.icons.`16`
 
+    -- Flatten the matches of all content scripts into one list of unique sites.
+    LET ContentScriptMatches(Manifest) = SELECT * FROM foreach(
+       row=Manifest.content_scripts,
+       query={ SELECT _value FROM foreach(row=matches) })
+       GROUP BY _value
+
   VQL: |
-    SELECT OSPath, Manifest.author.email AS Email,
+    SELECT OSPath,
+      -- Manifests are stored in Extensions/<ID>/<Version>/
+      OSPath.Components[-3] AS ID,
+      OSPath.Components[-2] AS Version,
+      Manifest.author.email AS Email,
       ResolveName(Message = Manifest.name, Locale=Locale) AS name,
       ResolveName(Message = Manifest.description, Locale=Locale) AS description,
+      Manifest.manifest_version AS ManifestVersion,
       Manifest.oauth2.scopes as Scopes,
       Manifest.permissions as Permissions,
+      Manifest.host_permissions AS HostPermissions,
+      ContentScriptMatches(Manifest=Manifest)._value AS ContentScriptMatches,
       Manifest.key as Key, if(condition=GetIcon(Manifest=Manifest),
                 then=upload(file=OSPath.Dirname + GetIcon(Manifest=Manifest))) AS Image,
       Manifest AS _Manifest
