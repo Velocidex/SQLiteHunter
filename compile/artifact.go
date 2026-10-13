@@ -6,12 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"sort"
 	"strings"
 	"text/template"
 
 	"github.com/Velocidex/SQLiteHunter/api"
+	"github.com/Velocidex/SQLiteHunter/definitions"
 	"github.com/Velocidex/ordereddict"
 
 	_ "embed"
@@ -19,9 +19,6 @@ import (
 
 //go:embed template.yaml
 var artifact_template string
-
-// Artifact names are more strict now so we need to clean them up.
-var artifactNameRegex = regexp.MustCompile("[^a-zA-Z0-9_.]")
 
 type Expansion struct {
 	ArtifactName   string
@@ -46,9 +43,7 @@ func (self *Artifact) Yaml() (string, error) {
 			"Quote": func(in interface{}) interface{} {
 				return fmt.Sprintf("%q", in)
 			},
-			"Sanitize": func(name string) string {
-				return artifactNameRegex.ReplaceAllLiteralString(name, "_")
-			},
+			"Sanitize": definitions.SanitizeName,
 			"DictRange": func(in interface{}) interface{} {
 				var res []dictValue
 
