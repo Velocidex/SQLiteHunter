@@ -40,7 +40,7 @@ Sources:
         EndTime,
         Payload,
         OSPath[1] AS User,
-        base64decode(string=parse_json_array(data=ClipboardPayload)[0].content) AS ClipboardPayload,
+        base64decode(string=parse_json_array(data=ClipboardPayload || '[]')[0].content) AS ClipboardPayload,
         OSPath AS Path,
         Mtime
       FROM Rows
