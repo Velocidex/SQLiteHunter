@@ -19,7 +19,7 @@ jobs:
       id: velociraptor
       with:
         repository: velocidex/velociraptor
-        tag: v0.77
+        tag: v0.77.3
         fileName: "velociraptor-v0.77.3-linux-amd64-musl"
         out-file-path: tests
 

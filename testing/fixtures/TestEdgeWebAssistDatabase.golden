@@ -1,6 +1,6 @@
 {
   "FilterRegex=Audio": [
-    "[][",
+    "[",
     " {",
     "  \"_Source\": \"Generic.Forensic.SQLiteHunter/AllFiles\",",
     " },",

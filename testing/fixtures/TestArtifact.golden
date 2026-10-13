@@ -1,6 +1,6 @@
 {
   "All Records": [
-    "[][",
+    "[",
     " {",
     "  \"LastVisitDate\": \"2020-06-27T09:29:54.51375Z\",",
     "  \"URL\": \"https://www.mozilla.org/privacy/firefox/\",",
@@ -28,7 +28,7 @@
     "]"
   ],
   "After 2021-02-20T08:55:10.488Z should be only 2021-02-21T08:55:10.488Z": [
-    "[][",
+    "[",
     " {",
     "  \"LastVisitDate\": \"2021-02-21T08:55:10.488Z\",",
     "  \"URL\": \"https://www.mozilla.org/en-US/privacy/firefox/\",",
@@ -38,7 +38,7 @@
     "]"
   ],
   "DateBefore=2020-06-27T09:30:00Z should be only 2020-06-27T09:29:54.51375Z": [
-    "[][",
+    "[",
     " {",
     "  \"LastVisitDate\": \"2020-06-27T09:29:54.51375Z\",",
     "  \"URL\": \"https://www.mozilla.org/privacy/firefox/\",",
@@ -48,7 +48,7 @@
     "]"
   ],
   "FilterRegex=Firefox Developer Edition": [
-    "[][",
+    "[",
     " {",
     "  \"LastVisitDate\": \"2020-06-30T05:53:37.171Z\",",
     "  \"URL\": \"https://www.mozilla.org/en-US/firefox/78.0a2/firstrun/\",",
