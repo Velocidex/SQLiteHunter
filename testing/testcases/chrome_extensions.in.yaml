@@ -1,0 +1,11 @@
+Queries:
+  # One Manifest V3 extension with a default locale and one Manifest
+  # V2 extension.
+  - |
+    SELECT ID, Version, name, description, ManifestVersion,
+           Permissions, HostPermissions, ContentScriptMatches
+    FROM Artifact.Generic.Forensic.SQLiteHunter(
+       MatchFilename=TRUE, All=FALSE, Chrome=TRUE,
+       CustomGlob=testFiles + '/Chrome/Extensions/*/*/manifest.json')
+    WHERE _Source =~ "Chromium Browser Extensions"
+    ORDER BY ID
