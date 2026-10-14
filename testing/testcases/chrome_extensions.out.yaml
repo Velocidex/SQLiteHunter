@@ -5,7 +5,7 @@ Query: SELECT ID, Version, name, description, ManifestVersion,
 FROM Artifact.Generic.Forensic.SQLiteHunter(
    MatchFilename=TRUE, All=FALSE, Chrome=TRUE,
    CustomGlob=testFiles + '/Chrome/Extensions/*/*/manifest.json')
-WHERE _Source =~ "Chromium Browser Extensions"
+WHERE _Source =~ "Chromium_Browser_Extensions"
 ORDER BY ID
 
 Output: [

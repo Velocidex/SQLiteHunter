@@ -157,8 +157,8 @@ sources:
        /*
        # Results From %v
        */
-       SELECT * FROM source(source=%q)
-       ''', args=[Source, Source]),
+       SELECT * FROM source(source=%q, artifact=%q)
+       ''', args=[Source, Source, split(string=ArtifactName, sep='/')[0]]),
        output=format(format='''
        <i>Recalculate</i> to show Results from <b>%v</b> with <b>%v</b> rows
        ''', args=[Source, Records])) AS NotebookModification
