@@ -3,3 +3,5 @@ sqlitehunter_compiler*
 datastore
 output/*.zip
 output/*.yaml
+
+docs/resources/_gen/
