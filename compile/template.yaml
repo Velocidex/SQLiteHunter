@@ -145,12 +145,23 @@ sources:
        // data.  DO NOT recalculate this cell - each time new cells
        // will be added. Instead delete the notebook and allow
        // Velociraptor to recreate the entire notebook.
-       LET ArtifactsWithResults <=
+       LET ArtifactsWithResults <= if(condition=version(plugin="enumerate_flow") > 2,
+       then={
+         SELECT
+           Data.VFSPath.Components[3] AS Artifact,
+           Data.VFSPath.Components[-1] AS Source,
+           Data.Rows AS Rows,
+           humanize(bytes=Data.Size) AS Size,
+           humanize(bytes=Data.CompressedSize) AS CompressedSize
+        FROM enumerate_flow(client_id=ClientId, flow_id=FlowId)
+        WHERE Type = "Result" AND Rows > 0
+       }, else={
          SELECT pathspec(accessor="fs", parse=Data.VFSPath)[4] AS Artifact ,
            pathspec(accessor="fs", parse=Data.VFSPath)[-1][:-5] AS Source ,
-           stat(accessor="fs", filename=Data.VFSPath + ".index").Size / 8 AS Records
+           stat(accessor="fs", filename=Data.VFSPath + ".index").Size / 8 AS Rows
          FROM enumerate_flow(client_id=ClientId, flow_id=FlowId)
-         WHERE Type =~ "Result" AND Records > 0
+         WHERE Type =~ "Result" AND Rows > 0
+       })
 
        LET _ <= SELECT notebook_update_cell(notebook_id=NotebookId, type="vql",
        input=format(format='''
@@ -161,13 +172,13 @@ sources:
        ''', args=[Source, Source, split(string=ArtifactName, sep='/')[0]]),
        output=format(format='''
        <i>Recalculate</i> to show Results from <b>%v</b> with <b>%v</b> rows
-       ''', args=[Source, Records])) AS NotebookModification
+       ''', args=[Source, Rows])) AS NotebookModification
        FROM ArtifactsWithResults
 
        /*
        # Results Overview
        */
-       SELECT Source, Records FROM ArtifactsWithResults ORDER BY Source
+       SELECT Source, Rows FROM ArtifactsWithResults ORDER BY Source
 
   query: |
     LET category_regex <= join(sep="|", array=all_categories._value)
